@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.utils;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 public class AutoMotor {
@@ -11,13 +12,18 @@ public class AutoMotor {
         NORMAL,
         TRIGGER_NORMAL;
     }
-    private STATES STATE;
+    public STATES STATE;
+    public boolean reverse = false;
     public DcMotorEx motor;
     private int position, targetPosition, velocity;
     private double power;
 
-    public AutoMotor(DcMotorEx m){
+    public AutoMotor(DcMotorEx m, boolean r){
         motor = m;
+        reverse = r;
+
+        if(r) motor.setDirection(DcMotorSimple.Direction.REVERSE);
+        else motor.setDirection(DcMotorSimple.Direction.FORWARD);
 
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -29,9 +35,11 @@ public class AutoMotor {
 
 
         motor.setTargetPosition(0);
-        motor.setPower(1);
 
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        motor.setPower(1);
+
 
         STATE = STATES.RESET_0;
 
@@ -47,7 +55,6 @@ public class AutoMotor {
             case NORMAL:
                 motor.setTargetPosition(targetPosition);
                 motor.setPower(power);
-                motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 break;
             case TRIGGER_RESET:
                 motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

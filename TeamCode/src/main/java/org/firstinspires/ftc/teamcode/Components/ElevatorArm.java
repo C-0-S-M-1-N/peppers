@@ -6,27 +6,29 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Part;
+import org.opencv.core.Mat;
 
 @Config
 public class ElevatorArm implements Part {
     public enum STATES{
-        TO_BACKDROP,
-        TO_FEED,
-        STATIC
+        IDLE,
+        DOWN,
+        UP
     }
     public STATES STATE;
     public static boolean InWork = true;
-    public static boolean ReverseVirtual1 = false, ReverseVirtual2 = false;
+    public static boolean ReverseVirtual1 = false, ReverseVirtual2 = true;
     private Telemetry telemetry;
     private Servo virtual1, virtual2;
+    private int sign = 0;
 
-    private static double   toBackdrop = 0,
+    private static double   toBackdrop = 0.95,
                             toFeed = 0,
-                            position = 0,
-                            staticPos = 0,
-                            inUsePosition;
+                            targetPosition = 0,
+                            staticPos = 0.23,
+                            currentPosition;
 
-    private void setRevesed(){
+    private void setReversed(){
         if(ReverseVirtual1) virtual1.setDirection(Servo.Direction.REVERSE);
         else virtual1.setDirection(Servo.Direction.FORWARD);
 
@@ -39,7 +41,7 @@ public class ElevatorArm implements Part {
         virtual1 = hm.get(Servo.class, "virtual1");
         virtual2 = hm.get(Servo.class, "virtual2");
 
-        setRevesed();
+        setReversed();
 
         virtual1.setPosition(staticPos);
         virtual2.setPosition(staticPos);
@@ -49,33 +51,43 @@ public class ElevatorArm implements Part {
     }
     @Override
     public void update(){
-        setRevesed();
+        setReversed();
 
         switch (STATE){
-            case STATIC:
-                virtual1.setPosition(staticPos);
-                virtual1.setPosition(staticPos);
+            case DOWN:
+                sign = -1;
                 break;
-            default:
-                virtual1.setPosition(position);
-                virtual2.setPosition(position);
+            case UP:
+                sign = 1;
+                break;
+            case IDLE:
+                sign = 0;
                 break;
         }
+
+        virtual1.setPosition(currentPosition);
+        virtual2.setPosition(currentPosition);
     }
     public void setToBackdrop(){
-        inUsePosition = toBackdrop;
-        STATE = STATES.TO_BACKDROP;
+        targetPosition = toBackdrop;
+        if(currentPosition > targetPosition) STATE = STATES.DOWN;
+        else if(currentPosition < targetPosition) STATE = STATES.UP;
+        else STATE = STATES.IDLE;
     }
     public void setToFeed(){
-        inUsePosition = toFeed;
-        STATE = STATES.TO_FEED;
+        targetPosition = toFeed;
+        if(currentPosition > targetPosition) STATE = STATES.DOWN;
+        else if(currentPosition < targetPosition) STATE = STATES.UP;
+        else STATE = STATES.IDLE;
     }
     public void setToStatic(){
-        inUsePosition = staticPos;
-        STATE = STATES.STATIC;
+        targetPosition = staticPos;
+        if(currentPosition > targetPosition) STATE = STATES.DOWN;
+        else if(currentPosition < targetPosition) STATE = STATES.UP;
+        else STATE = STATES.IDLE;
     }
     public void setPrecentageToEnd(double precent){
-        position = precent * inUsePosition;
+        currentPosition += ((currentPosition - targetPosition) * precent);
     }
     @Override
     public void update_values(){
