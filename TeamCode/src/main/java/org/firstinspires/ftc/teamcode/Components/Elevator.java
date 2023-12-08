@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Components;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -10,7 +9,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Part;
 import org.firstinspires.ftc.teamcode.utils.AutoMotor;
 
-@Config
 public class Elevator implements Part {
     private Telemetry telemetry;
     private AutoMotor left, right;
