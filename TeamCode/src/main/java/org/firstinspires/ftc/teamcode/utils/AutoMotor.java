@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+
 public class AutoMotor {
     public enum STATES{
         RESET_0,
@@ -17,6 +19,7 @@ public class AutoMotor {
     public DcMotorEx motor;
     private int position, targetPosition, velocity;
     private double power;
+    private double currentUsed;
 
     public AutoMotor(DcMotorEx m, boolean r){
         motor = m;
@@ -50,6 +53,7 @@ public class AutoMotor {
         position = motor.getCurrentPosition();
 
         velocity = Math.abs(position - prevPos);
+        currentUsed = motor.getCurrent(CurrentUnit.AMPS);
 
         switch (STATE) {
             case NORMAL:
@@ -61,7 +65,7 @@ public class AutoMotor {
                 STATE = STATES.RESET_0;
                 break;
             case RESET_0:
-                motor.setPower(-0.5);
+                motor.setPower(-1);
                 if(velocity <= 0.01){
                     STATE = STATES.TRIGGER_NORMAL;
                 }
@@ -69,12 +73,13 @@ public class AutoMotor {
             case TRIGGER_NORMAL:
                 motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
                 STATE = STATES.NORMAL;
                 targetPosition = 0;
-                motor.setTargetPosition(0);
-                motor.setPower(power);
 
+                motor.setTargetPosition(0);
                 motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                motor.setPower(1);
                 break;
         }
     }
@@ -88,5 +93,6 @@ public class AutoMotor {
     public int getPosition(){ return position; }
     public int getVelocity(){ return velocity; }
     public double getPower(){ return power; }
+    public double getCurrentUsed(){ return currentUsed; }
 
 }
