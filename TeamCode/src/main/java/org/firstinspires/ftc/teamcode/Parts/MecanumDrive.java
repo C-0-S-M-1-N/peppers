@@ -2,12 +2,16 @@ package org.firstinspires.ftc.teamcode.Parts;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad1;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
+
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+@Config
 public class MecanumDrive {
     private DcMotor motorFrontLeft;
     private DcMotor motorFrontRight;
@@ -15,9 +19,10 @@ public class MecanumDrive {
     private DcMotor motorBackRight;
    public boolean speedDown;
    public  double x;
+   private Telemetry telemetry;
 
-    public MecanumDrive(HardwareMap hardwareMap) {
-        x=1.5f;
+    public MecanumDrive(HardwareMap hardwareMap, Telemetry tel) {
+        x=1.7f;
         speedDown = false;
         motorFrontLeft = hardwareMap.get(DcMotor.class ,"mfl");
         motorFrontRight = hardwareMap.get(DcMotor.class ,"mfr");
@@ -39,8 +44,14 @@ public class MecanumDrive {
     }
 
     public void SetPower(double MFLPower, double MFRPower, double MBLPower, double MBRPower) {
-        double power = 1f;
-        if(speedDown)
+        double power;
+        if(gamepad1.a) {
+            speedDown = true;
+            telemetry.addData("Nitro:", true);
+        }else {
+            speedDown = false;
+            telemetry.addData("Nitro:", false);
+        }
             power = 1f;
             power = Math.max( power, Math.abs(MFLPower));
             power = Math.max( power, Math.abs(MFRPower));
@@ -59,22 +70,22 @@ public class MecanumDrive {
             }
     }
 
-    public void mergi(double fata, double roteste, double parte){
+    public void mergi(double speed, double rotaion, double strafe){
         double MFLPower, MFRPower, MBLPower, MBRPower;
-        MFLPower = fata + roteste + parte;
-        MFRPower = fata - roteste - parte;
-        MBLPower = fata + roteste - parte;
-        MBRPower = fata - roteste + parte;
+
+        MFLPower = speed + rotaion + strafe;
+        MFRPower = speed - rotaion - strafe;
+        MBLPower = speed + rotaion - strafe;
+        MBRPower = speed - rotaion + strafe;
+
+        telemetry.addData("Front Left Motor: ", MFLPower);
+        telemetry.addData("Front Right Motor: ", MFRPower);
+        telemetry.addData("Back Left Motor: ", MBLPower);
+        telemetry.addData("Back Right Motor: ", MBRPower);
 
         SetPower(MFLPower, MFRPower, MBLPower, MBRPower);
+
     }
 
-
-    public void putere(){
-        if(gamepad1.a)
-            speedDown = true;
-        else
-            speedDown = false;
-    }
 
 }
