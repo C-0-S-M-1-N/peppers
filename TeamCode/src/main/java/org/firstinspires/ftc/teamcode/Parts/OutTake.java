@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Parts;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -14,9 +15,9 @@ import org.firstinspires.ftc.teamcode.Part;
 import org.firstinspires.ftc.teamcode.utils.AutoSensor;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
 
-import java.nio.charset.CharacterCodingException;
-
+@Config
 public class OutTake implements Part {
+    public static boolean disable = false;
     public enum STATES{
         EXTEND_TRIGGER,
         EXTEND,
@@ -62,6 +63,7 @@ public class OutTake implements Part {
 
     @Override
     public void update(){
+        if(disable) return;
         switch (STATE){
             case EXTEND_TRIGGER:
                 arm.setPosition(extendArm);

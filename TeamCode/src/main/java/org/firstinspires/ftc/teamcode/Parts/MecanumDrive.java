@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Part;
 
 public class MecanumDrive{
+    public static boolean Disable = false;
     private DcMotorEx LFmotor, LBmotor,
                       RFmotor, RBmotor;
     private Telemetry telemetry;
@@ -49,6 +50,7 @@ public class MecanumDrive{
 
     public void update(double left_stick_y, double left_stick_x,
                        double right_trigger, double left_trigger){
+        if(Disable) return;
         double rotation = right_trigger - left_trigger;
         double denominator = Math.max(left_stick_x + left_stick_y + rotation, 1);
 

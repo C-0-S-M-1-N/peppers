@@ -10,6 +10,7 @@ public class AutoServo {
     public enum type{
         GOBILDA,
         DS,
+        MICRO_SERVO,
         AXON
     }
     private static Servo servo;
@@ -40,6 +41,9 @@ public class AutoServo {
                 break;
             case AXON:
                 MAX_ANGLE = 355;
+                break;
+            case MICRO_SERVO:
+                MAX_ANGLE = 180;
                 break;
             default:
                 MAX_ANGLE = 0;

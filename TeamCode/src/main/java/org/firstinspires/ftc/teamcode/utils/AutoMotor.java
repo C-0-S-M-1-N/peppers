@@ -17,8 +17,9 @@ public class AutoMotor {
     public STATES STATE;
     public boolean reverse = false;
     public DcMotorEx motor;
-    private int position, targetPosition, velocity;
-    private double power;
+    public DcMotorEx encoder;
+    private int position, targetPosition;
+    private double power, velocity;
     private double currentUsed;
 
     public AutoMotor(DcMotorEx m, boolean r){
@@ -42,22 +43,48 @@ public class AutoMotor {
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         motor.setPower(1);
+        encoder = m;
 
 
         STATE = STATES.RESET_0;
 
     }
 
+    public AutoMotor(DcMotorEx Motor, DcMotorEx encoder, boolean r){
+        motor = Motor;
+        reverse = r;
+
+        if(r) motor.setDirection(DcMotorSimple.Direction.REVERSE);
+        else motor.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        MotorConfigurationType mct = motor.getMotorType().clone();
+        mct.setAchieveableMaxRPMFraction(1.0);
+        motor.setMotorType(mct);
+
+
+        motor.setTargetPosition(0);
+
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        motor.setPower(1);
+
+    }
+
     public void update(){
         int prevPos = position;
-        position = motor.getCurrentPosition();
+        position = encoder.getCurrentPosition();
+        velocity = encoder.getVelocity();
 
-        velocity = Math.abs(position - prevPos);
         currentUsed = motor.getCurrent(CurrentUnit.AMPS);
 
         switch (STATE) {
             case NORMAL:
                 motor.setTargetPosition(targetPosition);
+                encoder.setTargetPosition(targetPosition);
                 motor.setPower(power);
                 break;
             case TRIGGER_RESET:
@@ -78,6 +105,7 @@ public class AutoMotor {
                 targetPosition = 0;
 
                 motor.setTargetPosition(0);
+                encoder.setTargetPosition(0);
                 motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 motor.setPower(1);
                 break;
@@ -91,7 +119,7 @@ public class AutoMotor {
     }
 
     public int getPosition(){ return position; }
-    public int getVelocity(){ return velocity; }
+    public double getVelocity(){ return velocity; }
     public double getPower(){ return power; }
     public double getCurrentUsed(){ return currentUsed; }
 

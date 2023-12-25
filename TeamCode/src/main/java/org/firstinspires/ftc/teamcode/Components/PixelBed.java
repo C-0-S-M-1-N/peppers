@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Components;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -9,7 +10,10 @@ import org.firstinspires.ftc.teamcode.Exceptions.OverTheLimitException;
 import org.firstinspires.ftc.teamcode.Part;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
 
+@Config
 public class PixelBed implements Part {
+
+    public static boolean Disable = false;
     private AutoServo pivot, rotatePixels;
     private Telemetry telemetry;
 
@@ -24,6 +28,7 @@ public class PixelBed implements Part {
 
     @Override
     public void update(){
+        if(Disable) return;
         pivot.update();
         rotatePixels.update();
     }

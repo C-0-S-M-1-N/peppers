@@ -1,19 +1,20 @@
 package org.firstinspires.ftc.teamcode.Parts;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
-import org.checkerframework.checker.units.qual.A;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Part;
-import org.firstinspires.ftc.teamcode.utils.AutoMotor;
 
 import java.util.ResourceBundle;
 
+@Config
 public class Intake implements Part {
+    public static boolean Disabled = false;
     public enum STATES{
         IDLE,
         REVERSE,
@@ -37,6 +38,7 @@ public class Intake implements Part {
     }
     @Override
     public void update(){
+        if(Disabled) return;
         if(usedCurrent > maxTrashHold){
             STATE = STATES.REVERSE;
         }
