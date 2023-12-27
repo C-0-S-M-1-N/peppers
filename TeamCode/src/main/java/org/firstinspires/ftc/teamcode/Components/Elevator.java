@@ -6,15 +6,17 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
-import com.qualcomm.robotcore.hardware.usb.RobotUsbDevice;
 
-import org.checkerframework.checker.units.qual.A;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Part;
-import org.firstinspires.ftc.teamcode.utils.AutoMotor;
+import org.firstinspires.ftc.teamcode.internals.ControlHub;
+import org.firstinspires.ftc.teamcode.internals.ENCODER_PORTS;
+import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
+import org.firstinspires.ftc.teamcode.utils.Encoder;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
+
+import java.util.ResourceBundle;
 
 @Config
 public class Elevator implements Part {
@@ -26,49 +28,20 @@ public class Elevator implements Part {
     public STATES STATE;
     private Telemetry telemetry;
 //    private AutoMotor left, right;
-    private static DcMotorEx left, right;
-    private static int maxPos = 950, elevatorPos;
-    private double currentPosition = 0, currentVelocity = 0;
-
+//    private static DcMotorEx left, right;
+    public static int maxPos = 950, elevatorPos;
     public static PIDCoefficients pidCoefficients = new PIDCoefficients(0.f, 0.f, 0.f);
-    public static PIDController pidController;
-    public static double ff1 = 0, ff2 = 0;
+    public static PIDController pidController = new PIDController(pidCoefficients, 0.1);
+    public static double ff1 = 0.07, ff2 = 0;
 
-    public Elevator(HardwareMap hm, Telemetry tele){
+    public Elevator(Telemetry tele){
         telemetry = tele;
-        pidController = new PIDController(pidCoefficients);
-
-        left = hm.get(DcMotorEx.class, "leftElevator");
-        right = hm.get(DcMotorEx.class, "rightElevator");
-
-        right.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        MotorConfigurationType mct = left.getMotorType().clone();
-        mct.setAchieveableMaxRPMFraction(1);
-        left.setMotorType(mct);
-        mct = right.getMotorType().clone();
-        right.setMotorType(mct);
-
-        left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        left.setTargetPosition(0);
-        right.setTargetPosition(0);
-
-        left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        ControlHub.setMotorDirection(MOTOR_PORTS.M1, DcMotorSimple.Direction.REVERSE);
 
         STATE = STATES.IDLE;
-
-
-//        left.resetZeroPosition();
-//        right.resetZeroPosition();
-
     }
     @Override
     public void update(){
-        currentPosition = left.getCurrentPosition();
-        currentVelocity = left.getVelocity();
 
         switch (STATE){
             case GO_UP:
@@ -77,11 +50,12 @@ public class Elevator implements Part {
                 break;
         }
 
-        double power = pidController.calculate(currentPosition, elevatorPos);
-        left.setPower(power);
-        right.setPower(power);
+        double power = pidController.calculate(-ControlHub.getMotorPosition(ENCODER_PORTS.E0), elevatorPos);
 
-        if(currentVelocity <= 0.01) STATE = STATES.IDLE;
+        ControlHub.setMotorPower(MOTOR_PORTS.M0, ff1 + ff2*power);
+        ControlHub.setMotorPower(MOTOR_PORTS.M1, ff1 + ff2*power);
+
+        if(-ControlHub.getMotorPosition(ENCODER_PORTS.E0) <= 0.1) STATE = STATES.IDLE;
     }
     public void setPosition(int pos){
         if(pos > elevatorPos) STATE = STATES.GO_UP;
@@ -97,7 +71,7 @@ public class Elevator implements Part {
 
     @Override
     public void runTelemetry(){
-        telemetry.addData("position", elevatorPos);
+        telemetry.addData("current position", -ControlHub.getMotorPosition(ENCODER_PORTS.E0));
         telemetry.addData("STATE", STATE.toString());
     }
 }

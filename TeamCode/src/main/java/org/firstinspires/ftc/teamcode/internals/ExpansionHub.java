@@ -1,0 +1,191 @@
+package org.firstinspires.ftc.teamcode.internals;
+
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
+
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+
+public class ExpansionHub {
+    private static DcMotorEx motor0, motor1, motor2, motor3;
+    private static Servo servo0, servo1, servo2, servo3, servo4, servo5;
+
+    private static void setMotorsToMax(){
+        MotorConfigurationType mct = motor0.getMotorType().clone();
+        mct.setAchieveableMaxRPMFraction(1.0);
+        motor0.setMotorType(mct);
+
+        mct = motor1.getMotorType().clone();
+        mct.setAchieveableMaxRPMFraction(1.0);
+        motor1.setMotorType(mct);
+
+        mct = motor2.getMotorType().clone();
+        mct.setAchieveableMaxRPMFraction(1.0);
+        motor2.setMotorType(mct);
+
+        mct = motor3.getMotorType().clone();
+        mct.setAchieveableMaxRPMFraction(1.0);
+        motor3.setMotorType(mct);
+
+        resetEncoder(ENCODER_PORTS.E0);
+        resetEncoder(ENCODER_PORTS.E1);
+        resetEncoder(ENCODER_PORTS.E2);
+        resetEncoder(ENCODER_PORTS.E3);
+
+    }
+
+    public ExpansionHub(HardwareMap hm){
+        motor0 = hm.get(DcMotorEx.class, "eM0");
+        motor1 = hm.get(DcMotorEx.class, "eM1");
+        motor2 = hm.get(DcMotorEx.class, "eM2");
+        motor3 = hm.get(DcMotorEx.class, "eM3");
+
+        servo0 = hm.get(Servo.class, "eS0");
+        servo1 = hm.get(Servo.class, "eS1");
+        servo2 = hm.get(Servo.class, "eS2");
+        servo3 = hm.get(Servo.class, "eS3");
+        servo4 = hm.get(Servo.class, "eS4");
+        servo5 = hm.get(Servo.class, "eS5");
+    }
+
+    public static double getPosition(ENCODER_PORTS encoder){
+        switch(encoder){
+            case E0:
+                return motor0.getCurrentPosition();
+            case E1:
+                return motor1.getCurrentPosition();
+            case E2:
+                return motor2.getCurrentPosition();
+            case E3:
+                return motor3.getCurrentPosition();
+        }
+        return 0;
+    }
+    public static double getVelocity(ENCODER_PORTS encoder){
+        switch (encoder){
+            case E0:
+                return motor0.getVelocity();
+            case E1:
+                return motor1.getVelocity();
+            case E2:
+                return motor2.getVelocity();
+            case E3:
+                return motor3.getVelocity();
+        }
+        return 0;
+    }
+    public static void setServoPosition(SERVO_PORTS servo, double position){
+        switch (servo) {
+            case S0:
+                servo0.setPosition(position);
+                break;
+            case S1:
+                servo1.setPosition(position);
+                break;
+            case S2:
+                servo2.setPosition(position);
+                break;
+            case S3:
+                servo3.setPosition(position);
+                break;
+            case S4:
+                servo4.setPosition(position);
+                break;
+            case S5:
+                servo5.setPosition(position);
+                break;
+        }
+    }
+    public static double getCurrentFromMotor(MOTOR_PORTS motor, CurrentUnit unit){
+        switch (motor){
+            case M0:
+                return motor0.getCurrent(unit);
+            case M1:
+                return motor1.getCurrent(unit);
+            case M2:
+                return motor2.getCurrent(unit);
+            case M3:
+                return motor3.getCurrent(unit);
+        }
+        return 0;
+    }
+    public static void setMotorPower(MOTOR_PORTS motor, double power){
+        switch (motor){
+            case M0:
+                motor0.setPower(power);
+                break;
+            case M1:
+                motor1.setPower(power);
+                break;
+            case M2:
+                motor2.setPower(power);
+                break;
+            case M3:
+                motor3.setPower(power);
+                break;
+        }
+    }
+    public static void resetEncoder(ENCODER_PORTS encoder){
+        switch (encoder){
+            case E0:
+                motor0.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                motor0.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                break;
+            case E1:
+                motor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                motor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                break;
+            case E2:
+                motor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                motor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                break;
+            case E3:
+                motor3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                motor3.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                break;
+        }
+    }
+    public static void setMotorDirection(MOTOR_PORTS motor, DcMotorSimple.Direction dir){
+        switch (motor){
+            case M0:
+                motor0.setDirection(dir);
+                break;
+            case M1:
+                motor1.setDirection(dir);
+                break;
+            case M2:
+                motor2.setDirection(dir);
+                break;
+            case M3:
+                motor3.setDirection(dir);
+                break;
+        }
+    }
+    public static void setServoDirection(SERVO_PORTS servo, Servo.Direction dir){
+        switch (servo){
+            case S0:
+                servo0.setDirection(dir);
+                break;
+            case S1:
+                servo1.setDirection(dir);
+                break;
+            case S2:
+                servo2.setDirection(dir);
+                break;
+            case S3:
+                servo3.setDirection(dir);
+                break;
+            case S4:
+                servo4.setDirection(dir);
+                break;
+            case S5:
+                servo5.setDirection(dir);
+                break;
+        }
+    }
+
+}
+

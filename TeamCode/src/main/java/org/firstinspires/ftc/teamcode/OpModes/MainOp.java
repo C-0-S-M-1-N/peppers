@@ -10,7 +10,10 @@ import org.firstinspires.ftc.teamcode.Components.Elevator;
 import org.firstinspires.ftc.teamcode.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Parts.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
-
+/*
+*
+*
+* */
 @TeleOp(name = "pipers \uD83C\uDF36️")
 @Config
 public class MainOp extends LinearOpMode {

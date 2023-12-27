@@ -5,12 +5,15 @@ import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+@Config
 public class PIDController {
-    private static PIDCoefficients coefficients;
-    private double error, lastError;
+    public static PIDCoefficients coefficients;
+    private double error, lastError, treshHold;
     private double I, D, P;
-    private ElapsedTime time;
-    public PIDController(PIDCoefficients c){
+    private final ElapsedTime time;
+    public PIDController(PIDCoefficients c, double tH){
+        treshHold = tH;
+        time = new ElapsedTime();
         coefficients = c;
         time.reset();
         error = 0;
@@ -19,14 +22,15 @@ public class PIDController {
 
     public double calculate(double currentPos, double targetPos){
         error = targetPos - currentPos;
+        if(Math.abs(error) <= treshHold) error = 0;
 
-        I += error;
-
-        D = (error - lastError) / time.seconds();
+        P = coefficients.p * time.seconds();
+        I += coefficients.i * error * time.seconds();
+        D = coefficients.d * (error - lastError) / time.seconds();
 
         lastError = error;
         time.reset();
-        return coefficients.p * error + coefficients.i * I + coefficients.d * D;
+        return P + I + D;
 
     }
 }
