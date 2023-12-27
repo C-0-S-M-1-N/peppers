@@ -10,8 +10,22 @@ import org.firstinspires.ftc.teamcode.Components.Elevator;
 import org.firstinspires.ftc.teamcode.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Parts.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
+
 /*
+* MAP
+*   CH:
+*       - M1 + M2 -> elevator   E1 -> elevator
+*       - M3 -> intake
+*       - M4 -> hang
 *
+*       - S0 -> virtual1
+*       - S2 -> virtual2
+*   EH:
+*       - M1 + M2 + M3 + M4 -> chassis
+*
+*       - S0 + S1 -> grippers
+*       - S2 -> pivot
+*       - S3 -> pixelRotation
 *
 * */
 @TeleOp(name = "pipers \uD83C\uDF36️")

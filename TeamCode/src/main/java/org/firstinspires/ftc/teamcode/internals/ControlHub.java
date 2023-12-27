@@ -7,11 +7,13 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
+import org.checkerframework.checker.units.qual.A;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.internals.ENCODER_PORTS;
 
 public class ControlHub {
     private static DcMotorEx motor0, motor1, motor2, motor3;
+    private static Encoder encoder0, encoder1, encoder2, encoder3;
     private static Servo servo0, servo1, servo2, servo3, servo4, servo5;
 
     private static void setMotorsToMax(){
@@ -50,6 +52,14 @@ public class ControlHub {
         servo3 = hm.get(Servo.class, "cS3");
         servo4 = hm.get(Servo.class, "cS4");
         servo5 = hm.get(Servo.class, "cS5");
+
+        encoder0 = new Encoder(motor0);
+        encoder1 = new Encoder(motor1);
+        encoder2 = new Encoder(motor2);
+        encoder3 = new Encoder(motor3);
+
+        setMotorsToMax();
+
     }
 
     public static double getMotorPosition(ENCODER_PORTS encoder){
@@ -167,23 +177,35 @@ public class ControlHub {
                 break;
         }
     }
+    public void setEncoderDirection(ENCODER_PORTS encoder, Encoder.Direction dir){
+        switch (encoder){
+            case E0:
+                encoder0.setDirection(dir);
+                break;
+            case E1:
+                encoder1.setDirection(dir);
+                break;
+            case E2:
+                encoder2.setDirection(dir);
+                break;
+            case E3:
+                encoder3.setDirection(dir);
+                break;
+        }
+    }
     public static void resetEncoder(ENCODER_PORTS encoder){
         switch (encoder){
             case E0:
-                motor0.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                motor0.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                encoder0.reset();
                 break;
             case E1:
-                motor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                motor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                encoder1.reset();
                 break;
             case E2:
-                motor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                motor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                encoder2.reset();
                 break;
             case E3:
-                motor3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                motor3.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                encoder3.reset();
                 break;
         }
     }

@@ -1,22 +1,16 @@
 package org.firstinspires.ftc.teamcode.Components;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
-import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Part;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ENCODER_PORTS;
 import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
-import org.firstinspires.ftc.teamcode.utils.Encoder;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
 
-import java.util.ResourceBundle;
 
 @Config
 public class Elevator implements Part {
@@ -29,9 +23,8 @@ public class Elevator implements Part {
     private Telemetry telemetry;
 //    private AutoMotor left, right;
 //    private static DcMotorEx left, right;
-    public static int maxPos = 950, elevatorPos;
-    public static PIDCoefficients pidCoefficients = new PIDCoefficients(0.f, 0.f, 0.f);
-    public static PIDController pidController = new PIDController(pidCoefficients, 0.1);
+    public static int elevatorPos;
+    public static PIDController pidController = new PIDController(new PIDCoefficients(0.f ,0.f, 0.f), 0.1);
     public static double ff1 = 0.07, ff2 = 0;
 
     public Elevator(Telemetry tele){

@@ -7,10 +7,13 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
+import org.checkerframework.checker.units.qual.A;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.internals.ENCODER_PORTS;
 
 public class ExpansionHub {
     private static DcMotorEx motor0, motor1, motor2, motor3;
+    private static Encoder encoder0, encoder1, encoder2, encoder3;
     private static Servo servo0, servo1, servo2, servo3, servo4, servo5;
 
     private static void setMotorsToMax(){
@@ -49,9 +52,17 @@ public class ExpansionHub {
         servo3 = hm.get(Servo.class, "eS3");
         servo4 = hm.get(Servo.class, "eS4");
         servo5 = hm.get(Servo.class, "eS5");
+
+        encoder0 = new Encoder(motor0);
+        encoder1 = new Encoder(motor1);
+        encoder2 = new Encoder(motor2);
+        encoder3 = new Encoder(motor3);
+
+        setMotorsToMax();
+
     }
 
-    public static double getPosition(ENCODER_PORTS encoder){
+    public static double getMotorPosition(ENCODER_PORTS encoder){
         switch(encoder){
             case E0:
                 return motor0.getCurrentPosition();
@@ -64,7 +75,7 @@ public class ExpansionHub {
         }
         return 0;
     }
-    public static double getVelocity(ENCODER_PORTS encoder){
+    public static double getMotorVelocity(ENCODER_PORTS encoder){
         switch (encoder){
             case E0:
                 return motor0.getVelocity();
@@ -112,60 +123,8 @@ public class ExpansionHub {
         }
         return 0;
     }
-    public static void setMotorPower(MOTOR_PORTS motor, double power){
-        switch (motor){
-            case M0:
-                motor0.setPower(power);
-                break;
-            case M1:
-                motor1.setPower(power);
-                break;
-            case M2:
-                motor2.setPower(power);
-                break;
-            case M3:
-                motor3.setPower(power);
-                break;
-        }
-    }
-    public static void resetEncoder(ENCODER_PORTS encoder){
-        switch (encoder){
-            case E0:
-                motor0.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                motor0.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                break;
-            case E1:
-                motor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                motor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                break;
-            case E2:
-                motor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                motor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                break;
-            case E3:
-                motor3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                motor3.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                break;
-        }
-    }
-    public static void setMotorDirection(MOTOR_PORTS motor, DcMotorSimple.Direction dir){
-        switch (motor){
-            case M0:
-                motor0.setDirection(dir);
-                break;
-            case M1:
-                motor1.setDirection(dir);
-                break;
-            case M2:
-                motor2.setDirection(dir);
-                break;
-            case M3:
-                motor3.setDirection(dir);
-                break;
-        }
-    }
-    public static void setServoDirection(SERVO_PORTS servo, Servo.Direction dir){
-        switch (servo){
+    public static void setServoDirection(SERVO_PORTS servo, Servo.Direction dir) {
+        switch (servo) {
             case S0:
                 servo0.setDirection(dir);
                 break;
@@ -186,6 +145,70 @@ public class ExpansionHub {
                 break;
         }
     }
+    public static void setMotorDirection(MOTOR_PORTS motor, DcMotorSimple.Direction dir){
+        switch (motor){
+            case M0:
+                motor0.setDirection(dir);
+                break;
+            case M1:
+                motor1.setDirection(dir);
+                break;
+            case M2:
+                motor2.setDirection(dir);
+                break;
+            case M3:
+                motor3.setDirection(dir);
+                break;
+        }
+    }
+    public static void setMotorPower(MOTOR_PORTS motor, double power){
+        switch (motor){
+            case M0:
+                motor0.setPower(power);
+                break;
+            case M1:
+                motor1.setPower(power);
+                break;
+            case M2:
+                motor2.setPower(power);
+                break;
+            case M3:
+                motor3.setPower(power);
+                break;
+        }
+    }
+    public void setEncoderDirection(ENCODER_PORTS encoder, Encoder.Direction dir){
+        switch (encoder){
+            case E0:
+                encoder0.setDirection(dir);
+                break;
+            case E1:
+                encoder1.setDirection(dir);
+                break;
+            case E2:
+                encoder2.setDirection(dir);
+                break;
+            case E3:
+                encoder3.setDirection(dir);
+                break;
+        }
+    }
+    public static void resetEncoder(ENCODER_PORTS encoder){
+        switch (encoder){
+            case E0:
+                encoder0.reset();
+                break;
+            case E1:
+                encoder1.reset();
+                break;
+            case E2:
+                encoder2.reset();
+                break;
+            case E3:
+                encoder3.reset();
+                break;
+        }
+    }
+
 
 }
-
