@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.utils.AutoSensor;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
 
 public class Grippers implements Part {
-
+    public boolean Disable = false;
     public enum STATES{
         CLOSED,
         OPEN
@@ -30,6 +30,7 @@ public class Grippers implements Part {
 
     @Override
     public void update(){
+        if(Disable) return;
         sensor.update();
 
         switch (STATE){

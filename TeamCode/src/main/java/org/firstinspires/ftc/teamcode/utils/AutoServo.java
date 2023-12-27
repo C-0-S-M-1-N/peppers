@@ -5,15 +5,20 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.checkerframework.checker.units.qual.A;
 import org.firstinspires.ftc.teamcode.Exceptions.OverTheLimitException;
+import org.firstinspires.ftc.teamcode.internals.ControlHub;
+import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
+import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 
 public class AutoServo {
     public enum type{
         GOBILDA,
         DS,
+        MICRO_SERVO,
         AXON
     }
-    private static Servo servo;
-    private static boolean revesed;
+    SERVO_PORTS servo;
+    private boolean revesed;
+    private boolean isOnControlHub = true;
     private double position, targetPosition;
     private static double step = 0.001;
     private ElapsedTime deltaTime;
@@ -30,7 +35,7 @@ public class AutoServo {
     public double getPosition(){
        return position;
     }
-    public AutoServo(Servo s, boolean rev, double initPos, type T){
+    public AutoServo(SERVO_PORTS port, boolean CHub, boolean rev, double initPos, type T){
         switch(T){
             case GOBILDA:
                 MAX_ANGLE = 300;
@@ -41,22 +46,31 @@ public class AutoServo {
             case AXON:
                 MAX_ANGLE = 355;
                 break;
+            case MICRO_SERVO:
+                MAX_ANGLE = 180;
+                break;
             default:
                 MAX_ANGLE = 0;
                 break;
         }
         position = initPos;
         revesed = rev;
-        servo = s;
+        isOnControlHub = CHub;
     }
 
     public void update(){
         position += step * deltaTime.seconds() * (targetPosition - position);
 
-        servo.setPosition(position);
-
-        if(revesed) servo.setDirection(Servo.Direction.REVERSE);
-        else servo.setDirection(Servo.Direction.FORWARD);
+        if(isOnControlHub) {
+            ControlHub.setServoPosition(servo, position);
+            if(revesed) ControlHub.setServoDirection(servo, Servo.Direction.REVERSE);
+            else ControlHub.setServoDirection(servo, Servo.Direction.FORWARD);
+        }
+        else {
+            ExpansionHub.setServoPosition(servo, position);
+            if(revesed) ExpansionHub.setServoDirection(servo, Servo.Direction.REVERSE);
+            else ExpansionHub.setServoDirection(servo, Servo.Direction.FORWARD);
+        }
 
         deltaTime.reset();
     }

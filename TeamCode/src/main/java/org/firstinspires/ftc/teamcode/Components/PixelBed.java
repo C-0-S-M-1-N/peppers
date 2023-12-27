@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Components;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -7,23 +8,28 @@ import org.checkerframework.checker.units.qual.A;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Exceptions.OverTheLimitException;
 import org.firstinspires.ftc.teamcode.Part;
+import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
 
+@Config
 public class PixelBed implements Part {
-    private AutoServo pivot, rotatePixels;
+
+    public static boolean Disable = false;
+    private static AutoServo pivot, rotatePixels;
     private Telemetry telemetry;
 
     private static final double verticalRotation = 0, horizontalRotation = 90;
     private static boolean isSwapped = false;
 
-    public PixelBed(HardwareMap hm, Telemetry tele){
-        pivot = new AutoServo(hm.get(Servo.class, "pivot"), false, 0, AutoServo.type.GOBILDA);
-        rotatePixels = new AutoServo(hm.get(Servo.class, "rotate"), false, 0, AutoServo.type.GOBILDA);
+    public PixelBed(Telemetry tele){
+        pivot = new AutoServo(SERVO_PORTS.S3,false, false, 0, AutoServo.type.GOBILDA);
+        rotatePixels = new AutoServo(SERVO_PORTS.S4,false, false, 0, AutoServo.type.GOBILDA);
         telemetry = tele;
     }
 
     @Override
     public void update(){
+        if(Disable) return;
         pivot.update();
         rotatePixels.update();
     }
