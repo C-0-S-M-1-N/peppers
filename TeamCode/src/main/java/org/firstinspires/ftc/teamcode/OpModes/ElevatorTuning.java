@@ -22,12 +22,10 @@ public class ElevatorTuning extends LinearOpMode {
     public void runOpMode(){
 
         ControlHub ch = new ControlHub(hardwareMap);
-
-        elevator = new Elevator(telemetry);
-
-
         FtcDashboard a = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(telemetry, a.getTelemetry());
+
+        elevator = new Elevator(telemetry);
 
         waitForStart();
 

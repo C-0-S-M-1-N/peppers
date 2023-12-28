@@ -19,14 +19,14 @@ public class Encoder {
     public void reset(){
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        direction = Direction.FORWARD;
     }
     public void setDirection(Direction dir){
         direction = dir;
     }
 
     public double getPosition(){
-        double normalizePos = motor.getDirection() == DcMotorSimple.Direction.FORWARD ?
-                motor.getCurrentPosition() : -motor.getCurrentPosition();
+        double normalizePos = Math.abs(motor.getCurrentPosition());
         return direction == Direction.FORWARD ? normalizePos : -normalizePos;
     }
     public double getVelocity(){

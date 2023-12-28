@@ -62,16 +62,16 @@ public class ExpansionHub {
 
     }
 
-    public static double getMotorPosition(ENCODER_PORTS encoder){
+    public static double getEncoderPosition(ENCODER_PORTS encoder){
         switch(encoder){
             case E0:
-                return motor0.getCurrentPosition();
+                return encoder0.getPosition();
             case E1:
-                return motor1.getCurrentPosition();
+                return encoder1.getPosition();
             case E2:
-                return motor2.getCurrentPosition();
+                return encoder2.getPosition();
             case E3:
-                return motor3.getCurrentPosition();
+                return encoder3.getPosition();
         }
         return 0;
     }
