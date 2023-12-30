@@ -18,10 +18,10 @@ public class Elevator implements Part {
     public enum STATES{
         GO_UP,
         GO_DOWN,
-        TRIGGER_RESET,
         RESET,
-        MAYBE_RESET,
-        IDLE
+        IDLE;
+
+        public static boolean wasReseted = true;
     }
     public STATES STATE;
     private Telemetry telemetry;
@@ -37,46 +37,41 @@ public class Elevator implements Part {
         ControlHub.setEncoderDirection(ENCODER_PORTS.E0, Encoder.Direction.FORWARD);
 
         STATE = STATES.IDLE;
+        STATES.wasReseted = true;
     }
     @Override
     public void update(){
         pidController.setPID(pidCoefficients.p, pidCoefficients.i, pidCoefficients.d);
 
         switch (STATE){
-            case MAYBE_RESET:
-                if(elevatorPos == 0){
-                    STATE = STATES.TRIGGER_RESET;
-                }
-                break;
-            case TRIGGER_RESET:
-                ControlHub.setMotorPower(MOTOR_PORTS.M0, -1);
-                ControlHub.setMotorPower(MOTOR_PORTS.M1, -1);
-                STATE = STATES.RESET;
-                break;
             case RESET:
-                if(ControlHub.getMotorVelocity(ENCODER_PORTS.E0) <= 0.01){
+                if(ControlHub.getMotorVelocity(ENCODER_PORTS.E0) <= 0.01) {
                     STATE = STATES.IDLE;
                     ControlHub.setMotorPower(MOTOR_PORTS.M0, 0);
                     ControlHub.setMotorPower(MOTOR_PORTS.M1, 0);
-                } else {
-                    ControlHub.setMotorPower(MOTOR_PORTS.M0, -1);
-                    ControlHub.setMotorPower(MOTOR_PORTS.M1, -1);
+                    STATES.wasReseted = true;
                 }
                 break;
-        }
+            default:
+                double power = pidController.calculate(ControlHub.getEncoderPosition(ENCODER_PORTS.E0));
 
-        if(STATE != STATES.RESET && STATE != STATES.TRIGGER_RESET) {
-            double power = pidController.calculate(ControlHub.getEncoderPosition(ENCODER_PORTS.E0));
+                ControlHub.setMotorPower(MOTOR_PORTS.M0, power);
+                ControlHub.setMotorPower(MOTOR_PORTS.M1, power);
 
-            ControlHub.setMotorPower(MOTOR_PORTS.M0, power);
-            ControlHub.setMotorPower(MOTOR_PORTS.M1, power);
+                if (ControlHub.getMotorVelocity(ENCODER_PORTS.E0) <= 0.1 && !STATES.wasReseted){
+                    if(elevatorPos == 0){
+                        ControlHub.setMotorPower(MOTOR_PORTS.M0, -1);
+                        ControlHub.setMotorPower(MOTOR_PORTS.M1, -1);
+                        STATE = STATES.RESET;
+                    }
+                }
+                break;
 
-            if (ControlHub.getMotorVelocity(ENCODER_PORTS.E0) <= 0.1) STATE = STATES.MAYBE_RESET;
         }
     }
     public void setPosition(int pos){
-        if(pos > elevatorPos) STATE = STATES.GO_UP;
-        if(pos < elevatorPos) STATE = STATES.GO_DOWN;
+        if(pos > elevatorPos) {STATE = STATES.GO_UP; STATES.wasReseted = false;}
+        if(pos < elevatorPos) {STATE = STATES.GO_DOWN; STATES.wasReseted = false;}
         else STATE = STATES.IDLE;
         elevatorPos = pos;
         pidController.setSetPoint(pos);

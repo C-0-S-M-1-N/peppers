@@ -19,7 +19,6 @@ import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
 * */
 public class MecanumDrive{
     public static boolean Disable = false;
-    private DcMotorEx motor0, motor1, motor2, motor3;
     private Telemetry telemetry;
     public MecanumDrive(Telemetry tele, HardwareMap hm){
         telemetry = tele;
