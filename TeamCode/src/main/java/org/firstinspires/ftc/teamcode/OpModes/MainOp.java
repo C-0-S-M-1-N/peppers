@@ -6,10 +6,13 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Components.Elevator;
 import org.firstinspires.ftc.teamcode.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Parts.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
+import org.firstinspires.ftc.teamcode.internals.ControlHub;
+import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 
 /*
 * MAP
@@ -38,15 +41,21 @@ public class MainOp extends LinearOpMode {
 
     @Override
     public void runOpMode(){
-
+        ExpansionHub eh = new ExpansionHub(hardwareMap);
+        ControlHub ch = new ControlHub(hardwareMap);
 
         FtcDashboard a = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(telemetry, a.getTelemetry());
+
+        mecanumDrive = new MecanumDrive(telemetry, hardwareMap);
 
         waitForStart();
 
         while(opModeIsActive() && !isStopRequested()){
 
+
+            mecanumDrive.update(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_trigger, gamepad1.left_trigger);
+            telemetry.addLine(gamepad1.toString());
             telemetry.update();
         }
     }

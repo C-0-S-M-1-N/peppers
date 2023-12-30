@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.checkerframework.checker.units.qual.C;
 import org.firstinspires.ftc.teamcode.Components.Elevator;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
+import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 
 @TeleOp(name = "elevator tune")
 @Config
@@ -22,6 +23,7 @@ public class ElevatorTuning extends LinearOpMode {
     public void runOpMode(){
 
         ControlHub ch = new ControlHub(hardwareMap);
+        ExpansionHub eh = new ExpansionHub(hardwareMap);
         FtcDashboard a = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(telemetry, a.getTelemetry());
 

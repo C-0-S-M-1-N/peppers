@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -9,6 +10,7 @@ import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 
+@Config
 public class AutoServo {
     public enum type{
         GOBILDA,
@@ -20,7 +22,7 @@ public class AutoServo {
     private boolean revesed;
     private boolean isOnControlHub = true;
     private double position, targetPosition;
-    private static double step = 0.001;
+    public static double step = 0.1;
     private ElapsedTime deltaTime;
     public static int MAX_ANGLE;
     /*
@@ -36,6 +38,8 @@ public class AutoServo {
        return position;
     }
     public AutoServo(SERVO_PORTS port, boolean CHub, boolean rev, double initPos, type T){
+        deltaTime = new ElapsedTime();
+        deltaTime.startTime();
         switch(T){
             case GOBILDA:
                 MAX_ANGLE = 300;
@@ -56,10 +60,11 @@ public class AutoServo {
         position = initPos;
         revesed = rev;
         isOnControlHub = CHub;
+        servo = port;
     }
 
     public void update(){
-        position += step * deltaTime.seconds() * (targetPosition - position);
+        position += step * deltaTime.seconds();
 
         if(isOnControlHub) {
             ControlHub.setServoPosition(servo, position);

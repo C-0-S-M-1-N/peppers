@@ -22,8 +22,8 @@ public class PixelBed implements Part {
     private static boolean isSwapped = false;
 
     public PixelBed(Telemetry tele){
-        pivot = new AutoServo(SERVO_PORTS.S2,false, false, 0, AutoServo.type.GOBILDA);
-        rotatePixels = new AutoServo(SERVO_PORTS.S3,false, false, 0, AutoServo.type.GOBILDA);
+        pivot = new AutoServo(SERVO_PORTS.S4,false, false, 0, AutoServo.type.GOBILDA);
+        rotatePixels = new AutoServo(SERVO_PORTS.S5,false, false, 0, AutoServo.type.GOBILDA);
         telemetry = tele;
     }
 

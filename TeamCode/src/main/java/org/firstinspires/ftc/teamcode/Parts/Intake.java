@@ -27,7 +27,7 @@ public class Intake implements Part {
         FORWARD
     }
     public STATES STATE;
-    public static double maxTrashHold = 0.5;
+    public static double maxTrashHold = 1200;
     private double usedCurrent = 0;
     public Intake(){
         STATE = STATES.IDLE;

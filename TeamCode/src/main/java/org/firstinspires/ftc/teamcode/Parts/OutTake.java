@@ -35,7 +35,7 @@ public class OutTake implements Part {
         public boolean wasSwapped;
     }
 
-    private static double extendArm = 0.75;
+    private static double extendArm = 0.68;
 
     public STATES STATE;
     private Telemetry telemetry;

@@ -18,7 +18,7 @@ public class Encoder {
     }
     public void reset(){
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         direction = Direction.FORWARD;
     }
     public void setDirection(Direction dir){
