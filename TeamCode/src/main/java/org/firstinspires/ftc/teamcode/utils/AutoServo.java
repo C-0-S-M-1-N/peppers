@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import static java.lang.Math.signum;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -32,7 +34,7 @@ public class AutoServo {
     * */
 
     public void setPosition(double p){
-        position = p;
+        targetPosition = p;
     }
     public double getPosition(){
        return position;
@@ -46,12 +48,14 @@ public class AutoServo {
                 break;
             case DS:
                 MAX_ANGLE = 270;
+                step = 10;
                 break;
             case AXON:
                 MAX_ANGLE = 355;
                 break;
             case MICRO_SERVO:
                 MAX_ANGLE = 180;
+                step = 0.007;
                 break;
             default:
                 MAX_ANGLE = 0;
@@ -64,24 +68,32 @@ public class AutoServo {
     }
 
     public void update(){
-        position += step * deltaTime.seconds();
+
+        double time = deltaTime.seconds();
+        if((position <= targetPosition && targetPosition <= step * deltaTime.seconds() * signum(targetPosition - position)) ||
+            (position >= targetPosition && targetPosition >= step * deltaTime.seconds() * signum(targetPosition - position)))
+        {
+            position = targetPosition;
+        } else {
+            position += step * deltaTime.seconds() * signum(targetPosition - position);
+        }
 
         if(isOnControlHub) {
-            ControlHub.setServoPosition(servo, position);
             if(revesed) ControlHub.setServoDirection(servo, Servo.Direction.REVERSE);
             else ControlHub.setServoDirection(servo, Servo.Direction.FORWARD);
+            ControlHub.setServoPosition(servo, position);
         }
         else {
-            ExpansionHub.setServoPosition(servo, position);
             if(revesed) ExpansionHub.setServoDirection(servo, Servo.Direction.REVERSE);
             else ExpansionHub.setServoDirection(servo, Servo.Direction.FORWARD);
+            ExpansionHub.setServoPosition(servo, position);
         }
 
         deltaTime.reset();
     }
 
     public void setAngle(double angle) {
-        position = angle/MAX_ANGLE;
+        targetPosition = angle/MAX_ANGLE;
     }
     public double getAngle(){
         return position*MAX_ANGLE;

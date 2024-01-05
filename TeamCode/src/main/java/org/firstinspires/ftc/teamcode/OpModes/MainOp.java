@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Components.Elevator;
@@ -38,11 +39,13 @@ public class MainOp extends LinearOpMode {
     public static Intake intake;
     public static OutTake outTake;
     public static MecanumDrive mecanumDrive;
+    ElapsedTime time;
 
     @Override
     public void runOpMode(){
         ExpansionHub eh = new ExpansionHub(hardwareMap);
         ControlHub ch = new ControlHub(hardwareMap);
+        time = new ElapsedTime();
 
         FtcDashboard a = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(telemetry, a.getTelemetry());
@@ -50,12 +53,14 @@ public class MainOp extends LinearOpMode {
         mecanumDrive = new MecanumDrive(telemetry, hardwareMap);
 
         waitForStart();
+        time.reset();
 
         while(opModeIsActive() && !isStopRequested()){
 
 
             mecanumDrive.update(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_trigger, gamepad1.left_trigger);
-            telemetry.addLine(gamepad1.toString());
+            telemetry.addData("Hz", 1/time.seconds());
+            time.reset();
             telemetry.update();
         }
     }

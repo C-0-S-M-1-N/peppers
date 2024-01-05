@@ -37,6 +37,7 @@ public class ElevatorArm implements Part {
     public double getPosition(){
         return virtual1.getPosition();
     }
+    public double getAngle(){ return virtual1.getAngle(); }
     public void setPosition(double p){
         position = p;
         virtual1.setPosition(p);

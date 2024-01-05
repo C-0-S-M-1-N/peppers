@@ -18,7 +18,7 @@ public class PixelBed implements Part {
     private static AutoServo pivot, rotatePixels;
     private Telemetry telemetry;
 
-    private static final double verticalRotation = 0, horizontalRotation = 90;
+    private static final double verticalRotation = 90, horizontalRotation = 0;
     private static boolean isSwapped = false;
 
     public PixelBed(Telemetry tele){

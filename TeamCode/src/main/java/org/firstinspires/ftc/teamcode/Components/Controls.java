@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.utils.RumbleEffects;
 
 @Config
 public class Controls {
+    public static boolean updateDetected;
     public static boolean Intake,
             ExtendElevator, RetractElevator, ElevatorUp, ElevatorDown,
             RotatePixels, SwapPixels, DropLeft, DropRight;
@@ -29,6 +30,7 @@ public class Controls {
         gamepad1 = new AutoGamepad(gp1);
         gamepad2 = new AutoGamepad(gp2);
         effects = new RumbleEffects();
+        updateDetected = false;
     }
 
     private void reset(){
@@ -47,6 +49,8 @@ public class Controls {
 
     public void loop(){
         reset();
+        gamepad1.update();
+        gamepad2.update();
         if(gamepad2.wasPressed.dpad_up)     ExtendElevator  = true;
         if(gamepad2.wasPressed.dpad_down)   RetractElevator = true;
         if(gamepad2.wasPressed.dpad_right)  ElevatorUp      = true;
@@ -58,6 +62,9 @@ public class Controls {
 
         if(gamepad1.wasReleased.left_bumper)    DropLeft    = true;
         if(gamepad1.wasReleased.right_bumper)   DropRight   = true;
+
+        updateDetected = ExtendElevator || RetractElevator || ElevatorUp || ElevatorDown || Intake || RotatePixels
+                || SwapPixels || DropRight || DropLeft;
 
         switch (currentState){
             case LeftLost:
