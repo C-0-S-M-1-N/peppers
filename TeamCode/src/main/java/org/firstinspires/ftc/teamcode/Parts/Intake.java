@@ -31,13 +31,13 @@ public class Intake implements Part {
     }
     public STATES STATE;
     public static double maxTrashHold = 1200;
-    public static double ground = 90;
+    public static double ground = 80;
     private double usedCurrent = 0;
     private AutoServo servo;
     public Intake(){
         STATE = STATES.IDLE;
         ControlHub.setMotorDirection(MOTOR_PORTS.M2, DcMotorSimple.Direction.REVERSE);
-        servo = new AutoServo(SERVO_PORTS.S3, true, false, 0, AutoServo.type.GOBILDA);
+        servo = new AutoServo(SERVO_PORTS.S3, true, false, 0, AutoServo.type.DS);
     }
 
     @Override
@@ -52,21 +52,23 @@ public class Intake implements Part {
         if(Controls.RevIntake){
             STATE = STATES.REVERSE;
         }
-
-        if(!Controls.Intake && !Controls.RevIntake) STATE = STATES.IDLE;
-        else servo.setAngle(ground);
+        if(!Controls.RevIntake && !Controls.Intake) STATE = STATES.IDLE;
 
         switch (STATE){
             case IDLE:
                 ControlHub.setMotorPower(MOTOR_PORTS.M2, 0);
+                servo.setAngle(0);
                 break;
             case FORWARD:
                 ControlHub.setMotorPower(MOTOR_PORTS.M2, 1);
+                servo.setAngle(ground);
                 break;
             case REVERSE:
                 ControlHub.setMotorPower(MOTOR_PORTS.M2, -1);
+                servo.setAngle(ground);
                 break;
         }
+        servo.update();
 
     }
     @Override

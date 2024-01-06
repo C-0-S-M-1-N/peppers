@@ -16,7 +16,6 @@ public class ElevatorArm implements Part {
 
     private Telemetry telemetry;
     public static AutoServo virtual1, virtual2;
-    private double angle, position;
 
     public ElevatorArm(Telemetry tele){
         telemetry = tele;
@@ -39,13 +38,11 @@ public class ElevatorArm implements Part {
     }
     public double getAngle(){ return virtual1.getAngle(); }
     public void setPosition(double p){
-        position = p;
         virtual1.setPosition(p);
         virtual2.setPosition(p);
     }
 
     public void setAngle(double a){
-        angle = a;
         virtual1.setAngle(a);
         virtual2.setAngle(a);
     }
@@ -53,5 +50,6 @@ public class ElevatorArm implements Part {
     @Override
     public void runTelemetry(){
         telemetry.addData("angle", virtual1.getAngle());
+        telemetry.addData("target angle", virtual2.getTargetAngle());
     }
 }

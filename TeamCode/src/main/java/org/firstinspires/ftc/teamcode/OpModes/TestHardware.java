@@ -20,6 +20,7 @@ public class TestHardware extends LinearOpMode {
     public static ElevatorArm arm;
     public static PixelBed bed;
     public static double pos = 0, angle = 0;
+    public static boolean update = false;
     // 0.108
 
     @Override
@@ -32,8 +33,11 @@ public class TestHardware extends LinearOpMode {
         waitForStart();
 
         while(!isStopRequested() && opModeIsActive()){
-            arm.setPosition(pos);
-            bed.setBedAngle(angle);
+            if(update) {
+                arm.setPosition(pos);
+                bed.setBedAngle(angle);
+                update = false;
+            }
 
             arm.update();
             bed.update();

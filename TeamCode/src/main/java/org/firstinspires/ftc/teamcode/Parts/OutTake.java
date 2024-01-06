@@ -35,7 +35,7 @@ public class OutTake implements Part {
     }
 
     private static double extendArm = 0.68, parallelGround = 0.108;
-    public static double bedAngle = 75;
+    public static double bedAngle = 70;
     private static final double spoolDiameter = 32, armLength = 185.1, CPR = 145.1;
 
     public static STATES STATE;
@@ -56,10 +56,12 @@ public class OutTake implements Part {
         pixelBed = new PixelBed(tele);
         time = new ElapsedTime();
 
-        leftClaw = new Grippers(new AutoServo(SERVO_PORTS.S5, true, false, 0, AutoServo.type.MICRO_SERVO),
+        leftClaw = new Grippers(new AutoServo(SERVO_PORTS.S5, true, true, 0, AutoServo.type.MICRO_SERVO),
                                 hm.get(DigitalChannel.class, "eD0"), telemetry);
-        rightClaw = new Grippers(new AutoServo(SERVO_PORTS.S4, true, true, 0, AutoServo.type.MICRO_SERVO),
+        rightClaw = new Grippers(new AutoServo(SERVO_PORTS.S4, true, false, 0, AutoServo.type.MICRO_SERVO),
                     hm.get(DigitalChannel.class, "eD1"), tele);
+        leftClaw.drop();
+        rightClaw.drop();
         STATE = STATES.IDLE;
         elevator.setPosition(0);
         arm.update();
@@ -68,11 +70,21 @@ public class OutTake implements Part {
         leftClaw.update();
         rightClaw.update();
     }
-
     private void handleControls(){
         if(STATE != STATES.IDLE) return;
-        if(Controls.ExtendElevator) STATE = STATES.EXTEND_TRIGGER;
-        if(Controls.RetractElevator) {STATE = STATES.RETRACT_TRIGGER; time.reset();}
+        if(Controls.ExtendElevator) {
+            STATE = STATES.EXTEND_TRIGGER;
+
+            arm.setPosition(extendArm);
+            STATES.currentElevatorLevel = STATES.prevElevatorLevel;
+        }
+        if(Controls.RetractElevator) {
+            STATE = STATES.RETRACT_TRIGGER; time.reset();
+            pixelBed.setHorizontalRotation();
+            pixelBed.setBedAngle(10);
+            elevator.setPosition(140);
+            arm.setAngle(0);
+        }
 
         if(Controls.ElevatorUp) STATE = STATES.LEVEL_UP;
         if(Controls.ElevatorDown) STATE = STATES.LEVEL_DOWN;
@@ -89,24 +101,16 @@ public class OutTake implements Part {
         switch (STATE){
             case EXTEND_TRIGGER:
 //                arm.setPosition(parallelGround);
-                arm.setAngle(30);
-                STATES.currentElevatorLevel = STATES.prevElevatorLevel;
-
                 gamma = Math.toRadians(arm.getAngle());
-
                 positionInmm = (armLength * Math.sqrt(3)) / (Math.sqrt(3) * Math.cos(gamma) - Math.sin(gamma))
-                                    * (1 - Math.sqrt(3) / (Math.sqrt(3) * Math.cos(gamma) + Math.sin(gamma)));
-
-//                telemetry.addData("kine", positionInmm);
-
+                        * (1 - Math.sqrt(3) / (Math.sqrt(3) * Math.cos(gamma) + Math.sin(gamma)));
                 elevator.setPosition((int) (positionInmm / (spoolDiameter * Math.PI) * CPR));
 
-                if(arm.getAngle() >= 29){
+                if(arm.getAngle() >= 30){
                     STATE = STATES.EXTEND;
                 }
                 break;
             case EXTEND:
-                arm.setPosition(extendArm);
                 elevator.setPosition((int) (STATES.prevElevatorLevel * STATES.step));
                 pixelBed.setBedAngle(bedAngle);
                 if(elevator.STATE == Elevator.STATES.IDLE){
@@ -134,22 +138,17 @@ public class OutTake implements Part {
             case RETRACT_TRIGGER:
                 STATES.prevElevatorLevel = STATES.currentElevatorLevel;
                 STATES.wasSwapped = false;
-                pixelBed.setHorizontalRotation();
-                pixelBed.setBedAngle(0);
 
-                arm.setPosition(0.03);
-
-                if(arm.getPosition() <= 0.04){
+                if(arm.getAngle() == 0 && pixelBed.getPivotAngle() == 10){
                     STATE = STATES.RETRACT;
-                    elevator.setPosition(0);
+                    arm.setAngle(0);
+                    pixelBed.setBedAngle(0);
                 }
                 break;
             case RETRACT:
-                    elevator.setPosition(0);
-                    if(elevator.getCurrentPosition() <= 1){
-                        STATE = STATES.IDLE;
-                        arm.setAngle(0);
-                    }
+                STATE = STATES.IDLE;
+                rightClaw.drop();
+                leftClaw.drop();
                 break;
             case SWAP_PIXELS:
                 pixelBed.swap();
@@ -165,6 +164,10 @@ public class OutTake implements Part {
                 }
                 STATE = STATES.IDLE;
                 break;
+        }
+        if(arm.getAngle() <= 30){
+
+            if(arm.getAngle() <= 0.001) elevator.setPosition(0);
         }
         arm.update();
         elevator.update();
