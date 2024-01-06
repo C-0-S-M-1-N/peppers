@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 
 import org.firstinspires.ftc.teamcode.Components.ElevatorArm;
+import org.firstinspires.ftc.teamcode.Components.PixelBed;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ENCODER_PORTS;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
@@ -17,7 +18,9 @@ import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
 public class TestHardware extends LinearOpMode {
 
     public static ElevatorArm arm;
-    public static double pos = 0;
+    public static PixelBed bed;
+    public static double pos = 0, angle = 0;
+    // 0.108
 
     @Override
     public void runOpMode() throws InterruptedException{
@@ -25,11 +28,23 @@ public class TestHardware extends LinearOpMode {
         ExpansionHub expansionHub = new ExpansionHub(hardwareMap);
         telemetry = FtcDashboard.getInstance().getTelemetry();
         arm = new ElevatorArm(telemetry);
+        bed = new PixelBed(telemetry);
         waitForStart();
 
         while(!isStopRequested() && opModeIsActive()){
             arm.setPosition(pos);
+            bed.setBedAngle(angle);
+
             arm.update();
+            bed.update();
+
+            arm.update_values();
+            bed.update_values();
+
+            arm.runTelemetry();
+            bed.runTelemetry();
+
+            telemetry.update();
         }
 
     }

@@ -32,7 +32,7 @@ public class Tune extends LinearOpMode {
         time = new ElapsedTime();
         controls = new Controls(gamepad1, gamepad2);
 
-        outTake = new OutTake(hardwareMap, controls, telemetry);
+        outTake = new OutTake(hardwareMap, telemetry);
 
         waitForStart();
         time.reset();

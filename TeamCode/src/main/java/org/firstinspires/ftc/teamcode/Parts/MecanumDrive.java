@@ -25,19 +25,6 @@ public class MecanumDrive{
         ExpansionHub.setMotorDirection(MOTOR_PORTS.M0, DcMotorSimple.Direction.REVERSE);
         ExpansionHub.setMotorDirection(MOTOR_PORTS.M1, DcMotorSimple.Direction.REVERSE);
 
-//        motor0 = hm.get(DcMotorEx.class, "eM0");
-//        motor1 = hm.get(DcMotorEx.class, "eM1");
-//        motor2 = hm.get(DcMotorEx.class, "eM2");
-//        motor3 = hm.get(DcMotorEx.class, "eM3");
-
-//        motor0.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        motor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        motor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        motor3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-//        motor0.setDirection(DcMotorSimple.Direction.REVERSE);
-//        motor1.setDirection(DcMotorSimple.Direction.REVERSE);
-
     }
 
     public void update(double left_stick_y, double left_stick_x,
@@ -51,11 +38,6 @@ public class MecanumDrive{
         ExpansionHub.setMotorPower(MOTOR_PORTS.M2, (left_stick_x - left_stick_y - rotation)/denominator);
         ExpansionHub.setMotorPower(MOTOR_PORTS.M1, (left_stick_x - left_stick_y + rotation)/denominator);
         ExpansionHub.setMotorPower(MOTOR_PORTS.M3, (left_stick_x + left_stick_y - rotation)/denominator);
-
-//        motor0.setPower((left_stick_x + left_stick_y + rotation)/denominator);
-//        motor2.setPower((left_stick_x - left_stick_y - rotation)/denominator);
-//        motor1.setPower((left_stick_x - left_stick_y + rotation)/denominator);
-//        motor3.setPower((left_stick_x + left_stick_y - rotation)/denominator);
 
     }
 

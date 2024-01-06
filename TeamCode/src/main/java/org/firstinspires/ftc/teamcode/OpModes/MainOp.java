@@ -39,18 +39,22 @@ public class MainOp extends LinearOpMode {
     public static Intake intake;
     public static OutTake outTake;
     public static MecanumDrive mecanumDrive;
+    public static Controls c;
     ElapsedTime time;
 
     @Override
     public void runOpMode(){
         ExpansionHub eh = new ExpansionHub(hardwareMap);
         ControlHub ch = new ControlHub(hardwareMap);
+        c = new Controls(gamepad1, gamepad2);
         time = new ElapsedTime();
 
         FtcDashboard a = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(telemetry, a.getTelemetry());
 
         mecanumDrive = new MecanumDrive(telemetry, hardwareMap);
+        intake = new Intake();
+        outTake = new OutTake(hardwareMap, telemetry);
 
         waitForStart();
         time.reset();
@@ -59,6 +63,15 @@ public class MainOp extends LinearOpMode {
 
 
             mecanumDrive.update(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_trigger, gamepad1.left_trigger);
+            intake.update();
+            intake.update_values();
+
+            outTake.update();
+            outTake.update_values();
+
+            outTake.runTelemetry();
+            intake.runTelemetry();
+            c.loop();
             telemetry.addData("Hz", 1/time.seconds());
             time.reset();
             telemetry.update();

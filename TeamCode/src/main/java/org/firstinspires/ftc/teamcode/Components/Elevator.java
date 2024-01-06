@@ -27,7 +27,7 @@ public class Elevator implements Part {
     private Telemetry telemetry;
 //    private AutoMotor left, right;
 //    private static DcMotorEx left, right;
-    public static int elevatorPos, currentPosition;
+    public int elevatorPos, currentPosition;
     public static PIDCoefficients pidCoefficients = new PIDCoefficients(0.05*0.9, 0.16*0.9, 0.00092*0.9);
     public static PIDController pidController = new PIDController(pidCoefficients.p, pidCoefficients.i, pidCoefficients.d);
     public static double ff1 = 0.09, ff2 = 1;
@@ -73,6 +73,7 @@ public class Elevator implements Part {
         elevatorPos = pos;
         pidController.setSetPoint(pos);
     }
+    public int getCurrentPosition(){ return (int)currentPosition; }
 
     @Override
     public void update_values(){

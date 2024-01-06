@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Parts;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
@@ -11,6 +12,8 @@ import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Part;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
+import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
+import org.firstinspires.ftc.teamcode.utils.AutoServo;
 
 import java.util.ResourceBundle;
 
@@ -28,26 +31,40 @@ public class Intake implements Part {
     }
     public STATES STATE;
     public static double maxTrashHold = 1200;
+    public static double ground = 90;
     private double usedCurrent = 0;
+    private AutoServo servo;
     public Intake(){
         STATE = STATES.IDLE;
+        ControlHub.setMotorDirection(MOTOR_PORTS.M2, DcMotorSimple.Direction.REVERSE);
+        servo = new AutoServo(SERVO_PORTS.S3, true, false, 0, AutoServo.type.GOBILDA);
     }
+
     @Override
     public void update(){
         if(Disabled) return;
         if(usedCurrent > maxTrashHold){
+//            STATE = STATES.REVERSE;
+        }
+        if(Controls.Intake){
+            STATE = STATES.FORWARD;
+        }
+        if(Controls.RevIntake){
             STATE = STATES.REVERSE;
         }
 
+        if(!Controls.Intake && !Controls.RevIntake) STATE = STATES.IDLE;
+        else servo.setAngle(ground);
+
         switch (STATE){
             case IDLE:
-                ControlHub.setMotorPower(MOTOR_PORTS.M3, 0);
+                ControlHub.setMotorPower(MOTOR_PORTS.M2, 0);
                 break;
             case FORWARD:
-                ControlHub.setMotorPower(MOTOR_PORTS.M3, 1);
+                ControlHub.setMotorPower(MOTOR_PORTS.M2, 1);
                 break;
             case REVERSE:
-                ControlHub.setMotorPower(MOTOR_PORTS.M3, -1);
+                ControlHub.setMotorPower(MOTOR_PORTS.M2, -1);
                 break;
         }
 

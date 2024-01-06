@@ -46,10 +46,12 @@ public class ElevatorArm implements Part {
 
     public void setAngle(double a){
         angle = a;
+        virtual1.setAngle(a);
+        virtual2.setAngle(a);
     }
 
     @Override
     public void runTelemetry(){
-        telemetry.addData("angle", angle);
+        telemetry.addData("angle", virtual1.getAngle());
     }
 }
