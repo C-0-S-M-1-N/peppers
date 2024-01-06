@@ -22,7 +22,7 @@ public class PixelBed implements Part {
     private static boolean isSwapped = false;
 
     public PixelBed(Telemetry tele){
-        pivot = new AutoServo(SERVO_PORTS.S4,false, true, 0, AutoServo.type.GOBILDA);
+        pivot = new AutoServo(SERVO_PORTS.S4,false, true, 0, AutoServo.type.GOBILDA_SPEED);
         rotatePixels = new AutoServo(SERVO_PORTS.S5,false, false, 0, AutoServo.type.GOBILDA);
         telemetry = tele;
     }
@@ -51,6 +51,9 @@ public class PixelBed implements Part {
         rotatePixels.setAngle(0);
         isSwapped = false;
         pivot.setAngle(0);
+    }
+    public double getPivotAngle(){
+        return pivot.getAngle();
     }
     @Override
     public void update_values(){
