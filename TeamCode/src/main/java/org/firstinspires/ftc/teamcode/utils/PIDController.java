@@ -1,36 +1,62 @@
 package org.firstinspires.ftc.teamcode.utils;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Config
+
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 public class PIDController {
-    public static PIDCoefficients coefficients;
-    private double error, lastError, treshHold;
-    private double I, D, P;
-    private final ElapsedTime time;
-    public PIDController(PIDCoefficients c, double tH){
-        treshHold = tH;
-        time = new ElapsedTime();
-        coefficients = c;
-        time.reset();
-        error = 0;
-        lastError = 0;
+    private final PIDCoefficients pid;
+
+    public PIDController(){
+        this(new PIDCoefficients(0,0,0));
+    }
+    public PIDController(PIDCoefficients pid){
+        this.pid = pid;
+        timer.startTime();
+        timer.reset();
     }
 
-    public double calculate(double currentPos, double targetPos){
-        error = targetPos - currentPos;
-        if(Math.abs(error) <= treshHold) error = 0;
+    public double integralBound = 0.1;
 
-        P = coefficients.p * time.seconds();
-        I += coefficients.i * error * time.seconds();
-        D = coefficients.d * (error - lastError) / time.seconds();
+    private static class IntegralPart{
+        public ElapsedTime timer = new ElapsedTime();
+        public double value = 0;
+        public IntegralPart(double value){
+            this.value = value;
+            timer.startTime();
+            timer.reset();
+        }
+    }
 
+    private final Deque<IntegralPart> integralParts = new ArrayDeque<>();
+    public double integralSum = 0;
+
+    private double lastError = 0;
+    private final ElapsedTime timer = new ElapsedTime();
+
+    public double temp = 0;
+
+    public double calculate(double error){
+        double ans = error * pid.p;
+
+        integralSum += error*timer.seconds();
+        integralParts.addFirst(new IntegralPart(error));
+        temp = integralParts.getLast().timer.seconds();
+        while (integralParts.getLast().timer.seconds() > integralBound){
+            IntegralPart temp = integralParts.getLast();
+            integralParts.removeLast();
+            integralSum -= temp.value*(temp.timer.seconds() - integralParts.getLast().timer.seconds());
+        }
+        ans += integralSum * pid.i;
+
+        ans += pid.d * (error - lastError) / timer.seconds();
         lastError = error;
-        time.reset();
-        return P + I + D;
 
+        timer.reset();
+
+        return ans;
     }
 }

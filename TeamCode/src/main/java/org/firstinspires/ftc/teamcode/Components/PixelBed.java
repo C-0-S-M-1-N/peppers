@@ -18,12 +18,12 @@ public class PixelBed implements Part {
     private static AutoServo pivot, rotatePixels;
     private Telemetry telemetry;
 
-    private static final double verticalRotation = 0, horizontalRotation = 90;
+    private static final double verticalRotation = 45, horizontalRotation = 0;
     private static boolean isSwapped = false;
 
     public PixelBed(Telemetry tele){
-        pivot = new AutoServo(SERVO_PORTS.S3,false, false, 0, AutoServo.type.GOBILDA);
-        rotatePixels = new AutoServo(SERVO_PORTS.S4,false, false, 0, AutoServo.type.GOBILDA);
+        pivot = new AutoServo(SERVO_PORTS.S4,false, true, 0, AutoServo.type.GOBILDA);
+        rotatePixels = new AutoServo(SERVO_PORTS.S5,false, false, 0, AutoServo.type.GOBILDA);
         telemetry = tele;
     }
 

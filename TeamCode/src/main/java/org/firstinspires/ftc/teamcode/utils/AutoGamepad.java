@@ -8,7 +8,7 @@ public class AutoGamepad {
     public float left_stick_x, left_stick_y,
                  right_stick_x, right_stick_y,
                  right_trigger, left_trigger;
-    private Gamepad lastState, currentState;
+    public Gamepad lastState, currentState;
     public Gamepad gamepad; // used for applying rumbleEffects or ledEffects
 
     private void updatePressed(){
@@ -63,6 +63,8 @@ public class AutoGamepad {
         currentState = gp;
         gamepad = gp;
         lastState = new Gamepad();
+        wasReleased = new Gamepad();
+        wasPressed = new Gamepad();
     }
 
     public void update(){

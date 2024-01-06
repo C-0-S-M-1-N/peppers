@@ -1,50 +1,54 @@
 package org.firstinspires.ftc.teamcode.Components;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.checkerframework.checker.units.qual.A;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Part;
 import org.firstinspires.ftc.teamcode.utils.AutoSensor;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
 
+import java.util.Objects;
+
+@Config
 public class Grippers implements Part {
-    public boolean Disable = false;
+    public boolean Disable = true;
     public enum STATES{
         CLOSED,
         OPEN
     }
     public STATES STATE;
 
-    private AutoSensor sensor;
-    private AutoServo claw;
-    private double closeClaw = 90;
-    private int ticks_closed = 0, MT = 3;
+    private final AutoServo claw;
+    private final DigitalChannel sensor;
+    public static double closeClaw = 83;
+    private Telemetry telemetry;
 
-    public Grippers(AutoServo s, AutoSensor a){
-        sensor = a;
+    public Grippers(AutoServo s, DigitalChannel sens, Telemetry tele){
+        telemetry = tele;
         claw = s;
         STATE = STATES.OPEN;
+        claw.setAngle(0);
+        s.update();
+        sensor = sens;
+        sensor.setMode(DigitalChannel.Mode.INPUT);
     }
 
     @Override
     public void update(){
         if(Disable) return;
-        sensor.update();
 
-        switch (STATE){
-            case OPEN:
-                if(sensor.ObjDetected()){
-                    STATE = STATES.CLOSED;
-                }
-                claw.setAngle(0);
-            case CLOSED:
-                if(!sensor.ObjDetected() && ticks_closed < MT){
-                    STATE = STATES.OPEN;
-                }
+        if (Objects.requireNonNull(STATE) == STATES.OPEN) {
+            if (!sensor.getState()) {
+                STATE = STATES.CLOSED;
                 claw.setAngle(closeClaw);
+            }
         }
+        claw.update();
 
     }
     @Override
@@ -53,7 +57,11 @@ public class Grippers implements Part {
     }
     @Override
     public void runTelemetry(){
-
+        telemetry.addData("sensor state", sensor.getState());
+        telemetry.addData("gripper state", STATE.toString());
+    }
+    public void drop(){
+        claw.setAngle(0);
     }
 
 

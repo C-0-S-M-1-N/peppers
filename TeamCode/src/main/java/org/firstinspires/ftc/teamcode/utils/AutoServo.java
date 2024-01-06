@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import static java.lang.Math.signum;
+
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -9,6 +12,7 @@ import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 
+@Config
 public class AutoServo {
     public enum type{
         GOBILDA,
@@ -20,9 +24,9 @@ public class AutoServo {
     private boolean revesed;
     private boolean isOnControlHub = true;
     private double position, targetPosition;
-    private static double step = 0.001;
-    private ElapsedTime deltaTime;
+    public double step = 1;
     public static int MAX_ANGLE;
+    private MotionProfile profile;
     /*
     * 270 deg -> virtual servos
     * 300 deg -> gobilda servos
@@ -30,24 +34,29 @@ public class AutoServo {
     * */
 
     public void setPosition(double p){
-        position = p;
+        targetPosition = p;
+        profile.setMotion(position, targetPosition, 0);
     }
     public double getPosition(){
        return position;
     }
     public AutoServo(SERVO_PORTS port, boolean CHub, boolean rev, double initPos, type T){
+        profile = new MotionProfile(15, 8, 8);
         switch(T){
             case GOBILDA:
+                step = 8;
                 MAX_ANGLE = 300;
                 break;
             case DS:
                 MAX_ANGLE = 270;
+                step = 8;
                 break;
             case AXON:
                 MAX_ANGLE = 355;
                 break;
             case MICRO_SERVO:
                 MAX_ANGLE = 180;
+                step = 8;
                 break;
             default:
                 MAX_ANGLE = 0;
@@ -56,27 +65,28 @@ public class AutoServo {
         position = initPos;
         revesed = rev;
         isOnControlHub = CHub;
+        servo = port;
     }
 
     public void update(){
-        position += step * deltaTime.seconds() * (targetPosition - position);
+
+        position = profile.getPosition();
 
         if(isOnControlHub) {
-            ControlHub.setServoPosition(servo, position);
             if(revesed) ControlHub.setServoDirection(servo, Servo.Direction.REVERSE);
             else ControlHub.setServoDirection(servo, Servo.Direction.FORWARD);
+            ControlHub.setServoPosition(servo, position);
         }
         else {
-            ExpansionHub.setServoPosition(servo, position);
             if(revesed) ExpansionHub.setServoDirection(servo, Servo.Direction.REVERSE);
             else ExpansionHub.setServoDirection(servo, Servo.Direction.FORWARD);
+            ExpansionHub.setServoPosition(servo, position);
         }
-
-        deltaTime.reset();
     }
 
     public void setAngle(double angle) {
-        position = angle/MAX_ANGLE;
+        targetPosition = angle/MAX_ANGLE;
+        profile.setMotion(position, targetPosition, 0);
     }
     public double getAngle(){
         return position*MAX_ANGLE;

@@ -2,35 +2,48 @@ package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.Components.ElevatorArm;
+import org.firstinspires.ftc.teamcode.Components.PixelBed;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ENCODER_PORTS;
+import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
 
 @Config
 @TeleOp(name = "testHardware")
 public class TestHardware extends LinearOpMode {
-    public static double power = 0;
+
+    public static ElevatorArm arm;
+    public static PixelBed bed;
+    public static double pos = 0, angle = 0;
+    // 0.108
 
     @Override
     public void runOpMode() throws InterruptedException{
+        ControlHub c = new ControlHub(hardwareMap);
+        ExpansionHub expansionHub = new ExpansionHub(hardwareMap);
         telemetry = FtcDashboard.getInstance().getTelemetry();
-        ControlHub controlHub = new ControlHub(hardwareMap);
-
+        arm = new ElevatorArm(telemetry);
+        bed = new PixelBed(telemetry);
         waitForStart();
 
         while(!isStopRequested() && opModeIsActive()){
-            ControlHub.setMotorPower(MOTOR_PORTS.M0, power);
+            arm.setPosition(pos);
+            bed.setBedAngle(angle);
 
-            telemetry.addData("pos", ControlHub.getMotorPosition(ENCODER_PORTS.E3));
+            arm.update();
+            bed.update();
+
+            arm.update_values();
+            bed.update_values();
+
+            arm.runTelemetry();
+            bed.runTelemetry();
+
             telemetry.update();
         }
 

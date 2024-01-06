@@ -8,7 +8,8 @@ import org.firstinspires.ftc.teamcode.utils.RumbleEffects;
 
 @Config
 public class Controls {
-    public static boolean Intake,
+    public static boolean updateDetected;
+    public static boolean Intake, RevIntake,
             ExtendElevator, RetractElevator, ElevatorUp, ElevatorDown,
             RotatePixels, SwapPixels, DropLeft, DropRight;
     private AutoGamepad gamepad1, gamepad2;
@@ -29,6 +30,7 @@ public class Controls {
         gamepad1 = new AutoGamepad(gp1);
         gamepad2 = new AutoGamepad(gp2);
         effects = new RumbleEffects();
+        updateDetected = false;
     }
 
     private void reset(){
@@ -42,22 +44,29 @@ public class Controls {
         SwapPixels      = false;
         DropLeft        = false;
         DropRight       = false;
+        RevIntake       = false;
 
     }
 
     public void loop(){
         reset();
+        gamepad1.update();
+        gamepad2.update();
         if(gamepad2.wasPressed.dpad_up)     ExtendElevator  = true;
         if(gamepad2.wasPressed.dpad_down)   RetractElevator = true;
         if(gamepad2.wasPressed.dpad_right)  ElevatorUp      = true;
         if(gamepad2.wasPressed.dpad_left)   ElevatorDown    = true;
 
-        if(gamepad2.wasPressed.a)           Intake          = true;
+        if(gamepad2.right_trigger != 0)     Intake          = true;
+        if(gamepad2.left_trigger != 0)      RevIntake       = true;
         if(gamepad2.wasPressed.x)           RotatePixels    = true;
         if(gamepad2.wasPressed.y)           SwapPixels      = true;
 
         if(gamepad1.wasReleased.left_bumper)    DropLeft    = true;
         if(gamepad1.wasReleased.right_bumper)   DropRight   = true;
+
+        updateDetected = ExtendElevator || RetractElevator || ElevatorUp || ElevatorDown || Intake || RotatePixels
+                || SwapPixels || DropRight || DropLeft || RevIntake;
 
         switch (currentState){
             case LeftLost:
