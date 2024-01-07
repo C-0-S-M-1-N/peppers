@@ -24,9 +24,11 @@ public class Grippers implements Part {
     }
     public STATES STATE;
 
+    public static double closeClaw = 83;
+    private String ID = "null";
+
     private AutoServo claw;
     private DigitalChannel sensor;
-    public static double closeClaw = 83;
     private Telemetry telemetry;
 
     public Grippers(AutoServo p, DigitalChannel sens, Telemetry tele){
@@ -35,7 +37,14 @@ public class Grippers implements Part {
         STATE = STATES.OPEN;
         sensor = sens;
         sensor.setMode(DigitalChannel.Mode.INPUT);
-        p.update();
+    }
+    public Grippers(AutoServo p, DigitalChannel sens, Telemetry tele, String id){
+        ID = id;
+        telemetry = tele;
+        claw = p;
+        STATE = STATES.OPEN;
+        sensor = sens;
+        sensor.setMode(DigitalChannel.Mode.INPUT);
     }
 
     @Override
@@ -46,6 +55,7 @@ public class Grippers implements Part {
             STATE = STATES.CLOSED;
             claw.setAngle(closeClaw);
         }
+
         claw.update();
 
     }
@@ -55,11 +65,15 @@ public class Grippers implements Part {
     }
     @Override
     public void runTelemetry(){
-        telemetry.addData("sensor state", sensor.getState());
-        telemetry.addData("gripper state", STATE.toString());
+        telemetry.addLine(ID + ":" +
+                "\n\tsensor state: " + sensor.getState() +
+                "\n\tgripper state: " + STATE.toString());
     }
     public void drop(){
-        claw.setAngle(0);
+        if(claw.getAngle() != 0)
+            claw.setAngle(closeClaw);
+        else
+            claw.setAngle(0);
         STATE = STATES.OPEN;
     }
 

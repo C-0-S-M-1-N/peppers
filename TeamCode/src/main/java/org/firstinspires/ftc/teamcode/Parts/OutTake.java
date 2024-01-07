@@ -15,6 +15,169 @@ import org.firstinspires.ftc.teamcode.Part;
 import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
 
+
+@Config
+public class OutTake implements Part{
+    public static boolean disable = false;
+    public enum STATES{
+        IDLE(null),
+        EXTEND(IDLE),
+        RETRACT(IDLE),
+        LVL_UP(IDLE),
+        LVL_DOWN(IDLE),
+        ROTATE(IDLE),
+        SWAP(IDLE);
+
+        public final STATES nextState;
+        public final int step = 950/10;
+        public int prevLevel = 5;
+        public int currentLevel = 0;
+
+        public int MotionSteps = 0;
+
+        STATES(STATES next){
+            nextState = next;
+        }
+    }
+    public STATES STATE;
+    public Telemetry telemetry;
+    private final Elevator elevator;
+    private final ElevatorArm arm;
+    private final PixelBed pixelBed;
+    private final Grippers LeftClaw, RightClaw;
+    private final ElapsedTime timeExtend;
+
+
+    private boolean isHorizontal = true;
+    public static final double extendArm = 183.6, bedAngle = 120;
+
+    public OutTake(HardwareMap hm, Telemetry telemetry){
+        this.telemetry = telemetry;
+        elevator = new Elevator(telemetry);
+        arm = new ElevatorArm(telemetry);
+        pixelBed = new PixelBed(telemetry);
+        LeftClaw = new Grippers(new AutoServo(SERVO_PORTS.S5, true, true, 0, AutoServo.type.MICRO_SERVO),
+                hm.get(DigitalChannel.class, "eD0"), telemetry, "LEFT");
+        RightClaw = new Grippers(new AutoServo(SERVO_PORTS.S4, true, false, 0, AutoServo.type.MICRO_SERVO),
+                hm.get(DigitalChannel.class, "eD1"), telemetry, "RIGHT");
+        timeExtend = new ElapsedTime();
+
+    }
+
+    private void controls(){
+        if(Controls.DropRight) RightClaw.drop();
+        if(Controls.DropLeft) LeftClaw.drop();
+
+        if(STATE == STATES.IDLE) {
+            if (Controls.ElevatorUp) STATE = STATES.LVL_UP;
+            if (Controls.ElevatorDown) STATE = STATES.LVL_DOWN;
+            if (Controls.ExtendElevator) STATE = STATES.EXTEND;
+            if (Controls.RetractElevator) STATE = STATES.RETRACT;
+            if (Controls.RotatePixels) STATE = STATES.ROTATE;
+            if (Controls.SwapPixels) STATE = STATES.SWAP;
+        }
+    }
+
+    @Override
+    public void update(){
+        if(disable) return;
+        switch (STATE){
+            case IDLE:
+                break;
+            case SWAP:
+                pixelBed.swap();
+                break;
+            case ROTATE:
+                if(isHorizontal) pixelBed.setVerticalRotation();
+                else pixelBed.setHorizontalRotation();
+                isHorizontal = !isHorizontal;
+                STATE = STATE.nextState;
+                break;
+            case LVL_UP:
+                if(elevator.getCurrentPosition() <= 2) break;
+                STATE.currentLevel ++;
+                if(STATE.currentLevel > 10) STATE.currentLevel = 10;
+                STATE = STATE.nextState;
+                elevator.setPosition(STATE.currentLevel * STATE.step);
+                break;
+            case LVL_DOWN:
+                if(elevator.getCurrentPosition() <= 2) break;
+                STATE.currentLevel --;
+                if(STATE.currentLevel < 0) STATE.currentLevel = 0;
+                STATE = STATE.nextState;
+                elevator.setPosition(STATE.currentLevel * STATE.step);
+                break;
+            case EXTEND:
+                if(STATE.MotionSteps == 0){
+                    elevator.setPosition(20);
+                    arm.setAngle(10);
+                    pixelBed.setBedAngle(10);
+                } else if(STATE.MotionSteps == 1){
+                    elevator.setPosition(50);
+                    arm.setAngle(30);
+                } else if(STATE.MotionSteps == 2){
+                    STATE.currentLevel = STATE.prevLevel;
+                    elevator.setPosition(STATE.prevLevel);
+                    arm.setAngle(extendArm);
+                    pixelBed.setBedAngle(bedAngle);
+                } else STATE = STATE.nextState;
+                if(elevator.STATE == Elevator.STATES.IDLE){
+                    if(timeExtend.seconds() >= 0.02){
+                        STATE.MotionSteps ++;
+                    }
+                } else timeExtend.reset();
+                break;
+            case RETRACT:
+                if(STATE.MotionSteps == 2){
+                    STATE.prevLevel = STATE.currentLevel;
+                    elevator.setPosition(50);
+                    arm.setAngle(30);
+                    pixelBed.setBedAngle(0);
+                } else if(STATE.MotionSteps == 1){
+                    elevator.setPosition(20);
+                    arm.setAngle(0);
+                    pixelBed.setBedAngle(0);
+                } else {
+                    STATE.MotionSteps = 0;
+                    elevator.setPosition(0);
+                    STATE = STATE.nextState;
+                }
+                if(elevator.STATE == Elevator.STATES.IDLE){
+                    if(timeExtend.seconds() >= 0.02){
+                        STATE.MotionSteps--;
+                    }
+                } else timeExtend.reset();
+                break;
+
+        }
+        elevator.update();
+        arm.update();
+        pixelBed.update();
+        LeftClaw.update();
+        RightClaw.update();
+    }
+
+    @Override
+    public void update_values(){
+        arm.update_values();
+        elevator.update_values();
+        pixelBed.update_values();
+        LeftClaw.update_values();
+        RightClaw.update_values();
+    }
+    @Override
+    public void runTelemetry(){
+        arm.runTelemetry();
+        elevator.runTelemetry();
+        pixelBed.runTelemetry();
+        LeftClaw.runTelemetry();
+        RightClaw.runTelemetry();
+
+        telemetry.addData("OutTake State", STATE.toString());
+    }
+}
+
+/*
 @Config
 public class OutTake implements Part {
     public static boolean disable = false;
@@ -192,3 +355,4 @@ public class OutTake implements Part {
 //        leftClaw.update();
     }
 }
+*/
