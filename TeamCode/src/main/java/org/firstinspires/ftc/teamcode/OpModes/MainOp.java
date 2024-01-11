@@ -62,7 +62,8 @@ public class MainOp extends LinearOpMode {
         while(opModeIsActive() && !isStopRequested()){
 
 
-            mecanumDrive.update(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_trigger, gamepad1.left_trigger);
+            mecanumDrive.update(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_trigger, gamepad1.left_trigger,
+                    gamepad1.a);
             intake.update();
             intake.update_values();
 

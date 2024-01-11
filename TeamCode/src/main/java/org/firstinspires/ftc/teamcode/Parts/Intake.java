@@ -31,7 +31,7 @@ public class Intake implements Part {
     }
     public STATES STATE;
     public static double maxTrashHold = 1200;
-    public static double ground = 80;
+    public static double ground = 60;
     private double usedCurrent = 0;
     private AutoServo servo;
     public Intake(){

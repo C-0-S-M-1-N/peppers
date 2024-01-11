@@ -28,9 +28,10 @@ public class Elevator implements Part {
 //    private AutoMotor left, right;
 //    private static DcMotorEx left, right;
     public int elevatorPos, currentPosition;
-    public static PIDCoefficients pidCoefficients = new PIDCoefficients(0.05*0.9, 0.16*0.9, 0.00092*0.9);
+    public static PIDCoefficients pidCoefficients = new PIDCoefficients(0.05, 0, 0.00002);
     public static PIDController pidController = new PIDController(pidCoefficients.p, pidCoefficients.i, pidCoefficients.d);
-    public static double ff1 = 0.09, ff2 = 1;
+    public static double ff1 = 0.2, ff2 = 1, ff3 = 0.2 ;
+    public static boolean RETRACTING = false;
     private static double prevPos = 0, velocity = 0;
     public Elevator(Telemetry tele){
         telemetry = tele;
@@ -44,6 +45,8 @@ public class Elevator implements Part {
     @Override
     public void update(){
         update_values();
+        telemetry.addData("error", elevatorPos - currentPosition);
+
         switch (STATE){
             case RESET:
                 if(velocity <= 2) {
@@ -55,12 +58,16 @@ public class Elevator implements Part {
                 }
                 break;
             default:
-                double power = pidController.calculate(currentPosition);
+                if(elevatorPos == 0 && RETRACTING && currentPosition < 5) RETRACTING = false;
 
-                ControlHub.setMotorPower(MOTOR_PORTS.M0, ff1 + ff2*power);
-                ControlHub.setMotorPower(MOTOR_PORTS.M1, ff1 + ff2*power);
+                double power = pidController.calculate(currentPosition, elevatorPos);
 
-                if(elevatorPos <= currentPosition + 1 && elevatorPos >= currentPosition - 1) STATE = STATES.IDLE;
+                telemetry.addData("power: ", power);
+
+                ControlHub.setMotorPower(MOTOR_PORTS.M0, ff1 + ff2*power*(RETRACTING?ff3:1));
+                ControlHub.setMotorPower(MOTOR_PORTS.M1, ff1 + ff2*power*(RETRACTING?ff3:1));
+
+                if(elevatorPos <= currentPosition + 3 && elevatorPos >= currentPosition - 3) STATE = STATES.IDLE;
                 break;
 
         }
@@ -68,16 +75,16 @@ public class Elevator implements Part {
     public void setPosition(int pos){
         if(pos != 0) STATES.wasReseted = false;
         if(pos > elevatorPos) {STATE = STATES.GO_UP;}
-        if(pos < elevatorPos) {STATE = STATES.GO_DOWN;}
+        else if(pos < elevatorPos) {STATE = STATES.GO_DOWN;}
         else STATE = STATES.IDLE;
         elevatorPos = pos;
-        pidController.setSetPoint(pos);
     }
     public int getCurrentPosition(){ return (int)currentPosition; }
 
     @Override
     public void update_values(){
         prevPos = currentPosition;
+        pidController.setPID(pidCoefficients.p, pidCoefficients.i, pidCoefficients.d);
         // nothing to do here :)
         currentPosition = (int) ControlHub.getEncoderPosition(ENCODER_PORTS.E0);
         velocity = Math.abs(currentPosition - prevPos);

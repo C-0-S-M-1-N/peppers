@@ -16,6 +16,7 @@ public class ControlHub {
     private static DcMotorEx motor0, motor1, motor2, motor3;
     private static Encoder encoder0, encoder1, encoder2, encoder3;
     private static Servo servo0, servo1, servo2, servo3, servo4, servo5;
+    private static double voltage;
 
     private static void setMotorsToMax(){
         MotorConfigurationType mct = motor0.getMotorType().clone();
@@ -58,6 +59,8 @@ public class ControlHub {
         encoder1 = new Encoder(motor1);
         encoder2 = new Encoder(motor2);
         encoder3 = new Encoder(motor3);
+
+        voltage = hm.voltageSensor.iterator().next().getVoltage();
 
         setMotorsToMax();
 
@@ -210,4 +213,6 @@ public class ControlHub {
                 break;
         }
     }
+
+    public static double getVoltage() { return voltage; }
 }

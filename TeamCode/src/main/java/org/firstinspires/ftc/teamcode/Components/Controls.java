@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.utils.RumbleEffects;
 public class Controls {
     public static boolean updateDetected;
     public static boolean Intake, RevIntake,
-            ExtendElevator, RetractElevator, ElevatorUp, ElevatorDown,
+            ExtendElevator, RetractElevator, ElevatorUp,  ElevatorDown,
             RotatePixels, SwapPixels, DropLeft, DropRight;
     private AutoGamepad gamepad1, gamepad2;
     private final RumbleEffects effects;
@@ -24,7 +24,7 @@ public class Controls {
         NONE;
     }
 
-    public RumbleEffectPlay currentState;
+    public static RumbleEffectPlay currentState;
 
     public Controls(Gamepad gp1, Gamepad gp2){
         gamepad1 = new AutoGamepad(gp1);

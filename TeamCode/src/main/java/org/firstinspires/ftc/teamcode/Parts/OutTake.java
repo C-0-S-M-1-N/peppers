@@ -22,7 +22,9 @@ public class OutTake implements Part{
     public enum STATES{
         IDLE(null),
         EXTEND(IDLE),
+        EXTEND_TRIGGER(null),
         RETRACT(IDLE),
+        RETRACT_TRIGGER(null),
         LVL_UP(IDLE),
         LVL_DOWN(IDLE),
         ROTATE(IDLE),
@@ -30,10 +32,10 @@ public class OutTake implements Part{
 
         public final STATES nextState;
         public final int step = 950/10;
-        public int prevLevel = 5;
-        public int currentLevel = 0;
+        public static int currentLevel = 4;
 
         public int MotionSteps = 0;
+        public boolean stepDone = false;
 
         STATES(STATES next){
             nextState = next;
@@ -49,9 +51,12 @@ public class OutTake implements Part{
 
 
     private boolean isHorizontal = true;
-    public static final double extendArm = 183.6, bedAngle = 120;
+    public static final double extendArm = 183.6, bedAngle = 80;
 
     public OutTake(HardwareMap hm, Telemetry telemetry){
+        STATE = STATES.IDLE;
+        STATE.MotionSteps = 0;
+        STATE.stepDone = false;
         this.telemetry = telemetry;
         elevator = new Elevator(telemetry);
         arm = new ElevatorArm(telemetry);
@@ -61,6 +66,16 @@ public class OutTake implements Part{
         RightClaw = new Grippers(new AutoServo(SERVO_PORTS.S4, true, false, 0, AutoServo.type.MICRO_SERVO),
                 hm.get(DigitalChannel.class, "eD1"), telemetry, "RIGHT");
         timeExtend = new ElapsedTime();
+        elevator.setPosition(0);
+        arm.setAngle(0);
+        pixelBed.setBedAngle(0);
+        pixelBed.setHorizontalRotation();
+
+        elevator.update();
+        arm.update();
+        pixelBed.update();
+        LeftClaw.update();
+        RightClaw.update();
 
     }
 
@@ -71,8 +86,8 @@ public class OutTake implements Part{
         if(STATE == STATES.IDLE) {
             if (Controls.ElevatorUp) STATE = STATES.LVL_UP;
             if (Controls.ElevatorDown) STATE = STATES.LVL_DOWN;
-            if (Controls.ExtendElevator) STATE = STATES.EXTEND;
-            if (Controls.RetractElevator) STATE = STATES.RETRACT;
+            if (Controls.ExtendElevator) STATE = STATES.EXTEND_TRIGGER;
+            if (Controls.RetractElevator) {STATE = STATES.RETRACT_TRIGGER; timeExtend.reset();}
             if (Controls.RotatePixels) STATE = STATES.ROTATE;
             if (Controls.SwapPixels) STATE = STATES.SWAP;
         }
@@ -81,72 +96,75 @@ public class OutTake implements Part{
     @Override
     public void update(){
         if(disable) return;
+        controls();
         switch (STATE){
             case IDLE:
                 break;
             case SWAP:
                 pixelBed.swap();
+                STATE = STATES.IDLE;
                 break;
             case ROTATE:
                 if(isHorizontal) pixelBed.setVerticalRotation();
                 else pixelBed.setHorizontalRotation();
                 isHorizontal = !isHorizontal;
-                STATE = STATE.nextState;
+                STATE = STATES.IDLE;
                 break;
             case LVL_UP:
                 if(elevator.getCurrentPosition() <= 2) break;
-                STATE.currentLevel ++;
-                if(STATE.currentLevel > 10) STATE.currentLevel = 10;
-                STATE = STATE.nextState;
-                elevator.setPosition(STATE.currentLevel * STATE.step);
+                STATES.currentLevel++;
+                if(STATES.currentLevel > 10) STATES.currentLevel = 10;
+                elevator.setPosition(STATES.currentLevel * STATE.step);
+                STATE = STATES.IDLE;
                 break;
             case LVL_DOWN:
                 if(elevator.getCurrentPosition() <= 2) break;
-                STATE.currentLevel --;
-                if(STATE.currentLevel < 0) STATE.currentLevel = 0;
-                STATE = STATE.nextState;
-                elevator.setPosition(STATE.currentLevel * STATE.step);
+                STATES.currentLevel--;
+                if(STATES.currentLevel < 0) STATES.currentLevel = 0;
+                STATE = STATES.IDLE;
+                elevator.setPosition(STATES.currentLevel * STATE.step);
+                break;
+            case EXTEND_TRIGGER:
+                LeftClaw.manual = true;
+                RightClaw.manual = true;
+                elevator.setPosition(100);
+                if(elevator.STATE == Elevator.STATES.IDLE && elevator.getCurrentPosition() != 0){
+                    if(timeExtend.seconds() >= 0.3){
+                        STATE = STATES.EXTEND;
+                        arm.setAngle(30);
+                        pixelBed.setBedAngle(30);
+                    }
+                } else timeExtend.reset();
                 break;
             case EXTEND:
-                if(STATE.MotionSteps == 0){
-                    elevator.setPosition(20);
-                    arm.setAngle(10);
-                    pixelBed.setBedAngle(10);
-                } else if(STATE.MotionSteps == 1){
-                    elevator.setPosition(50);
-                    arm.setAngle(30);
-                } else if(STATE.MotionSteps == 2){
-                    STATE.currentLevel = STATE.prevLevel;
-                    elevator.setPosition(STATE.prevLevel);
-                    arm.setAngle(extendArm);
-                    pixelBed.setBedAngle(bedAngle);
-                } else STATE = STATE.nextState;
+                elevator.setPosition(STATES.currentLevel * STATE.step);
+                arm.setPosition(0.68);
+                pixelBed.setBedAngle(bedAngle);
+                if(elevator.STATE == Elevator.STATES.IDLE)
+                    STATE = STATES.IDLE;
+                break;
+            case RETRACT_TRIGGER:
+                LeftClaw.drop();
+                RightClaw.drop();
+                elevator.setPosition(140);
+                arm.setAngle(0);
+                pixelBed.setBedAngle(0);
                 if(elevator.STATE == Elevator.STATES.IDLE){
-                    if(timeExtend.seconds() >= 0.02){
-                        STATE.MotionSteps ++;
+                    if(timeExtend.seconds() >= 0.5) {
+                        STATE = STATES.RETRACT;
                     }
+
                 } else timeExtend.reset();
                 break;
             case RETRACT:
-                if(STATE.MotionSteps == 2){
-                    STATE.prevLevel = STATE.currentLevel;
-                    elevator.setPosition(50);
-                    arm.setAngle(30);
-                    pixelBed.setBedAngle(0);
-                } else if(STATE.MotionSteps == 1){
-                    elevator.setPosition(20);
-                    arm.setAngle(0);
-                    pixelBed.setBedAngle(0);
-                } else {
-                    STATE.MotionSteps = 0;
-                    elevator.setPosition(0);
-                    STATE = STATE.nextState;
-                }
+                elevator.setPosition(-2);
+                pixelBed.setBedAngle(5);
+                elevator.RETRACTING = true;
                 if(elevator.STATE == Elevator.STATES.IDLE){
-                    if(timeExtend.seconds() >= 0.02){
-                        STATE.MotionSteps--;
-                    }
-                } else timeExtend.reset();
+                    STATE = STATES.IDLE;
+                    LeftClaw.manual = false;
+                    RightClaw.manual = false;
+                }
                 break;
 
         }
@@ -155,6 +173,7 @@ public class OutTake implements Part{
         pixelBed.update();
         LeftClaw.update();
         RightClaw.update();
+
     }
 
     @Override
@@ -174,6 +193,13 @@ public class OutTake implements Part{
         RightClaw.runTelemetry();
 
         telemetry.addData("OutTake State", STATE.toString());
+        telemetry.addData("motion step", STATE.MotionSteps);
+        telemetry.addData("elevator level", STATES.currentLevel);
+    }
+
+    public boolean fullPixel(){
+        return RightClaw.STATE == Grippers.STATES.CLOSED &&
+               LeftClaw.STATE == Grippers.STATES.CLOSED;
     }
 }
 

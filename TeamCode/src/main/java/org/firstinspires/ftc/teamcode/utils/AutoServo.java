@@ -21,7 +21,6 @@ public class AutoServo {
         DS,
         MICRO_SERVO,
         AXON,
-        GOBILDA_SPEED
     }
     type Type;
     SERVO_PORTS servo;
@@ -68,9 +67,6 @@ public class AutoServo {
     }
 
     public void update(){
-        cached = position == targetPosition && CacheOn;
-        if(cached) return;
-
         if(isOnControlHub) {
             ControlHub.setServoPosition(servo, position);
         }
@@ -81,12 +77,14 @@ public class AutoServo {
     }
     public void setPosition(double p){
         targetPosition = p;
+        position = targetPosition;
     }
     public double getPosition(){
         return position;
     }
     public void setAngle(double angle) {
         targetPosition = angle / MAX_ANGLE;
+        position = targetPosition;
     }
     public double getAngle(){
         return position*MAX_ANGLE;

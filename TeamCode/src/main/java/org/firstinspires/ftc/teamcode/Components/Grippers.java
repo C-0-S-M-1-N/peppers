@@ -18,13 +18,14 @@ import java.util.Objects;
 @Config
 public class Grippers implements Part {
     public boolean Disable = false;
+    public boolean manual = false;
     public enum STATES{
         CLOSED,
         OPEN
     }
     public STATES STATE;
 
-    public static double closeClaw = 83;
+    public static double closeClaw = 90;
     private String ID = "null";
 
     private AutoServo claw;
@@ -50,10 +51,31 @@ public class Grippers implements Part {
     @Override
     public void update(){
         if(Disable) return;
+        if(!manual){
+            if(sensor.getState()) {
+                if(STATE == STATES.CLOSED){
+                    if(Objects.equals(ID, "LEFT"))
+                        Controls.currentState = Controls.RumbleEffectPlay.LeftGot;
+                    else Controls.currentState = Controls.RumbleEffectPlay.RightGot;
 
-        if (!sensor.getState() && STATE == STATES.OPEN) {
-            STATE = STATES.CLOSED;
-            claw.setAngle(closeClaw);
+                }
+                STATE = STATES.OPEN;
+            }
+            else {
+                if(STATE == STATES.OPEN){
+                    if(Objects.equals(ID, "LEFT"))
+                        Controls.currentState = Controls.RumbleEffectPlay.LeftLost;
+                    else Controls.currentState = Controls.RumbleEffectPlay.RightLost;
+                }
+                STATE = STATES.CLOSED;
+            }
+            switch (STATE){
+                case OPEN:
+                    claw.setAngle(0);
+                    break;
+                case CLOSED:
+                    claw.setAngle(closeClaw);
+            }
         }
 
         claw.update();
@@ -70,11 +92,14 @@ public class Grippers implements Part {
                 "\n\tgripper state: " + STATE.toString());
     }
     public void drop(){
-        if(claw.getAngle() != 0)
+
+        if(STATE == STATES.OPEN && manual){
             claw.setAngle(closeClaw);
-        else
+            STATE = STATES.CLOSED;
+        } else {
             claw.setAngle(0);
-        STATE = STATES.OPEN;
+            STATE = STATES.OPEN;
+        }
     }
 
 
