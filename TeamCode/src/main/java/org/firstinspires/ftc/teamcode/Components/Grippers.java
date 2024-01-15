@@ -51,33 +51,36 @@ public class Grippers implements Part {
     @Override
     public void update(){
         if(Disable) return;
-        if(!manual){
-            if(sensor.getState()) {
-                if(STATE == STATES.CLOSED){
-                    if(Objects.equals(ID, "LEFT"))
-                        Controls.currentState = Controls.RumbleEffectPlay.LeftGot;
-                    else Controls.currentState = Controls.RumbleEffectPlay.RightGot;
-
-                }
-                STATE = STATES.OPEN;
-            }
-            else {
-                if(STATE == STATES.OPEN){
-                    if(Objects.equals(ID, "LEFT"))
-                        Controls.currentState = Controls.RumbleEffectPlay.LeftLost;
-                    else Controls.currentState = Controls.RumbleEffectPlay.RightLost;
-                }
-                STATE = STATES.CLOSED;
-            }
-            switch (STATE){
-                case OPEN:
-                    claw.setAngle(0);
-                    break;
-                case CLOSED:
-                    claw.setAngle(closeClaw);
-            }
+//        if(!manual){
+//            if(sensor.getState()) {
+//                if(STATE == STATES.CLOSED){
+//                    if(Objects.equals(ID, "LEFT"))
+//                        Controls.currentState = Controls.RumbleEffectPlay.LeftGot;
+//                    else Controls.currentState = Controls.RumbleEffectPlay.RightGot;
+//
+//                }
+//                STATE = STATES.OPEN;
+//            }
+//            else {
+//                if(STATE == STATES.OPEN){
+//                    if(Objects.equals(ID, "LEFT"))
+//                        Controls.currentState = Controls.RumbleEffectPlay.LeftLost;
+//                    else Controls.currentState = Controls.RumbleEffectPlay.RightLost;
+//                }
+//                STATE = STATES.CLOSED;
+//            }
+//            switch (STATE){
+//                case OPEN:
+//                    claw.setAngle(0);
+//                    break;
+//                case CLOSED:
+//                    claw.setAngle(closeClaw);
+//            }
+//        }
+        if(STATE == STATES.OPEN && !manual && !sensor.getState()){
+            claw.setAngle(closeClaw);
+            STATE = STATES.CLOSED;
         }
-
         claw.update();
 
     }

@@ -1,0 +1,38 @@
+package org.firstinspires.ftc.teamcode.OpModes;
+
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.internals.ControlHub;
+import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
+import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
+
+@TeleOp(name = "TestMotors")
+@Config
+public class TestMotors extends LinearOpMode {
+    public static MOTOR_PORTS port = MOTOR_PORTS.M3;
+    public static double power = 0;
+
+
+    @Override
+    public void runOpMode() throws InterruptedException{
+
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
+        ControlHub c = new ControlHub(hardwareMap);
+        ExpansionHub e = new ExpansionHub(hardwareMap);
+
+        waitForStart();
+
+        while(opModeIsActive()){
+            ExpansionHub.setMotorPower(port, power);
+            telemetry.addData("power consumption", ExpansionHub.getCurrentFromMotor(port, CurrentUnit.MILLIAMPS));
+            telemetry.update();
+        }
+    }
+
+}

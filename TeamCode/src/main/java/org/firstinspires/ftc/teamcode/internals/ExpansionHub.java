@@ -46,6 +46,11 @@ public class ExpansionHub {
         motor2 = hm.get(DcMotorEx.class, "eM2");
         motor3 = hm.get(DcMotorEx.class, "eM3");
 
+        motor0.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         servo0 = hm.get(Servo.class, "eS0");
         servo1 = hm.get(Servo.class, "eS1");
         servo2 = hm.get(Servo.class, "eS2");

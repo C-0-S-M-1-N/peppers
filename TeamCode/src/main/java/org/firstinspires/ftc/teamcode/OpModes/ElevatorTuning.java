@@ -38,7 +38,6 @@ public class ElevatorTuning extends LinearOpMode {
 
         arm.setAngle(0);
         bed.setBedAngle(0);
-        bed.setHorizontalRotation();
 
         arm.update();
         bed.update();

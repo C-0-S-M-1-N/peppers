@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.checkerframework.checker.units.qual.C;
 import org.firstinspires.ftc.teamcode.Components.Grippers;
@@ -18,6 +19,9 @@ import org.firstinspires.ftc.teamcode.utils.AutoServo;
 @Config
 public class ServoTest extends LinearOpMode {
     public static double position = 0;
+    public static boolean Chub = false;
+    public static Servo.Direction dir = Servo.Direction.FORWARD;
+    public static SERVO_PORTS port = SERVO_PORTS.S0;
     public void runOpMode() throws InterruptedException{
 
         telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(), telemetry);
@@ -26,20 +30,17 @@ public class ServoTest extends LinearOpMode {
         ControlHub c = new ControlHub(hardwareMap);
         ExpansionHub h = new ExpansionHub(hardwareMap);
 
-        Grippers leftClaw = new Grippers(new AutoServo(SERVO_PORTS.S5, true, true, 0, AutoServo.type.MICRO_SERVO),
-                hardwareMap.get(DigitalChannel.class, "eD0"), telemetry);
-        Grippers rightClaw = new Grippers(new AutoServo(SERVO_PORTS.S4, true, false, 0, AutoServo.type.MICRO_SERVO),
-                hardwareMap.get(DigitalChannel.class, "eD1"), telemetry);
-
         waitForStart();
 
         while(opModeIsActive() && !isStopRequested()){
-            leftClaw.update();
-            rightClaw.update();
-            if(gamepad1.a) rightClaw.drop();
+            if(Chub){
+                ControlHub.setServoPosition(port, position);
+                ControlHub.setServoDirection(port, dir);
+            } else {
+                ExpansionHub.setServoPosition(port, position);
+                ExpansionHub.setServoDirection(port, dir);
+            }
 
-            rightClaw.runTelemetry();
-            telemetry.update();
         }
     }
 }

@@ -11,7 +11,7 @@ public class Controls {
     public static boolean updateDetected;
     public static boolean Intake, RevIntake,
             ExtendElevator, RetractElevator, ElevatorUp,  ElevatorDown,
-            RotatePixels, SwapPixels, DropLeft, DropRight;
+            DropLeft, DropRight;
     private AutoGamepad gamepad1, gamepad2;
     private final RumbleEffects effects;
 
@@ -40,8 +40,6 @@ public class Controls {
         ElevatorUp      = false;
         ElevatorDown    = false;
         Intake          = false;
-        RotatePixels    = false;
-        SwapPixels      = false;
         DropLeft        = false;
         DropRight       = false;
         RevIntake       = false;
@@ -59,14 +57,12 @@ public class Controls {
 
         if(gamepad2.right_trigger != 0)     Intake          = true;
         if(gamepad2.left_trigger != 0)      RevIntake       = true;
-        if(gamepad2.wasPressed.x)           RotatePixels    = true;
-        if(gamepad2.wasPressed.y)           SwapPixels      = true;
 
         if(gamepad1.wasReleased.left_bumper)    DropLeft    = true;
         if(gamepad1.wasReleased.right_bumper)   DropRight   = true;
 
-        updateDetected = ExtendElevator || RetractElevator || ElevatorUp || ElevatorDown || Intake || RotatePixels
-                || SwapPixels || DropRight || DropLeft || RevIntake;
+        updateDetected = ExtendElevator || RetractElevator || ElevatorUp || ElevatorDown || Intake
+                || DropRight || DropLeft || RevIntake;
 
         switch (currentState){
             case LeftLost:

@@ -31,6 +31,10 @@ public class MecanumDrive{
         telemetry = tele;
         ExpansionHub.setMotorDirection(MOTOR_PORTS.M0, DcMotorSimple.Direction.REVERSE);
         ExpansionHub.setMotorDirection(MOTOR_PORTS.M1, DcMotorSimple.Direction.REVERSE);
+        ExpansionHub.motor0.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        ExpansionHub.motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        ExpansionHub.motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        ExpansionHub.motor3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public void update(double left_stick_y, double left_stick_x,
@@ -47,7 +51,7 @@ public class MecanumDrive{
 
         if(boost){
             ACC = 1;
-        } else ACC = 0.8;
+        } else ACC = 0.6;
 
         ExpansionHub.setMotorPower(MOTOR_PORTS.M0, m0Power * ACC);
         ExpansionHub.setMotorPower(MOTOR_PORTS.M2, m2Power * ACC);

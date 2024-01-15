@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.utils.AutoServo;
 @Config
 public class OutTake implements Part{
     public static boolean disable = false;
+    public static double extendArm = 0.75, bedAngle = 60;
     public enum STATES{
         IDLE(null),
         EXTEND(IDLE),
@@ -49,10 +50,6 @@ public class OutTake implements Part{
     private final Grippers LeftClaw, RightClaw;
     private final ElapsedTime timeExtend;
 
-
-    private boolean isHorizontal = true;
-    public static final double extendArm = 183.6, bedAngle = 80;
-
     public OutTake(HardwareMap hm, Telemetry telemetry){
         STATE = STATES.IDLE;
         STATE.MotionSteps = 0;
@@ -64,12 +61,11 @@ public class OutTake implements Part{
         LeftClaw = new Grippers(new AutoServo(SERVO_PORTS.S5, true, true, 0, AutoServo.type.MICRO_SERVO),
                 hm.get(DigitalChannel.class, "eD0"), telemetry, "LEFT");
         RightClaw = new Grippers(new AutoServo(SERVO_PORTS.S4, true, false, 0, AutoServo.type.MICRO_SERVO),
-                hm.get(DigitalChannel.class, "eD1"), telemetry, "RIGHT");
+                hm.get(DigitalChannel.class, "eD2"), telemetry, "RIGHT");
         timeExtend = new ElapsedTime();
         elevator.setPosition(0);
         arm.setAngle(0);
         pixelBed.setBedAngle(0);
-        pixelBed.setHorizontalRotation();
 
         elevator.update();
         arm.update();
@@ -88,8 +84,6 @@ public class OutTake implements Part{
             if (Controls.ElevatorDown) STATE = STATES.LVL_DOWN;
             if (Controls.ExtendElevator) STATE = STATES.EXTEND_TRIGGER;
             if (Controls.RetractElevator) {STATE = STATES.RETRACT_TRIGGER; timeExtend.reset();}
-            if (Controls.RotatePixels) STATE = STATES.ROTATE;
-            if (Controls.SwapPixels) STATE = STATES.SWAP;
         }
     }
 
@@ -99,16 +93,6 @@ public class OutTake implements Part{
         controls();
         switch (STATE){
             case IDLE:
-                break;
-            case SWAP:
-                pixelBed.swap();
-                STATE = STATES.IDLE;
-                break;
-            case ROTATE:
-                if(isHorizontal) pixelBed.setVerticalRotation();
-                else pixelBed.setHorizontalRotation();
-                isHorizontal = !isHorizontal;
-                STATE = STATES.IDLE;
                 break;
             case LVL_UP:
                 if(elevator.getCurrentPosition() <= 2) break;
@@ -129,7 +113,7 @@ public class OutTake implements Part{
                 RightClaw.manual = true;
                 elevator.setPosition(100);
                 if(elevator.STATE == Elevator.STATES.IDLE && elevator.getCurrentPosition() != 0){
-                    if(timeExtend.seconds() >= 0.3){
+                    if(timeExtend.seconds() >= 0.1){
                         STATE = STATES.EXTEND;
                         arm.setAngle(30);
                         pixelBed.setBedAngle(30);
@@ -138,19 +122,17 @@ public class OutTake implements Part{
                 break;
             case EXTEND:
                 elevator.setPosition(STATES.currentLevel * STATE.step);
-                arm.setPosition(0.68);
+                arm.setPosition(extendArm);
                 pixelBed.setBedAngle(bedAngle);
                 if(elevator.STATE == Elevator.STATES.IDLE)
                     STATE = STATES.IDLE;
                 break;
             case RETRACT_TRIGGER:
-                LeftClaw.drop();
-                RightClaw.drop();
                 elevator.setPosition(140);
                 arm.setAngle(0);
                 pixelBed.setBedAngle(0);
                 if(elevator.STATE == Elevator.STATES.IDLE){
-                    if(timeExtend.seconds() >= 0.5) {
+                    if(timeExtend.seconds() >= 0.7) {
                         STATE = STATES.RETRACT;
                     }
 
@@ -162,8 +144,10 @@ public class OutTake implements Part{
                 elevator.RETRACTING = true;
                 if(elevator.STATE == Elevator.STATES.IDLE){
                     STATE = STATES.IDLE;
-                    LeftClaw.manual = false;
-                    RightClaw.manual = false;
+                    LeftClaw.manual = true;
+                    RightClaw.manual = true;
+                    LeftClaw.drop();
+                    RightClaw.drop();
                 }
                 break;
 

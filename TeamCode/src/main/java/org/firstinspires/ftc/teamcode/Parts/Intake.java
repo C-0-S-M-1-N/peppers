@@ -31,13 +31,13 @@ public class Intake implements Part {
     }
     public STATES STATE;
     public static double maxTrashHold = 1200;
-    public static double ground = 60;
+    public static double ground = 50;
     private double usedCurrent = 0;
     private AutoServo servo;
     public Intake(){
         STATE = STATES.IDLE;
         ControlHub.setMotorDirection(MOTOR_PORTS.M2, DcMotorSimple.Direction.REVERSE);
-        servo = new AutoServo(SERVO_PORTS.S3, true, false, 0, AutoServo.type.DS);
+        servo = new AutoServo(SERVO_PORTS.S3, true, false, 0, AutoServo.type.AXON);
     }
 
     @Override

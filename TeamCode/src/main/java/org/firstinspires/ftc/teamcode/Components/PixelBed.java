@@ -15,15 +15,11 @@ import org.firstinspires.ftc.teamcode.utils.AutoServo;
 public class PixelBed implements Part {
 
     public static boolean Disable = false;
-    private static AutoServo pivot, rotatePixels;
+    private static AutoServo pivot;
     private Telemetry telemetry;
 
-    private static final double verticalRotation = 45, horizontalRotation = 0;
-    private static boolean isSwapped = false;
-
     public PixelBed(Telemetry tele){
-        pivot = new AutoServo(SERVO_PORTS.S4,false, true, 0, AutoServo.type.GOBILDA);
-        rotatePixels = new AutoServo(SERVO_PORTS.S5,false, false, 0, AutoServo.type.GOBILDA);
+        pivot = new AutoServo(SERVO_PORTS.S5,false, true, 0, AutoServo.type.AXON);
         telemetry = tele;
     }
 
@@ -31,25 +27,11 @@ public class PixelBed implements Part {
     public void update(){
         if(Disable) return;
         pivot.update();
-        rotatePixels.update();
-    }
-    public void setVerticalRotation(){
-        rotatePixels.setAngle(verticalRotation);
-    }
-    public void setHorizontalRotation(){
-        rotatePixels.setAngle(horizontalRotation);
-    }
-    public void swap(){
-        isSwapped = !isSwapped;
-        if(isSwapped) rotatePixels.setAngle(rotatePixels.getAngle() + 180);
-        else rotatePixels.setAngle(rotatePixels.getAngle() - 180);
     }
     public void setBedAngle(double angle){
         pivot.setAngle(angle);
     }
     public void reset(){
-        rotatePixels.setAngle(0);
-        isSwapped = false;
         pivot.setAngle(0);
     }
     public double getPivotAngle(){
@@ -62,6 +44,5 @@ public class PixelBed implements Part {
     @Override
     public void runTelemetry(){
         telemetry.addData("pivot angle", pivot.getAngle());
-        telemetry.addData("bed alignment", rotatePixels.getAngle());
     }
 }
