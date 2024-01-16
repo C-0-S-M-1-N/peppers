@@ -13,6 +13,7 @@ public class ObjectCaseDetection {
     }
     public Team team;
     public ObjectCaseDetection(Team team){
+        // TODO - implement it
         // camera funny
 
         this.team = team;
