@@ -5,6 +5,8 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
@@ -16,7 +18,7 @@ import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
 public class TestMotors extends LinearOpMode {
     public static MOTOR_PORTS port = MOTOR_PORTS.M3;
     public static double power = 0;
-
+    public static DcMotorSimple.Direction dir = DcMotorSimple.Direction.FORWARD;
 
     @Override
     public void runOpMode() throws InterruptedException{
@@ -29,8 +31,9 @@ public class TestMotors extends LinearOpMode {
         waitForStart();
 
         while(opModeIsActive()){
-            ExpansionHub.setMotorPower(port, power);
-            telemetry.addData("power consumption", ExpansionHub.getCurrentFromMotor(port, CurrentUnit.MILLIAMPS));
+                ControlHub.setMotorDirection(port, dir);
+            ControlHub.setMotorPower(port, power);
+            telemetry.addData("power consumption", ControlHub.getCurrentFromMotor(port, CurrentUnit.MILLIAMPS));
             telemetry.update();
         }
     }

@@ -11,7 +11,8 @@ public class Controls {
     public static boolean updateDetected;
     public static boolean Intake, RevIntake,
             ExtendElevator, RetractElevator, ElevatorUp,  ElevatorDown,
-            DropLeft, DropRight;
+            DropLeft, DropRight, Hang;
+    public static double HangLevel = 0;
     private AutoGamepad gamepad1, gamepad2;
     private final RumbleEffects effects;
 
@@ -43,6 +44,7 @@ public class Controls {
         DropLeft        = false;
         DropRight       = false;
         RevIntake       = false;
+        Hang            = false;
 
     }
 
@@ -60,6 +62,9 @@ public class Controls {
 
         if(gamepad1.wasReleased.left_bumper)    DropLeft    = true;
         if(gamepad1.wasReleased.right_bumper)   DropRight   = true;
+        if(gamepad2.wasPressed.a){
+            HangLevel = -gamepad2.left_stick_y;
+        } else HangLevel = 0;
 
         updateDetected = ExtendElevator || RetractElevator || ElevatorUp || ElevatorDown || Intake
                 || DropRight || DropLeft || RevIntake;

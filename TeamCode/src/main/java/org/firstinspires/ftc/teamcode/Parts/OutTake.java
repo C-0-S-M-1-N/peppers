@@ -59,9 +59,9 @@ public class OutTake implements Part{
         arm = new ElevatorArm(telemetry);
         pixelBed = new PixelBed(telemetry);
         LeftClaw = new Grippers(new AutoServo(SERVO_PORTS.S5, true, true, 0, AutoServo.type.MICRO_SERVO),
-                hm.get(DigitalChannel.class, "eD0"), telemetry, "LEFT");
+                hm.get(DigitalChannel.class, "eD1"), telemetry, "LEFT");
         RightClaw = new Grippers(new AutoServo(SERVO_PORTS.S4, true, false, 0, AutoServo.type.MICRO_SERVO),
-                hm.get(DigitalChannel.class, "eD2"), telemetry, "RIGHT");
+                hm.get(DigitalChannel.class, "eD0"), telemetry, "RIGHT");
         timeExtend = new ElapsedTime();
         elevator.setPosition(0);
         arm.setAngle(0);
@@ -141,7 +141,7 @@ public class OutTake implements Part{
             case RETRACT:
                 elevator.setPosition(-2);
                 pixelBed.setBedAngle(5);
-                elevator.RETRACTING = true;
+                Elevator.RETRACTING = true;
                 if(elevator.STATE == Elevator.STATES.IDLE){
                     STATE = STATES.IDLE;
                     LeftClaw.manual = true;

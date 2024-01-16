@@ -17,36 +17,23 @@ import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
 @TeleOp(name = "testHardware")
 public class TestHardware extends LinearOpMode {
 
-    public static ElevatorArm arm;
-    public static PixelBed bed;
-    public static double pos = 0, angle = 0;
-    public static boolean update = false;
-    // 0.108
-
     @Override
     public void runOpMode() throws InterruptedException{
         ControlHub c = new ControlHub(hardwareMap);
         ExpansionHub expansionHub = new ExpansionHub(hardwareMap);
         telemetry = FtcDashboard.getInstance().getTelemetry();
-        arm = new ElevatorArm(telemetry);
-        bed = new PixelBed(telemetry);
+
+        DigitalChannel d1 = hardwareMap.get(DigitalChannel.class, "eD1");
+        DigitalChannel d2 = hardwareMap.get(DigitalChannel.class, "eD0");
+
+        d1.setMode(DigitalChannel.Mode.INPUT);
+        d2.setMode(DigitalChannel.Mode.INPUT);
+
         waitForStart();
 
         while(!isStopRequested() && opModeIsActive()){
-            if(update) {
-                arm.setPosition(pos);
-                bed.setBedAngle(angle);
-                update = false;
-            }
-
-            arm.update();
-            bed.update();
-
-            arm.update_values();
-            bed.update_values();
-
-            arm.runTelemetry();
-            bed.runTelemetry();
+            telemetry.addData("sensor 1 state", d1.getState());
+            telemetry.addData("sensor 2 state", d2.getState());
 
             telemetry.update();
         }
