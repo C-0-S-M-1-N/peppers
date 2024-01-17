@@ -50,6 +50,4 @@ public class PIDController {
     public void setMaxActuatorOutput(double mao){
         maxActuatorOutput = mao;
     }
-
-    public double getError(){ return error; }
 }

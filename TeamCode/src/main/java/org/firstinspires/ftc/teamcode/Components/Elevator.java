@@ -28,15 +28,15 @@ public class Elevator implements Part {
 //    private AutoMotor left, right;
 //    private static DcMotorEx left, right;
     public int elevatorPos, currentPosition;
-    public static PIDCoefficients pidCoefficients = new PIDCoefficients(0.05, 0, 0.00002);
+    public static PIDCoefficients pidCoefficients = new PIDCoefficients(0.2, 0.04, 0.0001);
 
     public static PIDController pidController = new PIDController(pidCoefficients);
-    public static double ff1 = 0.2, ff2 = 1;
+    public static double ff1 = 0.18, ff2 = 0.08;
     public static boolean RETRACTING = false;
     private static double prevPos = 0, velocity = 0;
     public Elevator(Telemetry tele){
         telemetry = tele;
-        ControlHub.setMotorDirection(MOTOR_PORTS.M1, DcMotorSimple.Direction.REVERSE);
+//        ControlHub.setMotorDirection(MOTOR_PORTS.M1, DcMotorSimple.Direction.REVERSE);
         ControlHub.resetEncoder(ENCODER_PORTS.E0);
         ControlHub.setEncoderDirection(ENCODER_PORTS.E0, Encoder.Direction.REVERSE);
 
