@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.utils;
+package org.firstinspires.ftc.teamcode.Autos;
 
 import com.acmerobotics.dashboard.config.Config;
 
@@ -89,8 +89,12 @@ public class ObjectDetectionPipeline extends OpenCvPipeline {
         Imgproc.rectangle(mat,MIDDLE_ROI,location == Location.MIDDLE? colorFound:colorNotFound);
 
         return mat;
+
     }
     public Location getLocation(){
         return location;
+    }
+    public void release(){
+        mat.release();
     }
 }

@@ -4,18 +4,15 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.checkerframework.checker.units.qual.C;
 import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
-import java.util.ArrayList;
-
 @Autonomous(group = "Autos", preselectTeleOp = "pipers \\uD83C\\uDF36", name = "AutoBlueClose")
 public class AutoBlueClose extends LinearOpMode {
-    private ObjectCaseDetection objDetection;
+    private BeautifulLocation objDetection;
     private org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive mecanumDrive;
 
     private TrajectorySequence SequenceToGetPixel, SequenceToBackdrop;
@@ -31,7 +28,7 @@ public class AutoBlueClose extends LinearOpMode {
         OutTake outTake = new OutTake(hardwareMap, telemetry);
         Intake intake = new Intake();
 
-        objDetection = new ObjectCaseDetection(ObjectCaseDetection.Team.BLUE);
+        objDetection = new BeautifulLocation(BeautifulLocation.Team.BLUE);
 
         SequenceToGetPixel = mecanumDrive.trajectorySequenceBuilder(new Pose2d())
                 .lineToLinearHeading(placePixel)
@@ -49,7 +46,7 @@ public class AutoBlueClose extends LinearOpMode {
 
         waitForStart();
 
-        ObjectCaseDetection.Case caseDetected = objDetection.getCase();
+        BeautifulLocation.Case caseDetected = objDetection.getCase();
 
         while(opModeIsActive() && !isStopRequested()){
             if(!mecanumDrive.isBusy()){
