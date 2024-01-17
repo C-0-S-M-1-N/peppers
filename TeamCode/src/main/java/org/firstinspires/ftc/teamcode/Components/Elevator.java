@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Components;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 
@@ -11,6 +10,7 @@ import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ENCODER_PORTS;
 import org.firstinspires.ftc.teamcode.internals.Encoder;
 import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
+import org.firstinspires.ftc.teamcode.utils.PIDController;
 
 
 @Config
@@ -29,8 +29,9 @@ public class Elevator implements Part {
 //    private static DcMotorEx left, right;
     public int elevatorPos, currentPosition;
     public static PIDCoefficients pidCoefficients = new PIDCoefficients(0.05, 0, 0.00002);
-    public static PIDController pidController = new PIDController(pidCoefficients.p, pidCoefficients.i, pidCoefficients.d);
-    public static double ff1 = 0.2, ff2 = 1, ff3 = 0.2 ;
+
+    public static PIDController pidController = new PIDController(pidCoefficients);
+    public static double ff1 = 0.2, ff2 = 1;
     public static boolean RETRACTING = false;
     private static double prevPos = 0, velocity = 0;
     public Elevator(Telemetry tele){
@@ -38,6 +39,8 @@ public class Elevator implements Part {
         ControlHub.setMotorDirection(MOTOR_PORTS.M1, DcMotorSimple.Direction.REVERSE);
         ControlHub.resetEncoder(ENCODER_PORTS.E0);
         ControlHub.setEncoderDirection(ENCODER_PORTS.E0, Encoder.Direction.REVERSE);
+
+        pidController.setMaxActuatorOutput(1.0);
 
         STATE = STATES.IDLE;
         STATES.wasReseted = true;
@@ -60,12 +63,12 @@ public class Elevator implements Part {
             default:
                 if(elevatorPos == 0 && RETRACTING && currentPosition < 5) RETRACTING = false;
 
-                double power = pidController.calculate(currentPosition, elevatorPos);
+                double power = pidController.calculatePower(currentPosition);
 
                 telemetry.addData("power: ", power);
 
-                ControlHub.setMotorPower(MOTOR_PORTS.M0, ff1 + ff2*power*(RETRACTING?ff3:1));
-                ControlHub.setMotorPower(MOTOR_PORTS.M1, ff1 + ff2*power*(RETRACTING?ff3:1));
+                ControlHub.setMotorPower(MOTOR_PORTS.M0, ff1 + ff2*power);
+                ControlHub.setMotorPower(MOTOR_PORTS.M1, ff1 + ff2*power);
 
                 if(elevatorPos <= currentPosition + 3 && elevatorPos >= currentPosition - 3) STATE = STATES.IDLE;
                 break;
@@ -78,13 +81,14 @@ public class Elevator implements Part {
         else if(pos < elevatorPos) {STATE = STATES.GO_DOWN;}
         else STATE = STATES.IDLE;
         elevatorPos = pos;
+        pidController.setTargetPosition(elevatorPos);
     }
     public int getCurrentPosition(){ return (int)currentPosition; }
 
     @Override
     public void update_values(){
         prevPos = currentPosition;
-        pidController.setPID(pidCoefficients.p, pidCoefficients.i, pidCoefficients.d);
+        pidController.setPidCoefficients(pidCoefficients);
         // nothing to do here :)
         currentPosition = (int) ControlHub.getEncoderPosition(ENCODER_PORTS.E0);
         velocity = Math.abs(currentPosition - prevPos);

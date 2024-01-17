@@ -15,10 +15,10 @@ import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
 
 /*
 * MAP:
-* 0 - FL
-* 1 - FR
-* 2 - BL
-* 3 - BR
+* 0 - FL / FL
+* 1 - FR / BL
+* 2 - BL / FR
+* 3 - BR / BR
 *
 * */
 @Config

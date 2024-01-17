@@ -3,60 +3,53 @@ package org.firstinspires.ftc.teamcode.utils;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-
-import java.util.ArrayDeque;
-import java.util.Deque;
-
 public class PIDController {
-    private final PIDCoefficients pid;
+    private PIDCoefficients pidCoefficients;
+    private double targetPosition = 0;
+    private double error, lastError, maxActuatorOutput, Isum = 0;
+    private ElapsedTime et;
 
-    public PIDController(){
-        this(new PIDCoefficients(0,0,0));
+    public PIDController(PIDCoefficients pidcoef){
+        pidCoefficients = pidcoef;
+        error = 0;
+        lastError = 0;
+        maxActuatorOutput = 1; // default for FTC motors/servos
+        et = new ElapsedTime();
     }
-    public PIDController(PIDCoefficients pid){
-        this.pid = pid;
-        timer.startTime();
-        timer.reset();
+    public PIDController(double p, double i, double d){
+        this(new PIDCoefficients(p, i, d));
+    }
+    public void setPidCoefficients(PIDCoefficients coeff){
+        pidCoefficients = coeff;
     }
 
-    public double integralBound = 0.1;
+    public double calculatePower(double currentPosition){
+        error = targetPosition - currentPosition;
+        double time = et.seconds();
 
-    private static class IntegralPart{
-        public ElapsedTime timer = new ElapsedTime();
-        public double value = 0;
-        public IntegralPart(double value){
-            this.value = value;
-            timer.startTime();
-            timer.reset();
+        double P = error;
+        double D = (error - lastError) / et.seconds();
+        Isum += P * time;
+        double r = pidCoefficients.p * P + pidCoefficients.i * Isum + pidCoefficients.d * D;
+
+        double ret = Math.max(r, maxActuatorOutput);
+        if(ret != r && error * r > 0){ // Integral Clamping for ant-windup
+            Isum -= P * time;
         }
-    }
 
-    private final Deque<IntegralPart> integralParts = new ArrayDeque<>();
-    public double integralSum = 0;
 
-    private double lastError = 0;
-    private final ElapsedTime timer = new ElapsedTime();
+        et.reset();
 
-    public double temp = 0;
-
-    public double calculate(double error){
-        double ans = error * pid.p;
-
-        integralSum += error*timer.seconds();
-        integralParts.addFirst(new IntegralPart(error));
-        temp = integralParts.getLast().timer.seconds();
-        while (integralParts.getLast().timer.seconds() > integralBound){
-            IntegralPart temp = integralParts.getLast();
-            integralParts.removeLast();
-            integralSum -= temp.value*(temp.timer.seconds() - integralParts.getLast().timer.seconds());
-        }
-        ans += integralSum * pid.i;
-
-        ans += pid.d * (error - lastError) / timer.seconds();
         lastError = error;
-
-        timer.reset();
-
-        return ans;
+        return pidCoefficients.p * P + pidCoefficients.i * Isum + pidCoefficients.d * D;
     }
+    public void setTargetPosition(double pos){
+        targetPosition = pos;
+        Isum = 0;
+    }
+    public void setMaxActuatorOutput(double mao){
+        maxActuatorOutput = mao;
+    }
+
+    public double getError(){ return error; }
 }

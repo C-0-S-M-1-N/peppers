@@ -58,10 +58,10 @@ public class OutTake implements Part{
         elevator = new Elevator(telemetry);
         arm = new ElevatorArm(telemetry);
         pixelBed = new PixelBed(telemetry);
-        LeftClaw = new Grippers(new AutoServo(SERVO_PORTS.S5, true, true, 0, AutoServo.type.MICRO_SERVO),
-                hm.get(DigitalChannel.class, "eD1"), telemetry, "LEFT");
-        RightClaw = new Grippers(new AutoServo(SERVO_PORTS.S4, true, false, 0, AutoServo.type.MICRO_SERVO),
-                hm.get(DigitalChannel.class, "eD0"), telemetry, "RIGHT");
+        LeftClaw = new Grippers(new AutoServo(SERVO_PORTS.S4, true, true, 0, AutoServo.type.MICRO_SERVO),
+                hm.get(DigitalChannel.class, "eD0"), telemetry, "LEFT");
+        RightClaw = new Grippers(new AutoServo(SERVO_PORTS.S5, true, false, 0, AutoServo.type.MICRO_SERVO),
+                hm.get(DigitalChannel.class, "eD1"), telemetry, "RIGHT");
         timeExtend = new ElapsedTime();
         elevator.setPosition(0);
         arm.setAngle(0);
@@ -144,8 +144,8 @@ public class OutTake implements Part{
                 Elevator.RETRACTING = true;
                 if(elevator.STATE == Elevator.STATES.IDLE){
                     STATE = STATES.IDLE;
-                    LeftClaw.manual = true;
-                    RightClaw.manual = true;
+                    LeftClaw.manual = false;
+                    RightClaw.manual = false;
                     LeftClaw.drop();
                     RightClaw.drop();
                 }

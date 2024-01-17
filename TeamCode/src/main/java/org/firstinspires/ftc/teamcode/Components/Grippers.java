@@ -25,7 +25,7 @@ public class Grippers implements Part {
     }
     public STATES STATE;
 
-    public static double closeClaw = 90;
+    public static double closeClaw = 0.35;
     private String ID = "null";
 
     private AutoServo claw;
@@ -78,7 +78,7 @@ public class Grippers implements Part {
 //            }
 //        }
         if(STATE == STATES.OPEN && !manual && !sensor.getState()){
-            claw.setAngle(closeClaw);
+            claw.setPosition(closeClaw);
             STATE = STATES.CLOSED;
         }
         claw.update();
@@ -97,7 +97,7 @@ public class Grippers implements Part {
     public void drop(){
 
         if(STATE == STATES.OPEN && manual){
-            claw.setAngle(closeClaw);
+            claw.setPosition(closeClaw);
             STATE = STATES.CLOSED;
         } else {
             claw.setAngle(0);

@@ -31,7 +31,7 @@ public class TestMotors extends LinearOpMode {
         waitForStart();
 
         while(opModeIsActive()){
-                ControlHub.setMotorDirection(port, dir);
+            ControlHub.setMotorDirection(port, dir);
             ControlHub.setMotorPower(port, power);
             telemetry.addData("power consumption", ControlHub.getCurrentFromMotor(port, CurrentUnit.MILLIAMPS));
             telemetry.update();
