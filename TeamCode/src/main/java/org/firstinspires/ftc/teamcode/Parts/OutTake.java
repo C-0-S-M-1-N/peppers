@@ -47,8 +47,9 @@ public class OutTake implements Part{
     private final Elevator elevator;
     private final ElevatorArm arm;
     private final PixelBed pixelBed;
-    private final Grippers LeftClaw, RightClaw;
+    public final Grippers LeftClaw, RightClaw;
     private final ElapsedTime timeExtend;
+    public static boolean useControls = true;
 
     public OutTake(HardwareMap hm, Telemetry telemetry){
         STATE = STATES.IDLE;
@@ -58,9 +59,9 @@ public class OutTake implements Part{
         elevator = new Elevator(telemetry);
         arm = new ElevatorArm(telemetry);
         pixelBed = new PixelBed(telemetry);
-        LeftClaw = new Grippers(new AutoServo(SERVO_PORTS.S4, true, true, 0, AutoServo.type.MICRO_SERVO),
+        LeftClaw = new Grippers(new AutoServo(SERVO_PORTS.S4, true, true , 0.01, AutoServo.type.MICRO_SERVO),
                 hm.get(DigitalChannel.class, "eD0"), telemetry, "LEFT");
-        RightClaw = new Grippers(new AutoServo(SERVO_PORTS.S5, true, false, 0, AutoServo.type.MICRO_SERVO),
+        RightClaw = new Grippers(new AutoServo(SERVO_PORTS.S5, true, false, 0.01, AutoServo.type.MICRO_SERVO),
                 hm.get(DigitalChannel.class, "eD1"), telemetry, "RIGHT");
         timeExtend = new ElapsedTime();
         elevator.setPosition(0);
@@ -112,11 +113,13 @@ public class OutTake implements Part{
                 LeftClaw.manual = true;
                 RightClaw.manual = true;
                 elevator.setPosition(100);
+
                 if(elevator.STATE == Elevator.STATES.IDLE && elevator.getCurrentPosition() != 0){
                     if(timeExtend.seconds() >= 0.1){
+                        arm.setAngle(60);
+                    }
+                    if(timeExtend.seconds() >= 0.3){
                         STATE = STATES.EXTEND;
-                        arm.setAngle(30);
-                        pixelBed.setBedAngle(30);
                     }
                 } else timeExtend.reset();
                 break;
@@ -140,9 +143,9 @@ public class OutTake implements Part{
                 break;
             case RETRACT:
                 elevator.setPosition(-2);
-                pixelBed.setBedAngle(5);
+                pixelBed.setBedAngle(3);
                 Elevator.RETRACTING = true;
-                if(elevator.STATE == Elevator.STATES.IDLE){
+                if(elevator.STATE == Elevator.STATES.IDLE && timeExtend.seconds() >= 1){
                     STATE = STATES.IDLE;
                     LeftClaw.manual = false;
                     RightClaw.manual = false;

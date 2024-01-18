@@ -25,12 +25,13 @@ public class Grippers implements Part {
     }
     public STATES STATE;
 
-    public static double closeClaw = 0.35;
+    public static double closeClaw = 0.42n;
     private String ID = "null";
 
     private AutoServo claw;
     private DigitalChannel sensor;
     private Telemetry telemetry;
+    public boolean forceClose = false;
 
     public Grippers(AutoServo p, DigitalChannel sens, Telemetry tele){
         telemetry = tele;
@@ -77,9 +78,10 @@ public class Grippers implements Part {
 //                    claw.setAngle(closeClaw);
 //            }
 //        }
-        if(STATE == STATES.OPEN && !manual && !sensor.getState()){
+        if(STATE == STATES.OPEN && ((!manual && !sensor.getState()) || forceClose)){
             claw.setPosition(closeClaw);
             STATE = STATES.CLOSED;
+            forceClose = false;
         }
         claw.update();
 

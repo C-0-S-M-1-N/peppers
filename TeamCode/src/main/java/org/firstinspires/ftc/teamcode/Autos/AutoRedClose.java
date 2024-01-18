@@ -1,39 +1,41 @@
-package org.firstinspires.ftc.teamcode.Autos;
+/*package org.firstinspires.ftc.teamcode.Autos;
 
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.internals.ControlHub;
+import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.trajectorysequence.sequencesegment.TrajectorySegment;
 
 @Config
-@Autonomous(group = "Autos", preselectTeleOp = "pipers \\uD83C\\uDF36", name = "AutoRedClose")
+
 public class AutoRedClose extends LinearOpMode {
-    private org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive mecanumDrive;
+
 
     private TrajectorySequence preloadSeqL, preloadSeqM, preloadSeqR, backdropSeq, parkSeq;
-    public static double LPreload_x,LPreload_y,LPreload_heading;
-    public static double MPreload_x,MPreload_y,MPreload_heading;
-    public static double RPreload_x,RPreload_y,RPreload_heading;
-    public static double Backdrop_x,Backdrop_y,Backdrop_heading;
-    public static double Park_x,Park_y,Park_heading;
-    private Pose2d preloadPosL = new Pose2d(LPreload_x,LPreload_y,LPreload_heading) ,
-            preloadPosM = new Pose2d(MPreload_x,MPreload_y,MPreload_heading) ,
-            preloadPosR = new Pose2d(RPreload_x,RPreload_y,RPreload_heading) ,
-            backdropPos = new Pose2d(Backdrop_x,Backdrop_y,Backdrop_heading) ,
-            parkPos = new Pose2d(Park_x,Park_y,Park_heading);
-    org.firstinspires.ftc.teamcode.Autonomy.ObjectCaseDetection detection = new org.firstinspires.ftc.teamcode.Autonomy.ObjectCaseDetection(hardwareMap,telemetry);
+    public static double LPreload_x = 10, LPreload_y = 10, LPreload_heading = 10;
+    public static double MPreload_x = 10, MPreload_y = 10, MPreload_heading = 10;
+    public static double RPreload_x = 10, RPreload_y = 10, RPreload_heading = 10;
+    public static double Backdrop_x = 10, Backdrop_y = 10, Backdrop_heading = 10;
+    public static double Park_x = 10, Park_y = 10, Park_heading = 10;
+    private final Pose2d preloadPosL = new Pose2d(LPreload_x,LPreload_y,LPreload_heading);
+    private Pose2d preloadPosM = new Pose2d(MPreload_x,MPreload_y,MPreload_heading);
+    private Pose2d preloadPosR = new Pose2d(RPreload_x,RPreload_y,RPreload_heading);
+    private Pose2d backdropPos = new Pose2d(Backdrop_x,Backdrop_y,Backdrop_heading);
+    private Pose2d parkPos = new Pose2d(Park_x,Park_y,Park_heading);
 
-    private boolean updateMecanum = true, reachedBackdrop = false, retreatElevator = false;
+    private boolean updateMecanum = true, reachedBackdrop = false, retreatElevator = false, goingPreload = true;
     @Override
     public void runOpMode() throws InterruptedException {
+        ControlHub ch = new ControlHub(hardwareMap);
+        ExpansionHub eh = new ExpansionHub(hardwareMap);
+        RedClose detection = new RedClose(hardwareMap,telemetry);
         Controls c = new Controls(gamepad1, gamepad2);
         mecanumDrive = new SampleMecanumDrive(hardwareMap);
 
@@ -61,14 +63,18 @@ public class AutoRedClose extends LinearOpMode {
                 .lineToLinearHeading(parkPos)
                 .build();
 
-        switch (detection.getLocation()){
+        waitForStart();
+        switch (detection.getLocation()) {
             case MIDDLE:
+                goingPreload = false;
                 mecanumDrive.followTrajectorySequenceAsync(preloadSeqM);
                 break;
             case RIGHT:
+                goingPreload = false;
                 mecanumDrive.followTrajectorySequenceAsync(preloadSeqR);
                 break;
             default:
+                goingPreload = false;
                 mecanumDrive.followTrajectorySequenceAsync(preloadSeqL);
                 break;
         }
@@ -105,3 +111,4 @@ public class AutoRedClose extends LinearOpMode {
 
     }
 }
+*/

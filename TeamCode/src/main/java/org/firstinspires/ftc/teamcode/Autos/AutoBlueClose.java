@@ -12,7 +12,6 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 @Autonomous(group = "Autos", preselectTeleOp = "pipers \\uD83C\\uDF36", name = "AutoBlueClose")
 public class AutoBlueClose extends LinearOpMode {
-    private BeautifulLocation objDetection;
     private org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive mecanumDrive;
 
     private TrajectorySequence SequenceToGetPixel, SequenceToBackdrop;
@@ -28,7 +27,6 @@ public class AutoBlueClose extends LinearOpMode {
         OutTake outTake = new OutTake(hardwareMap, telemetry);
         Intake intake = new Intake();
 
-        objDetection = new BeautifulLocation(BeautifulLocation.Team.BLUE);
 
         SequenceToGetPixel = mecanumDrive.trajectorySequenceBuilder(new Pose2d())
                 .lineToLinearHeading(placePixel)
@@ -46,7 +44,6 @@ public class AutoBlueClose extends LinearOpMode {
 
         waitForStart();
 
-        BeautifulLocation.Case caseDetected = objDetection.getCase();
 
         while(opModeIsActive() && !isStopRequested()){
             if(!mecanumDrive.isBusy()){

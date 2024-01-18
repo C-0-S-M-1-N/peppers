@@ -20,7 +20,7 @@ public class ObjectDetectionPipeline extends OpenCvPipeline {
         MIDDLE,
         RIGHT
     }
-    private Location location;
+    private Location location = Location.LEFT;
 
     public static int leftRectTopX = 10 ,leftRectTopY = 120;
     public static int leftRectBottomX = 50 ,leftRectBottomY = 240;
@@ -40,7 +40,7 @@ public class ObjectDetectionPipeline extends OpenCvPipeline {
             new Point(middleRectTopX, middleRectTopY),
             new Point(middleRectBottomX, middleRectBottomY));
 
-    public ObjectDetectionPipeline(Telemetry telemetry) {this.telemetry = telemetry;}
+    public ObjectDetectionPipeline(Telemetry telemetry, boolean b) {this.telemetry = telemetry;}
 
     @Override
     public Mat processFrame(Mat input) {
