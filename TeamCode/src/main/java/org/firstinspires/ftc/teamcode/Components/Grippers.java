@@ -25,7 +25,7 @@ public class Grippers implements Part {
     }
     public STATES STATE;
 
-    public static double closeClaw = 0.42n;
+    public static double closeClaw = 0.42;
     private String ID = "null";
 
     private AutoServo claw;
