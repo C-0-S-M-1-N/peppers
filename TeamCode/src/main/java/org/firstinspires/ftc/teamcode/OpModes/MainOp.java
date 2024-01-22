@@ -7,12 +7,16 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.checkerframework.checker.units.qual.A;
 import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Components.Elevator;
+import org.firstinspires.ftc.teamcode.Components.Hang;
+import org.firstinspires.ftc.teamcode.Parts.Avion;
 import org.firstinspires.ftc.teamcode.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Parts.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
+import org.firstinspires.ftc.teamcode.internals.ENCODER_PORTS;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 
 /*
@@ -40,6 +44,8 @@ public class MainOp extends LinearOpMode {
     public static OutTake outTake;
     public static MecanumDrive mecanumDrive;
     public static Controls c;
+    public static Hang hang;
+    public static Avion avion;
     ElapsedTime time;
 
     @Override
@@ -48,6 +54,8 @@ public class MainOp extends LinearOpMode {
         ControlHub ch = new ControlHub(hardwareMap);
         c = new Controls(gamepad1, gamepad2);
         time = new ElapsedTime();
+        hang = new Hang();
+        avion = new Avion();
 
         FtcDashboard a = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(telemetry, a.getTelemetry());
@@ -72,7 +80,12 @@ public class MainOp extends LinearOpMode {
 
             outTake.runTelemetry();
             intake.runTelemetry();
+
+            hang.update();
+            avion.update();
+
             c.loop();
+            telemetry.addData("hang level", ControlHub.getEncoderPosition(ENCODER_PORTS.E3));
             telemetry.addData("Hz", 1/time.seconds());
             time.reset();
             telemetry.update();

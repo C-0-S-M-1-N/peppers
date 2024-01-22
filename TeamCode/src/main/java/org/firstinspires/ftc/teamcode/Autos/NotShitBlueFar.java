@@ -23,24 +23,24 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous(group = "Autos", preselectTeleOp = "pipers \\uD83C\\uDF36", name = "NotShitAutoRedFar")
+@Autonomous(group = "Autos", preselectTeleOp = "pipers \\uD83C\\uDF36", name = "NotShitAutoBlueFar")
 @Config
-public class NotShitRedFar extends LinearOpMode {
+public class NotShitBlueFar extends LinearOpMode {
     private org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive mecanumDrive;
     RedCloseTrajectory t;
     OpenCvCamera camera;
 
     int caz;
     public static double init_x = 0 , init_y = 0, init_heading = 0;
-    public static double LPreload_x = 37, LPreload_y = 6, LPreload_heading = 90;
-    public static double MPreload_x = 48, MPreload_y = -4, MPreload_heading = 0;
-    public static double RPreload_x = 32, RPreload_y = 7, RPreload_heading = -90;
+    public static double LPreload_x = 37, LPreload_y = -6, LPreload_heading = -90;
+    public static double MPreload_x = 48, MPreload_y = 4, MPreload_heading = 0;
+    public static double RPreload_x = 32, RPreload_y = -7, RPreload_heading = 90;
 
-    public static double LBackdrop_x = 18, LBackdrop_y = -85, LBackdrop_heading = -90;
-    public static double MBackdrop_x = 30, MBackdrop_y = -85, MBackdrop_heading = -90;
-    public static double RBackdrop_x = 31, RBackdrop_y = -37.2, RBackdrop_heading = -90;
-    public static double Park_x = 4, Park_y = -36, Park_heading = -91;
-    public static double Transit_x = 54, Transit_y = 24, Transit_heading = -90;
+    public static double LBackdrop_x = 18, LBackdrop_y = 85, LBackdrop_heading = 90;
+    public static double MBackdrop_x = 30, MBackdrop_y = 85, MBackdrop_heading = 90;
+    public static double RBackdrop_x = 31, RBackdrop_y = 37.2, RBackdrop_heading = 90;
+    public static double Park_x = 4, Park_y = 36, Park_heading = 91;
+    public static double Transit_x = 54, Transit_y = -24, Transit_heading = 90;
     private final Pose2d preloadPosL = new Pose2d(LPreload_x,LPreload_y,Math.toRadians(LPreload_heading));
     private Pose2d preloadPosM = new Pose2d(MPreload_x,MPreload_y,Math.toRadians(MPreload_heading));
     private Pose2d preloadPosR = new Pose2d(RPreload_x,RPreload_y,Math.toRadians(RPreload_heading));
@@ -72,7 +72,7 @@ public class NotShitRedFar extends LinearOpMode {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier
                 ("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-        ObjectDetectionPipelineRED detector = new ObjectDetectionPipelineRED(telemetry, false);
+        ObjectDetectionPipeline detector = new ObjectDetectionPipeline(telemetry, true);
 
         camera.setPipeline(detector);
         // ------------------ OpenCv code
@@ -415,9 +415,11 @@ public class NotShitRedFar extends LinearOpMode {
 
         new Thread(() -> {
             camera.stopStreaming();
+
         }).start();
 
         while(opModeIsActive() && !isStopRequested()){
+
             mecanumDrive.update();
             outTake.update();
             outTake.runTelemetry();

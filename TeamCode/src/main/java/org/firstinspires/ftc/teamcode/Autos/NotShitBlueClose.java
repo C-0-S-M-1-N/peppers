@@ -23,24 +23,24 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous(group = "Autos", preselectTeleOp = "pipers \\uD83C\\uDF36", name = "NotShitRedClose")
+@Autonomous(group = "Autos", preselectTeleOp = "pipers \\uD83C\\uDF36", name = "NotShitBlueClose")
 @Config
-public class NotShitRedClose extends LinearOpMode {
+public class NotShitBlueClose extends LinearOpMode {
     private org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive mecanumDrive;
     RedCloseTrajectory t;
     OpenCvCamera camera;
 
     int caz;
     public static double init_x = 0 , init_y = 0, init_heading = 0;
-    public static double LPreload_x = 33, LPreload_y = -15, LPreload_heading = -90;
-    public static double MPreload_x = 39, MPreload_y = -4, MPreload_heading = -90;
-    public static double RPreload_x = 32, RPreload_y = 7, RPreload_heading = -90;
+    public static double LPreload_x = 35, LPreload_y = 15, LPreload_heading = 90;
+    public static double MPreload_x = 39, MPreload_y = 4, MPreload_heading = 90;
+    public static double RPreload_x = 32, RPreload_y = -7, RPreload_heading = 90;
 
-    public static double LBackdrop_x = 16.5, LBackdrop_y = -37.2, LBackdrop_heading = -90;
-    public static double MBackdrop_x = 25, MBackdrop_y = -37.2, MBackdrop_heading = -90;
-    public static double RBackdrop_x = 33, RBackdrop_y = -37.2, RBackdrop_heading = -90;
-    public static double Park_x = 0, Park_y = -34, Park_heading = -91;
-    public static double Transit_x = 11, Transit_y = 2, Transit_heading = -0.1;
+    public static double LBackdrop_x = 14.5, LBackdrop_y = 37.2, LBackdrop_heading = 90;
+    public static double MBackdrop_x = 23, MBackdrop_y = 37.2, MBackdrop_heading = 90;
+    public static double RBackdrop_x = 32.5, RBackdrop_y = 37.2, RBackdrop_heading = 90;
+    public static double Park_x = -3, Park_y = 36, Park_heading = 91;
+    public static double Transit_x = 11, Transit_y = -2, Transit_heading = 0.1;
     private final Pose2d preloadPosL = new Pose2d(LPreload_x,LPreload_y,Math.toRadians(LPreload_heading));
     private Pose2d preloadPosM = new Pose2d(MPreload_x,MPreload_y,Math.toRadians(MPreload_heading));
     private Pose2d preloadPosR = new Pose2d(RPreload_x,RPreload_y,Math.toRadians(RPreload_heading));
@@ -72,7 +72,7 @@ public class NotShitRedClose extends LinearOpMode {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier
                 ("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-        ObjectDetectionPipelineRED detector = new ObjectDetectionPipelineRED(telemetry, false);
+        ObjectDetectionPipeline detector = new ObjectDetectionPipeline(telemetry, true);
 
         camera.setPipeline(detector);
         // ------------------ OpenCv code
@@ -91,12 +91,12 @@ public class NotShitRedClose extends LinearOpMode {
         });
         FtcDashboard.getInstance().startCameraStream(camera, 0);
 
-        TrajectorySequence preloadRight = mecanumDrive.trajectorySequenceBuilder(initPos)
+        TrajectorySequence preloadLeft = mecanumDrive.trajectorySequenceBuilder(new Pose2d())
                 .lineToLinearHeading(preloadPosL)
                 .UNSTABLE_addTemporalMarkerOffset(0.1, () -> {
                     OutTake.STATES.currentLevel = 2;
                     Controls.ExtendElevator = true;
-                    ControlHub.setMotorPower(MOTOR_PORTS.M2, 0.6);
+                    ControlHub.setMotorPower(MOTOR_PORTS.M2, 0.5);
                 })
                 .UNSTABLE_addTemporalMarkerOffset(0.4, () -> {
                     ControlHub.setMotorPower(MOTOR_PORTS.M2, 0);
@@ -112,12 +112,12 @@ public class NotShitRedClose extends LinearOpMode {
                 })
                 .lineToLinearHeading(parkPos)
                 .build();
-        TrajectorySequence preloadMiddle = mecanumDrive.trajectorySequenceBuilder(initPos)
+        TrajectorySequence preloadMiddle = mecanumDrive.trajectorySequenceBuilder(new Pose2d())
                 .lineToLinearHeading(preloadPosM)
                 .UNSTABLE_addTemporalMarkerOffset(0.1, () -> {
                     OutTake.STATES.currentLevel = 2;
                     Controls.ExtendElevator = true;
-                    ControlHub.setMotorPower(MOTOR_PORTS.M2, 0.6);
+                    ControlHub.setMotorPower(MOTOR_PORTS.M2, 0.5);
                 })
                 .UNSTABLE_addTemporalMarkerOffset(0.4, () -> {
                     ControlHub.setMotorPower(MOTOR_PORTS.M2, 0);
@@ -133,12 +133,12 @@ public class NotShitRedClose extends LinearOpMode {
                 })
                 .lineToLinearHeading(parkPos)
                 .build();
-        TrajectorySequence preloadLeft = mecanumDrive.trajectorySequenceBuilder(initPos)
+        TrajectorySequence preloadRight = mecanumDrive.trajectorySequenceBuilder(new Pose2d())
                 .lineToLinearHeading(preloadPosR)
                 .UNSTABLE_addTemporalMarkerOffset(0.1, () -> {
                     OutTake.STATES.currentLevel = 2;
                     Controls.ExtendElevator = true;
-                    ControlHub.setMotorPower(MOTOR_PORTS.M2, 0.6);
+                    ControlHub.setMotorPower(MOTOR_PORTS.M2, 0.5);
                 })
                 .UNSTABLE_addTemporalMarkerOffset(0.4, () -> {
                     ControlHub.setMotorPower(MOTOR_PORTS.M2, 0);

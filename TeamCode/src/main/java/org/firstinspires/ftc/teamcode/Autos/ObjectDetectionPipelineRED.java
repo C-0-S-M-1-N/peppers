@@ -12,7 +12,7 @@ import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 @Config
-public class ObjectDetectionPipeline extends OpenCvPipeline {
+public class ObjectDetectionPipelineRED extends OpenCvPipeline {
     Mat mat = new Mat();
     Telemetry telemetry;
     public enum Location{
@@ -21,27 +21,27 @@ public class ObjectDetectionPipeline extends OpenCvPipeline {
         RIGHT
     }
     private Location location = Location.LEFT;
-    public boolean isBlue = true;
+    public boolean isBlue = false;
 
-    public static int leftRectTopX = 0 ,leftRectTopY = 50;
-    public static int leftRectBottomX = 80 ,leftRectBottomY = 150;
+    public static int rightRectTopX = 250 , rightRectTopY = 50;
+    public static int rightRectBottomX = 360 , rightRectBottomY = 150;
 
-    public static int middleRectTopX = 220 ,middleRectTopY = 70;
-    public static int middleRectBottomX = 310 ,middleRectBottomY = 155;
+    public static int middleRectTopX = 70 ,middleRectTopY = 70;
+    public static int middleRectBottomX = 160 ,middleRectBottomY = 150;
 
-    public static int lowH = 100 ,lowS = 80, lowV = 50;
+    public static int lowH = 100 ,lowS = 40, lowV = 30;
     public static int highH = 140, highS = 255, highV = 255;
 
-    public static double tseThreshold = 0.18;
+    public static double tseThreshold = 0.12;
 
-    public ObjectDetectionPipeline(Telemetry telemetry, boolean b) {this.telemetry = telemetry; isBlue = b;}
+    public ObjectDetectionPipelineRED(Telemetry telemetry, boolean b) {this.telemetry = telemetry; isBlue = b;}
 
     @Override
     public Mat processFrame(Mat input){
 
-        Rect LEFT_ROI = new Rect(
-                new Point(leftRectTopX, leftRectTopY),
-                new Point(leftRectBottomX, leftRectBottomY));
+        Rect RIGHT_ROI = new Rect(
+                new Point(rightRectTopX, rightRectTopY),
+                new Point(rightRectBottomX, rightRectBottomY));
         Rect MIDDLE_ROI = new Rect(
                 new Point(middleRectTopX, middleRectTopY),
                 new Point(middleRectBottomX, middleRectBottomY));
@@ -54,34 +54,29 @@ public class ObjectDetectionPipeline extends OpenCvPipeline {
         Scalar highHSV = new Scalar(highH ,highS, highV);
         Core.inRange(mat, lowHSV, highHSV ,mat);
 
-        Mat left = mat.submat(LEFT_ROI);
+        Mat left = mat.submat(RIGHT_ROI);
         Mat middle = mat.submat(MIDDLE_ROI);
 
-        double leftValue = Core.sumElems(left).val[0] /LEFT_ROI.area() /255;
+        double rightValue = Core.sumElems(left).val[0] /RIGHT_ROI.area() /255;
         double middleValue = Core.sumElems(middle).val[0] /MIDDLE_ROI.area() /255;
 
         left.release();
         middle.release();
 
-        boolean tseLeft = leftValue > tseThreshold;
+        boolean tseRight = rightValue > tseThreshold;
         boolean tseMiddle = middleValue > tseThreshold;
 
-        telemetry.addData("Left raw value", (int) Core.sumElems(left).val[0]);
-        telemetry.addData("Right raw value", (int) Core.sumElems(middle).val[0]);
-        telemetry.addData("Left percentage", Math.round(leftValue * 100) + "%");
-        telemetry.addData("Right percentage", Math.round(middleValue * 100) + "%");
-
-        if(tseLeft) {
-            location = Location.LEFT;
-            telemetry.addData("pixel_location: ", "left");
+        if(tseRight) {
+            location = Location.RIGHT;
+            telemetry.addData("pixel_location: ", "right");
         }
         else if(tseMiddle){
             location = Location.MIDDLE;
             telemetry.addData("pixel_location: ", "middle");
         }
         else{
-            location = Location.RIGHT;
-            telemetry.addData("pixel_location: ", "right");
+            location = Location.LEFT;
+            telemetry.addData("pixel_location: ", "left");
         }
         telemetry.update();
         Imgproc.cvtColor(mat,mat,Imgproc.COLOR_GRAY2RGB);
@@ -89,7 +84,7 @@ public class ObjectDetectionPipeline extends OpenCvPipeline {
         Scalar colorFound = new Scalar(255,0,0);
         Scalar colorNotFound = new Scalar(0,255,0);
 
-        Imgproc.rectangle(mat,LEFT_ROI,location == Location.LEFT? colorFound:colorNotFound);
+        Imgproc.rectangle(mat,RIGHT_ROI,location == Location.RIGHT? colorFound:colorNotFound);
         Imgproc.rectangle(mat,MIDDLE_ROI,location == Location.MIDDLE? colorFound:colorNotFound);
 
         return mat;

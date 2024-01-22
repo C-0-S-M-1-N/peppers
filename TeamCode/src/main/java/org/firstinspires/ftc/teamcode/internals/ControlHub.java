@@ -13,7 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.internals.ENCODER_PORTS;
 
 public class ControlHub {
-    private static DcMotorEx motor0, motor1, motor2, motor3;
+    public static DcMotorEx motor0, motor1, motor2, motor3;
     private static Encoder encoder0, encoder1, encoder2, encoder3;
     private static Servo servo0, servo1, servo2, servo3, servo4, servo5;
     private static double voltage;

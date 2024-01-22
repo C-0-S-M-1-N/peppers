@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import static java.lang.Math.abs;
+
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -8,6 +10,7 @@ public class PIDController {
     private double targetPosition = 0;
     private double error, lastError, maxActuatorOutput, Isum = 0;
     private ElapsedTime et;
+    private double threshold = 2;
 
     public PIDController(PIDCoefficients pidcoef){
         pidCoefficients = pidcoef;
@@ -35,6 +38,9 @@ public class PIDController {
         double ret = Math.max(r, maxActuatorOutput);
         if(ret != r && error * r > 0){ // Integral Clamping for ant-windup
             Isum -= P * time;
+        }
+        if(abs(error) <= threshold) {
+            Isum = 0;
         }
 
 

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Components;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import org.firstinspires.ftc.teamcode.Parts.Avion;
 import org.firstinspires.ftc.teamcode.utils.AutoGamepad;
 import org.firstinspires.ftc.teamcode.utils.RumbleEffects;
 
@@ -11,7 +12,7 @@ public class Controls {
     public static boolean updateDetected;
     public static boolean Intake, RevIntake,
             ExtendElevator, RetractElevator, ElevatorUp,  ElevatorDown,
-            DropLeft, DropRight, Hang;
+            DropLeft, DropRight, Hang, Avion;
     public static double HangLevel = 0;
     private AutoGamepad gamepad1, gamepad2;
     private final RumbleEffects effects;
@@ -45,6 +46,7 @@ public class Controls {
         DropRight       = false;
         RevIntake       = false;
         Hang            = false;
+        Avion           = false;
 
     }
 
@@ -57,14 +59,15 @@ public class Controls {
         if(gamepad2.wasPressed.dpad_right)  ElevatorUp      = true;
         if(gamepad2.wasPressed.dpad_left)   ElevatorDown    = true;
 
-        if(gamepad2.right_trigger != 0)     Intake          = true;
-        if(gamepad2.left_trigger != 0)      RevIntake       = true;
+        if(gamepad2.right_trigger >= 0.7)     Intake          = true;
+        if(gamepad2.left_trigger >= 0.7)      RevIntake       = true;
 
-        if(gamepad1.wasReleased.left_bumper)    DropLeft    = true;
-        if(gamepad1.wasReleased.right_bumper)   DropRight   = true;
-        if(gamepad2.wasPressed.a){
-            HangLevel = -gamepad2.left_stick_y;
+        if(gamepad1.wasPressed.left_bumper)    DropLeft    = true;
+        if(gamepad1.wasPressed.right_bumper)   DropRight   = true;
+        if(gamepad2.gamepad.a){
+            HangLevel = gamepad2.gamepad.left_stick_y;
         } else HangLevel = 0;
+        if(gamepad2.wasPressed.x) Avion = true;
 
         updateDetected = ExtendElevator || RetractElevator || ElevatorUp || ElevatorDown || Intake
                 || DropRight || DropLeft || RevIntake;

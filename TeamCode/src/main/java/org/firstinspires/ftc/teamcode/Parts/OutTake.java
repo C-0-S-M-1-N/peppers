@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.utils.AutoServo;
 @Config
 public class OutTake implements Part{
     public static boolean disable = false;
-    public static double extendArm = 0.75, bedAngle = 60;
+    public static double extendArm = 0.75, bedAngle = 50;
     public enum STATES{
         IDLE(null),
         EXTEND(IDLE),
@@ -50,6 +50,7 @@ public class OutTake implements Part{
     public final Grippers LeftClaw, RightClaw;
     private final ElapsedTime timeExtend;
     public static boolean useControls = true;
+    public static double offsetTemp = 0.08;
 
     public OutTake(HardwareMap hm, Telemetry telemetry){
         STATE = STATES.IDLE;
@@ -67,6 +68,8 @@ public class OutTake implements Part{
         elevator.setPosition(0);
         arm.setAngle(0);
         pixelBed.setBedAngle(0);
+        RightClaw.offset = offsetTemp;
+        LeftClaw.offsetClose = 0.04;
 
         elevator.update();
         arm.update();
@@ -77,8 +80,10 @@ public class OutTake implements Part{
     }
 
     private void controls(){
-        if(Controls.DropRight) RightClaw.drop();
-        if(Controls.DropLeft) LeftClaw.drop();
+        if(Controls.DropLeft || Controls.DropRight) {
+            LeftClaw.drop();
+            RightClaw.drop();
+        }
 
         if(STATE == STATES.IDLE) {
             if (Controls.ElevatorUp) STATE = STATES.LVL_UP;
@@ -112,13 +117,13 @@ public class OutTake implements Part{
             case EXTEND_TRIGGER:
                 LeftClaw.manual = true;
                 RightClaw.manual = true;
-                elevator.setPosition(100);
+                elevator.setPosition(150);
 
                 if(elevator.STATE == Elevator.STATES.IDLE && elevator.getCurrentPosition() != 0){
-                    if(timeExtend.seconds() >= 0.1){
+                    if(timeExtend.seconds() >= 0.25){
                         arm.setAngle(60);
                     }
-                    if(timeExtend.seconds() >= 0.3){
+                    if(timeExtend.seconds() >= 0.4){
                         STATE = STATES.EXTEND;
                     }
                 } else timeExtend.reset();
@@ -131,7 +136,7 @@ public class OutTake implements Part{
                     STATE = STATES.IDLE;
                 break;
             case RETRACT_TRIGGER:
-                elevator.setPosition(140);
+                elevator.setPosition(160);
                 arm.setAngle(0);
                 pixelBed.setBedAngle(0);
                 if(elevator.STATE == Elevator.STATES.IDLE){
@@ -143,7 +148,7 @@ public class OutTake implements Part{
                 break;
             case RETRACT:
                 elevator.setPosition(-2);
-                pixelBed.setBedAngle(3);
+                pixelBed.setBedAngle(4);
                 Elevator.RETRACTING = true;
                 if(elevator.STATE == Elevator.STATES.IDLE && timeExtend.seconds() >= 1){
                     STATE = STATES.IDLE;
