@@ -69,7 +69,7 @@ public class ObjectDetectionPipeline extends OpenCvPipeline {
         telemetry.addData("Left raw value", (int) Core.sumElems(left).val[0]);
         telemetry.addData("Right raw value", (int) Core.sumElems(middle).val[0]);
         telemetry.addData("Left percentage", Math.round(leftValue * 100) + "%");
-        telemetry.addData("Right percentage", Math.round(middleValue * 100) + "%");
+        telemetry.addData("Middle percentage", Math.round(middleValue * 100) + "%");
 
         if(tseLeft) {
             location = Location.LEFT;
