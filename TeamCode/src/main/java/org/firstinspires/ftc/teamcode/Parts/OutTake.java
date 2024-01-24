@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.utils.AutoServo;
 @Config
 public class OutTake implements Part{
     public static boolean disable = false;
-    public static double extendArm = 0.75, bedAngle = 120;
+    public static double extendArm = 0.75, bedAngle = 60;
     public enum STATES{
         IDLE(null),
         EXTEND(IDLE),

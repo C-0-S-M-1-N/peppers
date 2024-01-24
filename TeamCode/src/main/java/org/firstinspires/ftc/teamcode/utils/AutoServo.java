@@ -36,6 +36,7 @@ public class AutoServo {
                 MAX_ANGLE = 300;
                 break;
             case DS:
+                MAX_ANGLE = 270;
                 break;
             case AXON:
                 MAX_ANGLE = 355;
