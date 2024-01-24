@@ -41,16 +41,16 @@ public class NotShitRedFar extends LinearOpMode {
     public static double RBackdrop_x = 31, RBackdrop_y = -37.2, RBackdrop_heading = -90;
     public static double Park_x = 4, Park_y = -36, Park_heading = -91;
     public static double Transit_x = 54, Transit_y = 24, Transit_heading = -90;
-    private final Pose2d preloadPosL = new Pose2d(LPreload_x,LPreload_y,Math.toRadians(LPreload_heading));
-    private Pose2d preloadPosM = new Pose2d(MPreload_x,MPreload_y,Math.toRadians(MPreload_heading));
-    private Pose2d preloadPosR = new Pose2d(RPreload_x,RPreload_y,Math.toRadians(RPreload_heading));
-    private Pose2d initPos = new Pose2d(init_x, init_y, Math.toRadians(init_heading));
+    public static final Pose2d preloadPosL = new Pose2d(LPreload_x,LPreload_y,Math.toRadians(LPreload_heading));
+    public static Pose2d preloadPosM = new Pose2d(MPreload_x,MPreload_y,Math.toRadians(MPreload_heading));
+    public static Pose2d preloadPosR = new Pose2d(RPreload_x,RPreload_y,Math.toRadians(RPreload_heading));
+    public static Pose2d initPos = new Pose2d(init_x, init_y, Math.toRadians(init_heading));
 
-    private Pose2d LbackdropPos = new Pose2d(LBackdrop_x,LBackdrop_y,Math.toRadians(LBackdrop_heading));
-    private Pose2d MbackdropPos = new Pose2d(MBackdrop_x,MBackdrop_y,Math.toRadians(MBackdrop_heading));
-    private Pose2d RbackdropPos = new Pose2d(RBackdrop_x,RBackdrop_y,Math.toRadians(RBackdrop_heading));
-    private Pose2d parkPos = new Pose2d(Park_x,Park_y,Math.toRadians(Park_heading));
-    private Pose2d transitPos = new Pose2d(Transit_x, Transit_y, Math.toRadians(Transit_heading));
+    public static Pose2d LbackdropPos = new Pose2d(LBackdrop_x,LBackdrop_y,Math.toRadians(LBackdrop_heading));
+    public static Pose2d MbackdropPos = new Pose2d(MBackdrop_x,MBackdrop_y,Math.toRadians(MBackdrop_heading));
+    public static Pose2d RbackdropPos = new Pose2d(RBackdrop_x,RBackdrop_y,Math.toRadians(RBackdrop_heading));
+    public static Pose2d parkPos = new Pose2d(Park_x,Park_y,Math.toRadians(Park_heading));
+    public static Pose2d transitPos = new Pose2d(Transit_x, Transit_y, Math.toRadians(Transit_heading));
     private Controls c;
     private AutoServo intakeServo;
 

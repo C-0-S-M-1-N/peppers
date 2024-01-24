@@ -18,8 +18,8 @@ import org.firstinspires.ftc.teamcode.utils.AutoServo;
 @TeleOp(name = "servoTest")
 @Config
 public class ServoTest extends LinearOpMode {
-    public static double position = 0;
-    public static boolean Chub = false;
+    public static double position = 0, angle = 0, maxAngle = 300;
+    public static boolean Chub = false, Isangle = false;
     public static Servo.Direction dir = Servo.Direction.FORWARD;
     public static SERVO_PORTS port = SERVO_PORTS.S0;
     public void runOpMode() throws InterruptedException{
@@ -34,10 +34,10 @@ public class ServoTest extends LinearOpMode {
 
         while(opModeIsActive() && !isStopRequested()){
             if(Chub){
-                ControlHub.setServoPosition(port, position);
+                ControlHub.setServoPosition(port, Isangle ? angle / maxAngle : position);
                 ControlHub.setServoDirection(port, dir);
             } else {
-                ExpansionHub.setServoPosition(port, position);
+                ExpansionHub.setServoPosition(port, Isangle ? angle / maxAngle : position);
                 ExpansionHub.setServoDirection(port, dir);
             }
 
