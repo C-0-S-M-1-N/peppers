@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.checkerframework.checker.units.qual.A;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.internals.ENCODER_PORTS;
 
@@ -215,4 +216,15 @@ public class ControlHub {
     }
 
     public static double getVoltage() { return voltage; }
+
+    public static void teleMotorCurrents(Telemetry telemetry) {
+
+        telemetry.addData("CM0:", getCurrentFromMotor(MOTOR_PORTS.M0, CurrentUnit.AMPS));
+        telemetry.addData("CM1:", getCurrentFromMotor(MOTOR_PORTS.M1, CurrentUnit.AMPS));
+        telemetry.addData("CM2:", getCurrentFromMotor(MOTOR_PORTS.M2, CurrentUnit.AMPS));
+        telemetry.addData("CM3:", getCurrentFromMotor(MOTOR_PORTS.M3, CurrentUnit.AMPS));
+        telemetry.addData("Control Power:", getCurrentFromMotor(MOTOR_PORTS.M0, CurrentUnit.AMPS) + getCurrentFromMotor(MOTOR_PORTS.M1, CurrentUnit.AMPS) + getCurrentFromMotor(MOTOR_PORTS.M2, CurrentUnit.AMPS) + getCurrentFromMotor(MOTOR_PORTS.M3, CurrentUnit.AMPS));
+
+
+    }
 }

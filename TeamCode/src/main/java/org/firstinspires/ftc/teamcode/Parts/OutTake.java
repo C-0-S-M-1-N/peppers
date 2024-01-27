@@ -118,6 +118,7 @@ public class OutTake implements Part{
                 LeftClaw.manual = true;
                 RightClaw.manual = true;
                 elevator.setPosition(150);
+                pixelBed.setBedAngle(30);
 
                 if(elevator.STATE == Elevator.STATES.IDLE && elevator.getCurrentPosition() != 0){
                     if(timeExtend.seconds() >= 0.25){
@@ -136,9 +137,9 @@ public class OutTake implements Part{
                     STATE = STATES.IDLE;
                 break;
             case RETRACT_TRIGGER:
-                elevator.setPosition(160);
+                elevator.setPosition(110);
                 arm.setAngle(0);
-                pixelBed.setBedAngle(0);
+                pixelBed.setBedAngle(30);
                 if(elevator.STATE == Elevator.STATES.IDLE){
                     if(timeExtend.seconds() >= 0.7) {
                         STATE = STATES.RETRACT;

@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.checkerframework.checker.units.qual.A;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.internals.ENCODER_PORTS;
 
@@ -213,6 +214,16 @@ public class ExpansionHub {
                 encoder3.reset();
                 break;
         }
+    }
+
+    public static void teleMotorCurrents(Telemetry telemetry) {
+
+        telemetry.addData("EM0:", getCurrentFromMotor(MOTOR_PORTS.M0, CurrentUnit.AMPS));
+        telemetry.addData("EM1:", getCurrentFromMotor(MOTOR_PORTS.M1, CurrentUnit.AMPS));
+        telemetry.addData("EM2:", getCurrentFromMotor(MOTOR_PORTS.M2, CurrentUnit.AMPS));
+        telemetry.addData("EM3:", getCurrentFromMotor(MOTOR_PORTS.M3, CurrentUnit.AMPS));
+        telemetry.addData("Expansion Power:", getCurrentFromMotor(MOTOR_PORTS.M0, CurrentUnit.AMPS) + getCurrentFromMotor(MOTOR_PORTS.M1, CurrentUnit.AMPS) + getCurrentFromMotor(MOTOR_PORTS.M2, CurrentUnit.AMPS) + getCurrentFromMotor(MOTOR_PORTS.M3, CurrentUnit.AMPS));
+
     }
 
 

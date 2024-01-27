@@ -69,6 +69,9 @@ public class MainOp extends LinearOpMode {
 
         while(opModeIsActive() && !isStopRequested()){
 
+            ControlHub.teleMotorCurrents(telemetry);
+            ExpansionHub.teleMotorCurrents(telemetry);
+
 
             mecanumDrive.update(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_trigger, gamepad1.left_trigger,
                     gamepad1.a);

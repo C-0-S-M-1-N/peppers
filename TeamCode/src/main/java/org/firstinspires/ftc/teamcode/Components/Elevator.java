@@ -33,7 +33,7 @@ public class Elevator implements Part {
 //    private AutoMotor left, right;
 //    private static DcMotorEx left, right;
     public int elevatorPos, currentPosition;
-    public static PIDCoefficients pidCoefficients = new PIDCoefficients(0.2, 0, 0.0001);
+    public static PIDCoefficients pidCoefficients = new PIDCoefficients(0.15, 0, 0.0012);
 
     public static PIDController pidController = new PIDController(pidCoefficients);
     public static double ff1 = 0, ff2 = 0.08;
@@ -69,7 +69,7 @@ public class Elevator implements Part {
             default:
                 if(elevatorPos == 0 && RETRACTING && currentPosition < 5) RETRACTING = false;
 
-                double power = pidController.calculatePower(currentPosition);
+                double power = pidController.calculatePower(currentPosition) / ControlHub.getVoltage() * 12;
 
                 power = ff1 + ff2*power;
 
