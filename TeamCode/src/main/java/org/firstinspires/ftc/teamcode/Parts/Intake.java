@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Parts;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -34,22 +35,36 @@ public class Intake implements Part {
     public static double ground = 50;
     private double usedCurrent = 0;
     private AutoServo servo;
+
+    NanoClock clock;
+    private double grippersHaveTime = 0;
+    private boolean grippersHave = false;
     public Intake(){
         STATE = STATES.IDLE;
         ControlHub.setMotorDirection(MOTOR_PORTS.M2, DcMotorSimple.Direction.REVERSE);
         servo = new AutoServo(SERVO_PORTS.S3, true, false, 0, AutoServo.type.AXON);
+        clock = NanoClock.system();
     }
 
     @Override
     public void update(){
         if(Disabled) return;
+
+        if(!OutTake.fullPixel()) {
+            grippersHaveTime = 0;
+            grippersHave = false;
+        } else if(grippersHaveTime == 0) {
+            grippersHaveTime = clock.seconds();
+        } else if(clock.seconds() - grippersHaveTime > 0.7) {
+            grippersHave = true;
+        }
         if(usedCurrent > maxTrashHold){
 //            STATE = STATES.REVERSE;
         }
-        if(Controls.Intake){
+        if(Controls.Intake && !grippersHave){
             STATE = STATES.FORWARD;
         }
-        if(Controls.RevIntake){
+        if(Controls.RevIntake || (grippersHave && Controls.Intake)){
             STATE = STATES.REVERSE;
         }
         if(!Controls.RevIntake && !Controls.Intake) STATE = STATES.IDLE;
@@ -64,7 +79,7 @@ public class Intake implements Part {
                 servo.setAngle(ground);
                 break;
             case REVERSE:
-                ControlHub.setMotorPower(MOTOR_PORTS.M2, -1);
+                ControlHub.setMotorPower(MOTOR_PORTS.M2, -0.7);
                 servo.setAngle(ground);
                 break;
         }

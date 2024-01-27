@@ -47,7 +47,7 @@ public class OutTake implements Part{
     private final Elevator elevator;
     private final ElevatorArm arm;
     private final PixelBed pixelBed;
-    public final Grippers LeftClaw, RightClaw;
+    public static Grippers LeftClaw, RightClaw;
     private final ElapsedTime timeExtend;
     public static boolean useControls = true;
     public static double offsetTemp = 0.08;
@@ -190,7 +190,7 @@ public class OutTake implements Part{
         telemetry.addData("elevator level", STATES.currentLevel);
     }
 
-    public boolean fullPixel(){
+    public static boolean fullPixel(){
         return RightClaw.STATE == Grippers.STATES.CLOSED &&
                LeftClaw.STATE == Grippers.STATES.CLOSED;
     }
