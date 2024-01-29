@@ -26,7 +26,8 @@ public class AutoServo {
     SERVO_PORTS servo;
     private boolean revesed;
     private boolean isOnControlHub = true, cached = false;
-    private double position, targetPosition;
+    private double position, targetPosition, initPosition;
+
     public double step = 1;
     public static int MAX_ANGLE;
 
@@ -43,13 +44,13 @@ public class AutoServo {
                 break;
             case MICRO_SERVO:
                 MAX_ANGLE = 180;
-                step = 100;
                 break;
             default:
                 MAX_ANGLE = 0;
                 break;
         }
-        position = initPos;
+        position = initPosition;
+        initPosition = initPos;
         revesed = rev;
         isOnControlHub = CHub;
         servo = port;
@@ -68,6 +69,10 @@ public class AutoServo {
     }
 
     public void update(){
+        if(targetPosition > 1){
+            ControlHub.telemetry.addLine("WARNING: servo " + servo.toString() + (isOnControlHub ? " on control hub" : " on expansion hub") +
+                                            "is excedeeing the maximum setPosition of 1 reset the servo 0 position mechanically");
+        }
         if(isOnControlHub) {
             ControlHub.setServoPosition(servo, position);
         }
@@ -78,17 +83,17 @@ public class AutoServo {
     }
     public void setPosition(double p){
         targetPosition = p;
-        position = targetPosition;
+        position = targetPosition + initPosition;
     }
     public double getPosition(){
-        return position;
+        return targetPosition;
     }
     public void setAngle(double angle) {
         targetPosition = angle / MAX_ANGLE;
-        position = targetPosition;
+        position = targetPosition + initPosition;
     }
     public double getAngle(){
-        return position*MAX_ANGLE;
+        return targetPosition*MAX_ANGLE;
     }
     public double getTargetPosition(){
         return targetPosition;

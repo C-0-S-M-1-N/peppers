@@ -82,7 +82,7 @@ public class RedFar extends LinearOpMode {
     //-18.5
     public static Pose2d stackPosition = new Pose2d(48.1, -18.5, Math.toRadians(90));
     public static Pose2d preBackdropPos = new Pose2d(50, 62.65, Math.toRadians(90));
-    public static Pose2d LbackdropPos = new Pose2d(35.24, 93.7, Math.toRadians(90));
+    public static Pose2d LbackdropPos = new Pose2d(35.24, 93.3, Math.toRadians(90));
 
     @Override
     public void runOpMode() throws InterruptedException{

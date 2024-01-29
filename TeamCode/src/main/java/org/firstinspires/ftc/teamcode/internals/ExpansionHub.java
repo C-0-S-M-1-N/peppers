@@ -94,6 +94,19 @@ public class ExpansionHub {
         }
         return 0;
     }
+    public static double getEncoderVelocityReading(ENCODER_PORTS encoder){
+        switch (encoder){
+            case E0:
+                return encoder0.getVelocity();
+            case E1:
+                return encoder1.getVelocity();
+            case E2:
+                return encoder2.getVelocity();
+            case E3:
+                return encoder3.getVelocity();
+        }
+        return 0;
+    }
     public static void setServoPosition(SERVO_PORTS servo, double position){
         switch (servo) {
             case S0:

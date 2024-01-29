@@ -18,6 +18,7 @@ public class ControlHub {
     private static Encoder encoder0, encoder1, encoder2, encoder3;
     private static Servo servo0, servo1, servo2, servo3, servo4, servo5;
     private static double voltage;
+    public static Telemetry telemetry;
 
     private static void setMotorsToMax(){
         MotorConfigurationType mct = motor0.getMotorType().clone();
@@ -42,7 +43,10 @@ public class ControlHub {
         resetEncoder(ENCODER_PORTS.E3);
 
     }
-
+    public ControlHub(HardwareMap hm, Telemetry tele){
+        this(hm);
+        telemetry = tele;
+    }
     public ControlHub(HardwareMap hm){
         motor0 = hm.get(DcMotorEx.class, "cM0");
         motor1 = hm.get(DcMotorEx.class, "cM1");
@@ -77,6 +81,19 @@ public class ControlHub {
                 return encoder2.getPosition();
             case E3:
                 return encoder3.getPosition();
+        }
+        return 0;
+    }
+    public static double getEncoderVelocityReading(ENCODER_PORTS encoder){
+        switch (encoder){
+            case E0:
+                return encoder0.getVelocity();
+            case E1:
+                return encoder1.getVelocity();
+            case E2:
+                return encoder2.getVelocity();
+            case E3:
+                return encoder3.getVelocity();
         }
         return 0;
     }

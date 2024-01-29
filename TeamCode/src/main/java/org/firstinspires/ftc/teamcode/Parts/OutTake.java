@@ -150,7 +150,6 @@ public class OutTake implements Part{
             case RETRACT:
                 elevator.setPosition(-2);
                 pixelBed.setBedAngle(4);
-                Elevator.RETRACTING = true;
                 if(elevator.STATE == Elevator.STATES.IDLE && timeExtend.seconds() >= 1){
                     STATE = STATES.IDLE;
                     LeftClaw.manual = false;

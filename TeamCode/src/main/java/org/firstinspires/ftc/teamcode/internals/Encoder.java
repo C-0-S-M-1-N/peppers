@@ -13,6 +13,7 @@ public class Encoder {
     }
     private Direction direction;
     private DcMotorEx motor;
+    private double prevPos, currentPos;
     public Encoder(DcMotorEx m){
         motor = m; direction = Direction.FORWARD;
     }
@@ -25,10 +26,11 @@ public class Encoder {
     }
 
     public double getPosition(){
-        double normalizePos = motor.getCurrentPosition();
-        return direction == Direction.FORWARD ? normalizePos : -normalizePos;
+        prevPos = currentPos;
+        currentPos = motor.getCurrentPosition();
+        return direction == Direction.FORWARD ? currentPos : -currentPos;
     }
     public double getVelocity(){
-        return Math.abs(motor.getVelocity());
+        return (currentPos - prevPos);
     }
 }
