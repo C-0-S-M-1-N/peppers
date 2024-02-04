@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.utils.AutoServo;
 @Config
 public class OutTake implements Part{
     public static boolean disable = false;
-    public static double extendArm = 0.75, bedAngle = 60;
+    public static double extendArm = 110, bedAngle = 55;
     public enum STATES{
         IDLE(null),
         EXTEND(IDLE),
@@ -60,16 +60,16 @@ public class OutTake implements Part{
         elevator = new Elevator(telemetry);
         arm = new ElevatorArm(telemetry);
         pixelBed = new PixelBed(telemetry);
-        LeftClaw = new Grippers(new AutoServo(SERVO_PORTS.S4, true, true , 0.01, AutoServo.type.MICRO_SERVO),
+        LeftClaw = new Grippers(new AutoServo(SERVO_PORTS.S4, true, true , 0.05, AutoServo.type.MICRO_SERVO),
                 hm.get(DigitalChannel.class, "eD0"), telemetry, "LEFT");
-        RightClaw = new Grippers(new AutoServo(SERVO_PORTS.S5, true, false, 0.01, AutoServo.type.MICRO_SERVO),
+        RightClaw = new Grippers(new AutoServo(SERVO_PORTS.S5, true, false, 0.05, AutoServo.type.MICRO_SERVO),
                 hm.get(DigitalChannel.class, "eD1"), telemetry, "RIGHT");
         timeExtend = new ElapsedTime();
         elevator.setPosition(0);
-        arm.setAngle(0);
-        pixelBed.setBedAngle(0);
+        arm.setAngle(1);
+        pixelBed.setBedAngle(3);
         RightClaw.offset = offsetTemp;
-        LeftClaw.offsetClose = 0.04;
+        LeftClaw.offsetClose = 0.2;
 
         elevator.update();
         arm.update();
@@ -131,15 +131,15 @@ public class OutTake implements Part{
                 break;
             case EXTEND:
                 elevator.setPosition(STATES.currentLevel * STATE.step);
-                arm.setPosition(extendArm);
+                arm.setAngle(extendArm);
                 pixelBed.setBedAngle(bedAngle);
                 if(elevator.STATE == Elevator.STATES.IDLE)
                     STATE = STATES.IDLE;
                 break;
             case RETRACT_TRIGGER:
-                elevator.setPosition(110);
-                arm.setAngle(0);
-                pixelBed.setBedAngle(30);
+                elevator.setPosition(160);
+                arm.setAngle(1);
+                pixelBed.setBedAngle(20);
                 if(elevator.STATE == Elevator.STATES.IDLE){
                     if(timeExtend.seconds() >= 0.7) {
                         STATE = STATES.RETRACT;

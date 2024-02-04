@@ -19,8 +19,8 @@ public class ElevatorArm implements Part {
 
     public ElevatorArm(Telemetry tele){
         telemetry = tele;
-        virtual1 = new AutoServo(SERVO_PORTS.S0,false,  true, 0, AutoServo.type.DS);
-        virtual2 = new AutoServo(SERVO_PORTS.S2,false, false, 0, AutoServo.type.DS);
+        virtual1 = new AutoServo(SERVO_PORTS.S0,false,  true, 0, AutoServo.type.AXON);
+        virtual2 = new AutoServo(SERVO_PORTS.S2,false, false, 0, AutoServo.type.AXON);
 
     }
 

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import static java.lang.Math.sqrt;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.localization.Localizer;
@@ -20,8 +22,8 @@ public class HoldPosition {
     public static Localizer localizer;
     public static double xPos = 0, yPos = 0, head = 0;
     public Telemetry telemetry;
-    public static PIDCoefficients translationalCoeff = new PIDCoefficients(-0.08, 0, -0.001),
-                                  headingCoeff = new PIDCoefficients(-0.5, 0, -0.002);
+    public static PIDCoefficients translationalCoeff = new PIDCoefficients(-0.1, 0, -0.002),
+                                  headingCoeff = new PIDCoefficients(-1.5, -0.1, -0.002);
     public PIDController translationalPID = new PIDController(translationalCoeff),
                          rotationPID      = new PIDController(headingCoeff);
     public HoldPosition(Telemetry t, HardwareMap hm) {
@@ -52,7 +54,7 @@ public class HoldPosition {
 
         double module = Math.abs(xerr * xerr - yerr * yerr);
         double translationalPower = translationalPID.calculatePower(module);
-        double alpha = pose.getHeading();
+        double alpha = pose.getHeading() - head;
         if(alpha > 3.1415926535) alpha -= 2*3.1415926535;
         if(alpha < -3.1415926535) alpha += 2*3.1415926535;
         double headigPower = rotationPID.calculatePower(alpha);
@@ -68,6 +70,12 @@ public class HoldPosition {
         rotationPID.setPidCoefficients(headingCoeff);
 
         return new double[]{-xRot, yRot, headigPower};
+    }
+    public double getDistFromTarget() {
+        Pose2d pose = localizer.getPoseEstimate();
+        double xerr = pose.getX() - xPos,
+                yerr = pose.getY() - yPos;
+        return sqrt(xerr*xerr + yerr*yerr);
     }
 
 }

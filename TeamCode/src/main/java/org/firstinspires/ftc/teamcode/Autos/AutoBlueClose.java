@@ -7,12 +7,12 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDriveCancelable;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 @Autonomous(group = "Autos", preselectTeleOp = "pipers \\uD83C\\uDF36", name = "AutoBlueClose")
 public class AutoBlueClose extends LinearOpMode {
-    private org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive mecanumDrive;
+    private org.firstinspires.ftc.teamcode.drive.SampleMecanumDriveCancelable mecanumDrive;
 
     private TrajectorySequence SequenceToGetPixel, SequenceToBackdrop;
     private Pose2d placePixel, lineToStack, toBackdrop;
@@ -22,7 +22,7 @@ public class AutoBlueClose extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException{
         Controls c = new Controls(gamepad1, gamepad2);
-        mecanumDrive = new SampleMecanumDrive(hardwareMap);
+        mecanumDrive = new SampleMecanumDriveCancelable(hardwareMap);
 
         OutTake outTake = new OutTake(hardwareMap, telemetry);
         Intake intake = new Intake();

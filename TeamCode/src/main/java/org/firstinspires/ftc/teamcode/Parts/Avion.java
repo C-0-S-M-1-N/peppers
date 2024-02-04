@@ -10,7 +10,7 @@ import java.util.ResourceBundle;
 
 @Config
 public class Avion {
-    public static double positionArmat = 0, positionShoot = 0.95;
+    public static double positionArmat = 0.65, positionShoot = 0.82;
     public boolean shoot = false;
     public Avion(){
 

@@ -3,7 +3,8 @@ package org.firstinspires.ftc.teamcode.Autos;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDriveCancelable;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDriveCancelable;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 @Config
 public class RedCloseTrajectory {
@@ -30,7 +31,7 @@ public class RedCloseTrajectory {
     private Pose2d parkPos = new Pose2d(Park_x,Park_y,Math.toRadians(Park_heading));
     private Pose2d transitPos = new Pose2d(Transit_x, Transit_y, Math.toRadians(Transit_heading));
 
-    public RedCloseTrajectory(SampleMecanumDrive mecanumDrive) {
+    public RedCloseTrajectory(SampleMecanumDriveCancelable mecanumDrive) {
 
         preloadSeqL = mecanumDrive.trajectorySequenceBuilder(initPos)
                 .lineToLinearHeading(preloadPosL)

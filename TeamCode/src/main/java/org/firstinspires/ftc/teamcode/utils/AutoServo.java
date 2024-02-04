@@ -15,7 +15,6 @@ import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 
 @Config
 public class AutoServo {
-    public static boolean CacheOn = true;
     public enum type{
         GOBILDA,
         DS,
@@ -25,7 +24,7 @@ public class AutoServo {
     type Type;
     SERVO_PORTS servo;
     private boolean revesed;
-    private boolean isOnControlHub = true, cached = false;
+    private boolean isOnControlHub = true;
     private double position, targetPosition;
     public double step = 1;
     public static int MAX_ANGLE;

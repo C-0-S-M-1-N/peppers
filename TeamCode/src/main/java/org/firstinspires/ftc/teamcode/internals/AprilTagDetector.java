@@ -14,12 +14,12 @@ package org.firstinspires.ftc.teamcode.internals;
 public class AprilTagDetector {
     private static OpenCvCamera camera = null;
     private static AprilTagDetectionPipeline pipeline;
-    public static double fx = 578.272;
-    public static double fy = 578.272;
-    public static double cx = 402.145;
-    public static double cy = 221.506;
+    public static double fx = 822.317;
+    public static double fy = 822.317;
+    public static double cx = 319.495;
+    public static double cy = 242.502;
 
-    public static double tagSize = 0.166;
+    public static double tagSize = 0.05;
     public static int ID = 0;
     public static void init(HardwareMap hardwareMap)
     {
@@ -50,31 +50,13 @@ public class AprilTagDetector {
 
     public static void stop() { camera.closeCameraDevice(); }
 
-    //TODO UPDATE FOR CUSTOM RANGE OF TAGS
-    public static int getCase()
+    public static AprilTagDetection[] getDetections()
     {
         ArrayList<AprilTagDetection> currentDetections = pipeline.getLatestDetections();
-        if(currentDetections.size() > 0) {
-            for (AprilTagDetection tag : currentDetections) {
-                ID = tag.id;
-                break;
-            }
+        AprilTagDetection[] detected = new AprilTagDetection[currentDetections.size()];
+        for(int i = 0; i < currentDetections.size(); i++) {
+            detected[i] = currentDetections.get(i);
         }
-
-        return ID;
+        return detected;
     }
-    public static String showCase()
-    {
-        int detectedCase = getCase();
-        if(detectedCase == 1)
-            return "STANGA";
-        if(detectedCase == 3)
-            return "FATA";
-        return "DREAPTA";
-    }
-    public static void CloseCamera()
-    {
-        camera.closeCameraDevice();
-    }
-
 }

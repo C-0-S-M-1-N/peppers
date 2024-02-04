@@ -13,7 +13,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDriveCancelable;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -51,7 +51,7 @@ public class RedClose extends LinearOpMode {
 
     STATES State = STATES.PLACE_RIGHT;
 
-    private org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive mecanumDrive;
+    private org.firstinspires.ftc.teamcode.drive.SampleMecanumDriveCancelable mecanumDrive;
     RedCloseTrajectory t;
     OpenCvCamera camera;
 
@@ -65,7 +65,7 @@ public class RedClose extends LinearOpMode {
     public void runOpMode() throws InterruptedException{
         ControlHub ch = new ControlHub(hardwareMap);
         ExpansionHub eh = new ExpansionHub(hardwareMap);
-        mecanumDrive = new SampleMecanumDrive(hardwareMap);
+        mecanumDrive = new SampleMecanumDriveCancelable(hardwareMap);
         t = new RedCloseTrajectory(mecanumDrive);
 
         OutTake outTake = new OutTake(hardwareMap, telemetry);
