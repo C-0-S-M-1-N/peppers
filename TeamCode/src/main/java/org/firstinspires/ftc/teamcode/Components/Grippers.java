@@ -1,113 +1,74 @@
 package org.firstinspires.ftc.teamcode.Components;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.checkerframework.checker.units.qual.A;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Part;
-import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
-import org.firstinspires.ftc.teamcode.utils.AutoSensor;
+import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
-
-import java.util.Objects;
 
 @Config
 public class Grippers implements Part {
-    public boolean Disable = false;
-    public boolean manual = false;
-    public enum STATES{
-        CLOSED,
-        OPEN
+    public enum State{
+        OPEN,
+        CLOSE
     }
-    public STATES STATE;
+    public State state;
+    private final DigitalChannel sensorGate;
+    private final AutoServo servo;
+    private final ElapsedTime time = new ElapsedTime();
 
-    public static double closeClaw = 0.42;
-    public double offset = 0;
-    public double offsetClose = 0;
-    private String ID = "null";
+    public Grippers(AutoServo servo, DigitalChannel sensor){
+        this.servo = servo;
+        this.sensorGate = sensor;
 
-    private AutoServo claw;
-    private DigitalChannel sensor;
-    private Telemetry telemetry;
-    public boolean forceClose = false;
-
-    public Grippers(AutoServo p, DigitalChannel sens, Telemetry tele){
-        telemetry = tele;
-        claw = p;
-        STATE = STATES.OPEN;
-        sensor = sens;
-        sensor.setMode(DigitalChannel.Mode.INPUT);
-    }
-    public Grippers(AutoServo p, DigitalChannel sens, Telemetry tele, String id){
-        ID = id;
-        telemetry = tele;
-        claw = p;
-        STATE = STATES.OPEN;
-        sensor = sens;
-        sensor.setMode(DigitalChannel.Mode.INPUT);
+        sensor.setMode(DigitalChannel.Mode.OUTPUT);
+        state = State.OPEN;
     }
 
     @Override
     public void update(){
-        if(Disable) return;
-//        if(!manual){
-//            if(sensor.getState()) {
-//                if(STATE == STATES.CLOSED){
-//                    if(Objects.equals(ID, "LEFT"))
-//                        Controls.currentState = Controls.RumbleEffectPlay.LeftGot;
-//                    else Controls.currentState = Controls.RumbleEffectPlay.RightGot;
-//
-//                }
-//                STATE = STATES.OPEN;
-//            }
-//            else {
-//                if(STATE == STATES.OPEN){
-//                    if(Objects.equals(ID, "LEFT"))
-//                        Controls.currentState = Controls.RumbleEffectPlay.LeftLost;
-//                    else Controls.currentState = Controls.RumbleEffectPlay.RightLost;
-//                }
-//                STATE = STATES.CLOSED;
-//            }
-//            switch (STATE){
-//                case OPEN:
-//                    claw.setAngle(0);
-//                    break;
-//                case CLOSED:
-//                    claw.setAngle(closeClaw);
-//            }
-//        }
-        if(STATE == STATES.OPEN && ((!manual && !sensor.getState()) || forceClose)){
-            claw.setPosition(closeClaw + offset + offsetClose);
-            STATE = STATES.CLOSED;
-            forceClose = false;
+        switch (state){
+            case OPEN:
+                servo.setAngle(0);
+                break;
+            case CLOSE:
+                if(time.seconds() >= 0.5 && !sensorGate.getState()){
+                    state = State.OPEN;
+                } else {
+                    servo.setAngle(90);
+                    time.reset();
+                }
+                break;
         }
-        claw.update();
-
     }
+
     @Override
     public void update_values(){
-
-    }
-    @Override
-    public void runTelemetry(){
-        telemetry.addLine(ID + ":" +
-                "\n\tsensor state: " + sensor.getState() +
-                "\n\tgripper state: " + STATE.toString());
-    }
-    public void drop(){
-
-        if(STATE == STATES.OPEN && manual){
-            claw.setPosition(closeClaw + offset + offsetClose);
-            STATE = STATES.CLOSED;
-        } else {
-            claw.setPosition(offset);
-            STATE = STATES.OPEN;
+        if(sensorGate.getState()){
+            state = State.CLOSE;
+            time.reset();
         }
     }
 
+    public void drop(){
+        state = State.OPEN;
+    }
+
+    @Override
+    public void runTelemetry(){ }
+
+    public void runTelemetry(String s){
+        ControlHub.telemetry.update();
+        ControlHub.telemetry.addLine("\n----");
+        ControlHub.telemetry.addLine(s);
+        ControlHub.telemetry.addLine("----");
+
+        ControlHub.telemetry.addData("\tState", state.toString());
+
+        ControlHub.telemetry.update();
+    }
 
 }

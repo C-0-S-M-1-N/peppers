@@ -12,186 +12,98 @@ import org.firstinspires.ftc.teamcode.Components.ElevatorArm;
 import org.firstinspires.ftc.teamcode.Components.Grippers;
 import org.firstinspires.ftc.teamcode.Components.PixelBed;
 import org.firstinspires.ftc.teamcode.Part;
+import org.firstinspires.ftc.teamcode.internals.Hubs;
 import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
 
 
 @Config
 public class OutTake implements Part{
-    public static boolean disable = false;
-    public static double extendArm = 110, bedAngle = 55;
-    public enum STATES{
-        IDLE(null),
-        EXTEND(IDLE),
-        EXTEND_TRIGGER(null),
-        RETRACT(IDLE),
-        RETRACT_TRIGGER(null),
-        LVL_UP(IDLE),
-        LVL_DOWN(IDLE),
-        ROTATE(IDLE),
-        SWAP(IDLE);
+    public enum State{
+        WAITING_FOR_PIXELS,
+        EXTENDING,
+        EXTENDED,
+        RETRACTING,
+        RETRACTED;
 
-        public final STATES nextState;
-        public final int step = 950/10;
-        public static int currentLevel = 4;
 
-        public int MotionSteps = 0;
-        public boolean stepDone = false;
-
-        STATES(STATES next){
-            nextState = next;
-        }
+        public static final double MAX_EXTEND = 950;
+        public static double level = 5, step = MAX_EXTEND/10;
     }
-    public STATES STATE;
-    public Telemetry telemetry;
-    private final Elevator elevator;
-    private final ElevatorArm arm;
-    private final PixelBed pixelBed;
-    public static Grippers LeftClaw, RightClaw;
-    private final ElapsedTime timeExtend;
-    public static boolean useControls = true;
-    public static double offsetTemp = 0.08;
+    public static State state = State.WAITING_FOR_PIXELS;
+    public static Elevator elevator;
+    public static ElevatorArm elevatorArm;
+    public static Grippers leftGripper, rightGripper;
 
-    public OutTake(HardwareMap hm, Telemetry telemetry){
-        STATE = STATES.IDLE;
-        STATE.MotionSteps = 0;
-        STATE.stepDone = false;
-        this.telemetry = telemetry;
-        elevator = new Elevator(telemetry);
-        arm = new ElevatorArm(telemetry);
-        pixelBed = new PixelBed(telemetry);
-        LeftClaw = new Grippers(new AutoServo(SERVO_PORTS.S4, true, true , 0.05, AutoServo.type.MICRO_SERVO),
-                hm.get(DigitalChannel.class, "eD0"), telemetry, "LEFT");
-        RightClaw = new Grippers(new AutoServo(SERVO_PORTS.S5, true, false, 0.05, AutoServo.type.MICRO_SERVO),
-                hm.get(DigitalChannel.class, "eD1"), telemetry, "RIGHT");
-        timeExtend = new ElapsedTime();
-        elevator.setPosition(0);
-        arm.setAngle(1);
-        pixelBed.setBedAngle(3);
-        RightClaw.offset = offsetTemp;
-        LeftClaw.offsetClose = 0.2;
+    public OutTake(HardwareMap hm){
+        state = State.WAITING_FOR_PIXELS;
 
-        elevator.update();
-        arm.update();
-        pixelBed.update();
-        LeftClaw.update();
-        RightClaw.update();
+        elevator = new Elevator();
+        elevatorArm = new ElevatorArm();
 
-    }
+        leftGripper = new Grippers(
+                new AutoServo(SERVO_PORTS.S0, 0, false, Hubs.EXPANSION_HUB, AutoServo.TYPE.MICRO_LEGO),
+                hm.get(DigitalChannel.class, "cD0")
+        );
 
-    private void controls(){
-        if(Controls.DropLeft || Controls.DropRight) {
-            LeftClaw.drop();
-            RightClaw.drop();
-        }
-
-        if(STATE == STATES.IDLE) {
-            if (Controls.ElevatorUp) STATE = STATES.LVL_UP;
-            if (Controls.ElevatorDown) STATE = STATES.LVL_DOWN;
-            if (Controls.ExtendElevator) STATE = STATES.EXTEND_TRIGGER;
-            if (Controls.RetractElevator) {STATE = STATES.RETRACT_TRIGGER; timeExtend.reset();}
-        }
+        rightGripper = new Grippers(
+                new AutoServo(SERVO_PORTS.S1, 0, false, Hubs.EXPANSION_HUB, AutoServo.TYPE.MICRO_LEGO),
+                hm.get(DigitalChannel.class, "cD1")
+        );
     }
 
     @Override
     public void update(){
-        if(disable) return;
-        controls();
-        switch (STATE){
-            case IDLE:
+        switch (state){
+            case WAITING_FOR_PIXELS:
+                leftGripper.update();
+                rightGripper.update();
                 break;
-            case LVL_UP:
-                if(elevator.getCurrentPosition() <= 2) break;
-                STATES.currentLevel++;
-                if(STATES.currentLevel > 10) STATES.currentLevel = 10;
-                elevator.setPosition(STATES.currentLevel * STATE.step);
-                STATE = STATES.IDLE;
+            case EXTENDING:
+                elevator.setTargetPosition(100);
+                if(elevator.reatchedTargetPosition()){
+                    // TODO: calibrate based on robot-backdrop position
+                    elevatorArm.setArmAngle(120);
+                    state = State.EXTENDED;
+                }
+            case EXTENDED:
+                elevator.setTargetPosition(State.level * State.step);
                 break;
-            case LVL_DOWN:
-                if(elevator.getCurrentPosition() <= 2) break;
-                STATES.currentLevel--;
-                if(STATES.currentLevel < 0) STATES.currentLevel = 0;
-                STATE = STATES.IDLE;
-                elevator.setPosition(STATES.currentLevel * STATE.step);
-                break;
-            case EXTEND_TRIGGER:
-                LeftClaw.manual = true;
-                RightClaw.manual = true;
-                elevator.setPosition(150);
-                pixelBed.setBedAngle(30);
-
-                if(elevator.STATE == Elevator.STATES.IDLE && elevator.getCurrentPosition() != 0){
-                    if(timeExtend.seconds() >= 0.25){
-                        arm.setAngle(60);
-                    }
-                    if(timeExtend.seconds() >= 0.4){
-                        STATE = STATES.EXTEND;
-                    }
-                } else timeExtend.reset();
-                break;
-            case EXTEND:
-                elevator.setPosition(STATES.currentLevel * STATE.step);
-                arm.setAngle(extendArm);
-                pixelBed.setBedAngle(bedAngle);
-                if(elevator.STATE == Elevator.STATES.IDLE)
-                    STATE = STATES.IDLE;
-                break;
-            case RETRACT_TRIGGER:
-                elevator.setPosition(160);
-                arm.setAngle(1);
-                pixelBed.setBedAngle(20);
-                if(elevator.STATE == Elevator.STATES.IDLE){
-                    if(timeExtend.seconds() >= 0.7) {
-                        STATE = STATES.RETRACT;
-                    }
-
-                } else timeExtend.reset();
-                break;
-            case RETRACT:
-                elevator.setPosition(-2);
-                pixelBed.setBedAngle(4);
-                Elevator.RETRACTING = true;
-                if(elevator.STATE == Elevator.STATES.IDLE && timeExtend.seconds() >= 1){
-                    STATE = STATES.IDLE;
-                    LeftClaw.manual = false;
-                    RightClaw.manual = false;
-                    LeftClaw.drop();
-                    RightClaw.drop();
+            case RETRACTING:
+                elevatorArm.setOrientation(90);
+                elevator.setTargetPosition(200);
+                if(elevatorArm.reachedTargetTourretPosition()){
+                    elevatorArm.setArmAngle(0);
+                    elevatorArm.setPivotAngle(0);
+                }
+                if(elevatorArm.reachedStationary()){
+                    state = State.RETRACTED;
                 }
                 break;
-
+            case RETRACTED:
+                elevator.setTargetPosition(0);
+                state = State.WAITING_FOR_PIXELS;
+                break;
         }
         elevator.update();
-        arm.update();
-        pixelBed.update();
-        LeftClaw.update();
-        RightClaw.update();
-
+        elevatorArm.update();
     }
 
     @Override
     public void update_values(){
-        arm.update_values();
         elevator.update_values();
-        pixelBed.update_values();
-        LeftClaw.update_values();
-        RightClaw.update_values();
+        elevatorArm.update_values();
+        leftGripper.update_values();
+        rightGripper.update_values();
     }
+
     @Override
     public void runTelemetry(){
-        arm.runTelemetry();
         elevator.runTelemetry();
-        pixelBed.runTelemetry();
-        LeftClaw.runTelemetry();
-        RightClaw.runTelemetry();
+        elevatorArm.runTelemetry();
+        leftGripper.runTelemetry("LEFT CLAW");
+        rightGripper.runTelemetry("RIGHT CLAW");
 
-        telemetry.addData("OutTake State", STATE.toString());
-        telemetry.addData("motion step", STATE.MotionSteps);
-        telemetry.addData("elevator level", STATES.currentLevel);
-    }
 
-    public static boolean fullPixel(){
-        return RightClaw.STATE == Grippers.STATES.CLOSED &&
-               LeftClaw.STATE == Grippers.STATES.CLOSED;
     }
 }

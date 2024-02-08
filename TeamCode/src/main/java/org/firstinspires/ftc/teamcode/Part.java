@@ -5,4 +5,5 @@ public interface Part {
     void update_values();
 
     void runTelemetry();
+
 }

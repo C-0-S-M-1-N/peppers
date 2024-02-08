@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.utils;
 
-import static java.lang.Math.abs;
-
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -9,15 +7,13 @@ public class PIDController {
     private PIDCoefficients pidCoefficients;
     private double targetPosition = 0;
     private double error, lastError, maxActuatorOutput, Isum = 0;
-    private ElapsedTime et;
-    private double threshold = 2;
+    private final ElapsedTime et = new ElapsedTime();
 
     public PIDController(PIDCoefficients pidcoef){
         pidCoefficients = pidcoef;
         error = 0;
         lastError = 0;
-        maxActuatorOutput = 1; // default for FTC motors/servos
-        et = new ElapsedTime();
+        maxActuatorOutput = 1; // default for FTC motors
     }
     public PIDController(double p, double i, double d){
         this(new PIDCoefficients(p, i, d));
@@ -36,10 +32,8 @@ public class PIDController {
         double r = pidCoefficients.p * P + pidCoefficients.i * Isum + pidCoefficients.d * D;
 
         double ret = Math.max(r, maxActuatorOutput);
+
         if(ret != r && error * r > 0){ // Integral Clamping for ant-windup
-            Isum -= P * time;
-        }
-        if(abs(error) <= threshold) {
             Isum = 0;
         }
 
@@ -47,7 +41,7 @@ public class PIDController {
         et.reset();
 
         lastError = error;
-        return pidCoefficients.p * P + pidCoefficients.i * Isum + pidCoefficients.d * D;
+        return ret;
     }
     public void setTargetPosition(double pos){
         targetPosition = pos;

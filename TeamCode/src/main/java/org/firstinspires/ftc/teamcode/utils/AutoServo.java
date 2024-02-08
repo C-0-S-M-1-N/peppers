@@ -1,99 +1,69 @@
 package org.firstinspires.ftc.teamcode.utils;
 
-import static java.lang.Math.scalb;
-import static java.lang.Math.signum;
-
-import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.checkerframework.checker.units.qual.A;
-import org.firstinspires.ftc.teamcode.Exceptions.OverTheLimitException;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
+import org.firstinspires.ftc.teamcode.internals.Hubs;
 import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 
-@Config
 public class AutoServo {
-    public enum type{
-        GOBILDA,
+    public enum TYPE{
         DS,
-        MICRO_SERVO,
+        GOBILDA,
+        MICRO_LEGO,
         AXON,
+        UNKNOWN
     }
-    type Type;
-    SERVO_PORTS servo;
-    private boolean revesed;
-    private boolean isOnControlHub = true;
-    private double position, targetPosition;
-    public double step = 1;
-    public static int MAX_ANGLE;
+    private Hubs hub;
+    private final SERVO_PORTS port;
+    private final boolean isReversed;
+    private double MAX_ANGLE;
+    private double position;
+    private final double initialPosition;
 
-    public AutoServo(SERVO_PORTS port, boolean CHub, boolean rev, double initPos, type T){
-        switch(T){
+    public AutoServo(SERVO_PORTS port, double initialPosition, boolean isReversed, Hubs hub, TYPE Type){
+        this.port = port;
+        this.initialPosition = initialPosition;
+        this.isReversed = isReversed;
+        this.hub = hub;
+
+        switch (Type){
+            case DS:
+                MAX_ANGLE = 270;
+                break;
             case GOBILDA:
                 MAX_ANGLE = 300;
                 break;
-            case DS:
-                MAX_ANGLE = 270;
+            case MICRO_LEGO:
+                MAX_ANGLE = 180;
                 break;
             case AXON:
                 MAX_ANGLE = 355;
                 break;
-            case MICRO_SERVO:
-                MAX_ANGLE = 180;
-                step = 100;
-                break;
-            default:
-                MAX_ANGLE = 0;
+            case UNKNOWN:
+                MAX_ANGLE = 360;
                 break;
         }
-        position = initPos;
-        revesed = rev;
-        isOnControlHub = CHub;
-        servo = port;
-
-        if(isOnControlHub) {
-            if (revesed) ControlHub.setServoDirection(servo, Servo.Direction.REVERSE);
-            else ControlHub.setServoDirection(servo, Servo.Direction.FORWARD);
-        }
-        else {
-            if (revesed) ExpansionHub.setServoDirection(servo, Servo.Direction.REVERSE);
-            else ExpansionHub.setServoDirection(servo, Servo.Direction.FORWARD);
-        }
-
-        update();
-
     }
 
     public void update(){
-        if(isOnControlHub) {
-            ControlHub.setServoPosition(servo, position);
+        switch (hub){
+            case CONTROL_HUB:
+                ControlHub.setServoPosition(port, position);
+                ControlHub.setServoDirection(port, isReversed ? Servo.Direction.REVERSE : Servo.Direction.FORWARD);
+                break;
+            case EXPANSION_HUB:
+                ExpansionHub.setServoPosition(port, position);
+                ExpansionHub.setServoDirection(port, isReversed ? Servo.Direction.REVERSE : Servo.Direction.FORWARD);
+                break;
         }
-        else {
-            ExpansionHub.setServoPosition(servo, position);
-        }
+    }
 
-    }
-    public void setPosition(double p){
-        targetPosition = p;
-        position = targetPosition;
-    }
-    public double getPosition(){
-        return position;
-    }
-    public void setAngle(double angle) {
-        targetPosition = angle / MAX_ANGLE;
-        position = targetPosition;
-    }
-    public double getAngle(){
-        return position*MAX_ANGLE;
-    }
-    public double getTargetPosition(){
-        return targetPosition;
-    }
-    public double getTargetAngle(){
-        return targetPosition * MAX_ANGLE;
-    }
+    public void setAngle(double angle){ position = angle / MAX_ANGLE + initialPosition; }
+    public void setPosition(double pos){ position = pos + initialPosition; }
+
+    public double getAngle(){ return (position - initialPosition) * MAX_ANGLE; }
+    public double getPosition(){ return position - initialPosition; }
 
 }

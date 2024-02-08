@@ -17,7 +17,12 @@ public class ControlHub {
     public static DcMotorEx motor0, motor1, motor2, motor3;
     private static Encoder encoder0, encoder1, encoder2, encoder3;
     private static Servo servo0, servo1, servo2, servo3, servo4, servo5;
+    public static Telemetry telemetry;
     private static double voltage;
+
+    public static void initTelemetry(Telemetry t){
+        telemetry = t;
+    }
 
     private static void setMotorsToMax(){
         MotorConfigurationType mct = motor0.getMotorType().clone();
