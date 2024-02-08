@@ -8,12 +8,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Components.Controls;
-import org.firstinspires.ftc.teamcode.Components.ElevatorArm;
-import org.firstinspires.ftc.teamcode.Components.PixelBed;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
-import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
 
 @Config
 @TeleOp(name = "Tune")
@@ -32,7 +29,7 @@ public class Tune extends LinearOpMode {
         time = new ElapsedTime();
         controls = new Controls(gamepad1, gamepad2);
 
-        outTake = new OutTake(hardwareMap, telemetry);
+        outTake = new OutTake(hardwareMap);
 
         waitForStart();
         time.reset();

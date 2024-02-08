@@ -2,15 +2,13 @@ package org.firstinspires.ftc.teamcode.Parts;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Components.Elevator;
 import org.firstinspires.ftc.teamcode.Components.ElevatorArm;
 import org.firstinspires.ftc.teamcode.Components.Grippers;
-import org.firstinspires.ftc.teamcode.Components.PixelBed;
+import org.firstinspires.ftc.teamcode.Components.OutTakeExtension;
 import org.firstinspires.ftc.teamcode.Part;
 import org.firstinspires.ftc.teamcode.internals.Hubs;
 import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
@@ -34,12 +32,17 @@ public class OutTake implements Part{
     public static Elevator elevator;
     public static ElevatorArm elevatorArm;
     public static Grippers leftGripper, rightGripper;
+    public static OutTakeExtension outTakeExtension;
 
     public OutTake(HardwareMap hm){
         state = State.WAITING_FOR_PIXELS;
 
         elevator = new Elevator();
         elevatorArm = new ElevatorArm();
+        outTakeExtension = new OutTakeExtension(
+                hm.get(DistanceSensor.class, "sensor"),
+                new AutoServo(SERVO_PORTS.S4, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON)
+                );
 
         leftGripper = new Grippers(
                 new AutoServo(SERVO_PORTS.S0, 0, false, Hubs.EXPANSION_HUB, AutoServo.TYPE.MICRO_LEGO),
@@ -60,6 +63,7 @@ public class OutTake implements Part{
                 rightGripper.update();
                 break;
             case EXTENDING:
+                outTakeExtension.activate();
                 elevator.setTargetPosition(100);
                 if(elevator.reatchedTargetPosition()){
                     // TODO: calibrate based on robot-backdrop position
@@ -70,6 +74,8 @@ public class OutTake implements Part{
                 elevator.setTargetPosition(State.level * State.step);
                 break;
             case RETRACTING:
+                outTakeExtension.deactivate();
+                outTakeExtension.reset();
                 elevatorArm.setOrientation(90);
                 elevator.setTargetPosition(200);
                 if(elevatorArm.reachedTargetTourretPosition()){
@@ -85,6 +91,7 @@ public class OutTake implements Part{
                 state = State.WAITING_FOR_PIXELS;
                 break;
         }
+        outTakeExtension.update();
         elevator.update();
         elevatorArm.update();
     }

@@ -6,22 +6,21 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.checkerframework.checker.units.qual.C;
+import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Components.Elevator;
 import org.firstinspires.ftc.teamcode.Components.ElevatorArm;
-import org.firstinspires.ftc.teamcode.Components.PixelBed;
+import org.firstinspires.ftc.teamcode.Components.OutTakeExtension;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
+import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 
 @TeleOp(name = "elevator tune")
 @Config
 public class ElevatorTuning extends LinearOpMode {
     public static Elevator elevator;
     public static ElevatorArm arm;
-    public static PixelBed bed;
+    public static double pos = 0;
 
-    boolean dpad_up, dpad_down;
-    public static int pos = 0;
 
     @Override
     public void runOpMode(){
@@ -29,43 +28,30 @@ public class ElevatorTuning extends LinearOpMode {
         ControlHub ch = new ControlHub(hardwareMap);
         ExpansionHub eh = new ExpansionHub(hardwareMap);
         FtcDashboard a = FtcDashboard.getInstance();
+        Controls c = new Controls(gamepad1, gamepad2);
         telemetry = new MultipleTelemetry(telemetry, a.getTelemetry());
+        ControlHub.telemetry = telemetry;
 
-        elevator = new Elevator(telemetry);
-        arm = new ElevatorArm(telemetry);
-        bed = new PixelBed(telemetry);
-
-
-        arm.setAngle(0);
-        bed.setBedAngle(0);
-
-        arm.update();
-        bed.update();
+        elevator = new Elevator();
+        arm = new ElevatorArm();
+        ControlHub.setServoPosition(SERVO_PORTS.S4, 0);
 
         waitForStart();
-
-        while(opModeIsActive() && !isStopRequested()){
-
-            if(gamepad1.dpad_up && !dpad_up){
-                pos ++ ;
-                if(pos > 11) pos = 11;
-                elevator.setPosition(950/11 * pos);
+        while (opModeIsActive() && !isStopRequested()){
+            if(Controls.ElevatorUp){
+                pos += 100;
+                elevator.setTargetPosition(pos);
             }
-            if(gamepad1.dpad_down && !dpad_down){
-                pos--;
-                if(pos < 0) pos = 0;
-                elevator.setPosition(950/11 * pos);
-
+            if(Controls.ElevatorDown){
+                pos -= 100;
+                elevator.setTargetPosition(pos);
             }
-            dpad_up = gamepad1.dpad_up;
-            dpad_down = gamepad1.dpad_down;
-
             elevator.update();
+            arm.update();
+
             elevator.runTelemetry();
-
-            telemetry.addData("position", pos * 950/11);
-
-            telemetry.update();
         }
+
+
     }
 }

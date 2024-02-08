@@ -62,7 +62,7 @@ public class MainOp extends LinearOpMode {
 
         mecanumDrive = new MecanumDrive(telemetry, hardwareMap);
         intake = new Intake();
-        outTake = new OutTake(hardwareMap, telemetry);
+        outTake = new OutTake(hardwareMap);
 
         waitForStart();
         time.reset();

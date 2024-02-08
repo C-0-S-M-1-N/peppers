@@ -6,12 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 
-import org.firstinspires.ftc.teamcode.Components.ElevatorArm;
-import org.firstinspires.ftc.teamcode.Components.PixelBed;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
-import org.firstinspires.ftc.teamcode.internals.ENCODER_PORTS;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
-import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
 
 @Config
 @TeleOp(name = "testHardware")
