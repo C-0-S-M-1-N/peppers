@@ -14,19 +14,13 @@ public class Controls {
             ExtendElevator, RetractElevator, ElevatorUp,  ElevatorDown,
             DropLeft, DropRight, Hang, Avion;
     public static double HangLevel = 0;
-    private AutoGamepad gamepad1, gamepad2;
+    private static AutoGamepad gamepad1;
+    private static AutoGamepad gamepad2;
     private final RumbleEffects effects;
 
-    public enum RumbleEffectPlay{
-        LeftLost, LeftGot,
+       public static boolean LeftLost, LeftGot,
         RightLost, RightGot,
-        FullLoad,
-        ENDGAME,
-        END,
-        NONE;
-    }
-
-    public static RumbleEffectPlay currentState;
+        FullLoad, ENDGAME, END, NONE;
 
     public Controls(Gamepad gp1, Gamepad gp2){
         gamepad1 = new AutoGamepad(gp1);
@@ -36,7 +30,6 @@ public class Controls {
     }
 
     private void reset(){
-        currentState = RumbleEffectPlay.NONE;
         ExtendElevator  = false;
         RetractElevator = false;
         ElevatorUp      = false;
@@ -72,38 +65,37 @@ public class Controls {
         updateDetected = ExtendElevator || RetractElevator || ElevatorUp || ElevatorDown || Intake
                 || DropRight || DropLeft || RevIntake;
 
-        switch (currentState){
-            case LeftLost:
-                gamepad1.gamepad.runRumbleEffect(RumbleEffects.LeftLost);
-                gamepad2.gamepad.runRumbleEffect(RumbleEffects.LeftLost);
-                break;
-            case LeftGot:
-                gamepad1.gamepad.runRumbleEffect(RumbleEffects.LeftPixel);
-                gamepad2.gamepad.runRumbleEffect(RumbleEffects.LeftPixel);
-                break;
-            case RightLost:
-                gamepad1.gamepad.runRumbleEffect(RumbleEffects.RightLost);
-                gamepad2.gamepad.runRumbleEffect(RumbleEffects.RightLost);
-                break;
-            case RightGot:
-                gamepad1.gamepad.runRumbleEffect(RumbleEffects.RightPixel);
-                gamepad2.gamepad.runRumbleEffect(RumbleEffects.RightPixel);
-                break;
-            case FullLoad:
-                gamepad1.gamepad.runRumbleEffect(RumbleEffects.fullLoad);
-                gamepad2.gamepad.runRumbleEffect(RumbleEffects.fullLoad);
-                break;
-            case ENDGAME:
-                gamepad1.gamepad.runRumbleEffect(RumbleEffects.ENDGAME);
-                gamepad2.gamepad.runRumbleEffect(RumbleEffects.ENDGAME);
-                break;
-            case END:
-                gamepad1.gamepad.runRumbleEffect(RumbleEffects.FINISHED);
-                gamepad2.gamepad.runRumbleEffect(RumbleEffects.FINISHED);
-                break;
-            case NONE:
-                break;
+        playEffects();
+    }
+
+    private static void playEffects(){
+        if(FullLoad || (LeftGot && RightGot)){
+            gamepad1.gamepad.runRumbleEffect(RumbleEffects.fullLoad);
+            gamepad2.gamepad.runRumbleEffect(RumbleEffects.fullLoad);
         }
+        else if(LeftGot){
+            gamepad1.gamepad.runRumbleEffect(RumbleEffects.LeftPixel);
+            gamepad2.gamepad.runRumbleEffect(RumbleEffects.LeftPixel);
+        }
+        else if(RightGot){
+            gamepad1.gamepad.runRumbleEffect(RumbleEffects.RightPixel);
+            gamepad2.gamepad.runRumbleEffect(RumbleEffects.RightPixel);
+        }
+
+        if(LeftLost){
+            gamepad1.gamepad.runRumbleEffect(RumbleEffects.LeftLost);
+            gamepad2.gamepad.runRumbleEffect(RumbleEffects.LeftLost);
+        }
+        if(RightLost){
+            gamepad1.gamepad.runRumbleEffect(RumbleEffects.RightLost);
+            gamepad2.gamepad.runRumbleEffect(RumbleEffects.RightLost);
+        }
+
+        FullLoad = false;
+        LeftGot = false;
+        LeftLost = false;
+        RightLost = false;
+        RightGot = false;
     }
 
 }

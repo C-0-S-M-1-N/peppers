@@ -52,10 +52,6 @@ public class Elevator implements Part {
         else state = State.IDLE;
 
         targetPosition = position;
-        if(targetPosition == 0){
-            state = State.RESET;
-            time.reset();
-        }
         pidController.setTargetPosition(targetPosition);
     }
 
@@ -68,7 +64,7 @@ public class Elevator implements Part {
         if (Objects.requireNonNull(state) == State.RESET) {
             ControlHub.setMotorPower(MOTOR_PORTS.M0, -1);
             ControlHub.setMotorPower(MOTOR_PORTS.M1, -1);
-            if (velocity == 0 && time.seconds() >= 0.5) {
+            if (velocity == 0 && time.seconds() >= 0.2) {
                 state = State.IDLE;
                 ControlHub.setMotorPower(MOTOR_PORTS.M0, 0);
                 ControlHub.setMotorPower(MOTOR_PORTS.M1, 0);

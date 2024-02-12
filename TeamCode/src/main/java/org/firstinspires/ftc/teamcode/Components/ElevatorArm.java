@@ -17,12 +17,12 @@ public class ElevatorArm implements Part {
                         TMP_turret = new ElapsedTime();
 
     public ElevatorArm(){
-        virtual1 = new AutoServo(SERVO_PORTS.S0, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
-        virtual2 = new AutoServo(SERVO_PORTS.S1, 0, true, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
+        virtual1 = new AutoServo(SERVO_PORTS.S0, 0.03, false, Hubs.EXPANSION_HUB, AutoServo.TYPE.AXON);
+        virtual2 = new AutoServo(SERVO_PORTS.S2, 0, true, Hubs.EXPANSION_HUB, AutoServo.TYPE.AXON);
 
         pivot = new AutoServo(SERVO_PORTS.S2, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
 
-        turret = new AutoServo(SERVO_PORTS.S3, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
+        turret = new AutoServo(SERVO_PORTS.S1, (double)185/355, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
 
 
 

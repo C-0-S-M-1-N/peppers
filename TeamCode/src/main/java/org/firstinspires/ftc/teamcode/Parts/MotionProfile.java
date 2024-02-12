@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode.Parts;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 public class MotionProfile {
     private double maxVelocity, acceleration;
+    private ElapsedTime time = new ElapsedTime();
     private double currentPosition, targetPosition,
         accelerationTime, constantTime, deccelarationTime, distance,
-        maxVeloPosition, deccelerationPosition;
+        maxVeloPosition, deccelerationPosition, velocity;
     public MotionProfile(double maxVelocity, double acceleration){
         this.maxVelocity = maxVelocity;
         this.acceleration = acceleration;
@@ -23,5 +26,19 @@ public class MotionProfile {
         }
         maxVeloPosition = acceleration * accelerationTime;
 
+
+
+
+        time.reset();
+    }
+    public void update(){
+        if(time.seconds() < accelerationTime){
+            velocity += acceleration;
+        } else if(time.seconds() < constantTime){
+            velocity += 0;
+        } else if(time.seconds() < deccelarationTime){
+            velocity -= acceleration;
+        }
+        currentPosition += velocity;
     }
 }

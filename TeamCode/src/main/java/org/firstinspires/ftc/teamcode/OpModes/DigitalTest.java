@@ -10,8 +10,8 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 public class DigitalTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException{
-        DigitalChannel s0 = hardwareMap.get(DigitalChannel.class, "eD0");
-        DigitalChannel s1 = hardwareMap.get(DigitalChannel.class, "eD1");
+        DigitalChannel s0 = hardwareMap.get(DigitalChannel.class, "cD0");
+        DigitalChannel s1 = hardwareMap.get(DigitalChannel.class, "cD1");
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
