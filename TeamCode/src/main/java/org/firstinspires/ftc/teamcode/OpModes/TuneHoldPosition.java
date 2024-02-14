@@ -22,7 +22,7 @@ public class TuneHoldPosition extends LinearOpMode {
         ControlHub ch = new ControlHub(hardwareMap);
         ExpansionHub eh = new ExpansionHub(hardwareMap);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        MecanumDrive md = new MecanumDrive(telemetry, hardwareMap);
+        MecanumDrive md = new MecanumDrive(telemetry);
         HoldPosition hp = new HoldPosition(telemetry, hardwareMap);
         hp.holdPos(0, 0, 0);
 

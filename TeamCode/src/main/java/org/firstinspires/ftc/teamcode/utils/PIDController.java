@@ -6,8 +6,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class PIDController {
     private PIDCoefficients pidCoefficients;
     private double targetPosition = 0;
-    private double error, lastError, maxActuatorOutput, Isum = 0;
+    public double error, lastError, maxActuatorOutput, Isum = 0;
     private final ElapsedTime et = new ElapsedTime();
+    public int clamp = 1;
 
     public PIDController(PIDCoefficients pidcoef){
         pidCoefficients = pidcoef;
@@ -28,14 +29,17 @@ public class PIDController {
 
         double P = error;
         double D = (error - lastError) / et.seconds();
-        Isum += P * time;
+        Isum += P * time * clamp;
         double r = pidCoefficients.p * P + pidCoefficients.i * Isum + pidCoefficients.d * D;
 
-        double ret = Math.max(r, maxActuatorOutput);
+        double ret = r;
 
-        if(ret != r && error * r > 0){ // Integral Clamping for ant-windup
-            Isum = 0;
+        if(r > maxActuatorOutput && error * r > 0){ // Integral Clamping for anti-windup
+            ret = maxActuatorOutput;
         }
+//        if(Math.abs(error) <= 80){
+//            ret -= Isum * pidCoefficients.i;
+//        }
 
 
         et.reset();

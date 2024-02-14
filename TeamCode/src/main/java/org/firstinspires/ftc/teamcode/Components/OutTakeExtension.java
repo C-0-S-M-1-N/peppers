@@ -7,20 +7,22 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Part;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
+import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
 import org.firstinspires.ftc.teamcode.utils.LowPassFilter;
+import org.opencv.core.Mat;
 
 @Config
 public class OutTakeExtension implements Part {
     private DistanceSensor sensor;
     private AutoServo servo;
-    public static double t = 0.2;
+    public static double t = 0.85;
     public static LowPassFilter filter = new LowPassFilter(t);
-    public static double spoolSizeInMM = 32, sensorOffset = 15;
-    private double currentExtendedSize = 0, length, angle;
+    private double length, angle;
     private Telemetry telemetry = ControlHub.telemetry;
     public static boolean active = false;
+    public static double armLenghtInMM = 80;
 
     public OutTakeExtension(DistanceSensor sensor, AutoServo servo){
 
@@ -28,39 +30,54 @@ public class OutTakeExtension implements Part {
         this.servo = servo;
     }
 
-    private void setLengthInMM(double len){
-        angle = (len * 360) / (2 * Math.PI * spoolSizeInMM);
-        servo.setAngle(angle);
-    }
-    public void reset(){
-        currentExtendedSize = 0;
-        setLengthInMM(0);
-    }
     public void activate(){
         active = true;
     }
     public void deactivate(){
         active = false;
     }
+    public void setImuAngle(double angle){
+        if(angle < 0) angle += 2 * Math.PI;
+        this.angle = angle;
+    }
+    private static final double t_min = 66.5, a = 29.8, b = 65, c = 134.387;
+    private double getServoAngleByLenght(double l){
+        if(Double.isNaN(l)) return 0;
+        l += t_min;
 
+        double theta = - (c*c - a*a - l*l - b*b) / (2*b*Math.sqrt(a*a + l*l));
+        telemetry.addData("theta", theta);
+        if(Math.abs(theta) > 1) theta = 1 * Math.signum(theta);
+        theta = Math.acos(theta);
+        theta = Math.toDegrees(theta);
+
+        double sAngle = l / Math.sqrt(a * a + l * l);
+        if(Math.abs(sAngle) > 1) sAngle = 1 * Math.signum(sAngle);
+        sAngle = Math.asin(sAngle);
+        if(sAngle < 0) sAngle += Math.PI / 2;
+
+        return 220 - theta - Math.toDegrees(sAngle);
+    }
+    private double lastA = 0;
     @Override
     public void update(){
         if(!active) return;
-        currentExtendedSize += length - sensorOffset;
-        setLengthInMM(currentExtendedSize);
-
+        double a = Math.min(getServoAngleByLenght(length), 118);
+        if(Double.isNaN(a)) a = lastA;
+        servo.setAngle(a);
+        servo.update();
+        lastA = a;
     }
-
     @Override
     public void update_values(){
         filter.setT(t);
-        length = filter.pass(sensor.getDistance(DistanceUnit.MM));
+        length = filter.pass(ExpansionHub.getSensorValue()) - armLenghtInMM / Math.cos(angle);
     }
 
     @Override
     public void runTelemetry(){
         telemetry.addLine("\n------- EXTENSION --------");
         telemetry.addData("recorded length", length);
-        telemetry.addData("angle", angle);
+        telemetry.addData("raw servo angle", getServoAngleByLenght(length));
     }
 }

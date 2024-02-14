@@ -15,6 +15,8 @@ import org.firstinspires.ftc.teamcode.Components.ElevatorArm;
 import org.firstinspires.ftc.teamcode.Components.Grippers;
 import org.firstinspires.ftc.teamcode.Components.OutTakeExtension;
 import org.firstinspires.ftc.teamcode.Part;
+import org.firstinspires.ftc.teamcode.internals.ControlHub;
+import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.Hubs;
 import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
@@ -30,12 +32,12 @@ public class OutTake implements Part{
         RETRACTING,
         RETRACTED,
         LVL_UP,
-        LVL_DOWN;
+        LVL_DOWN,
+        NULL;
 
 
-        public static final double MAX_EXTEND = 950;
+        public static final double MAX_EXTEND = 51000;
         public static double level = 5, step = MAX_EXTEND/10;
-        public static int motionStage;
     }
     public static State state = State.WAITING_FOR_PIXELS;
     public static Elevator elevator;
@@ -43,21 +45,17 @@ public class OutTake implements Part{
     public static Grippers leftGripper, rightGripper;
     public static OutTakeExtension outTakeExtension;
     public boolean align = false;
-    public static double transitionArmAngle = 150, finalArmAngle = 220,
-                            transitionPivotAngle = 100, finalPivotPivotAngle = 100;
-    public static IMU imu;
+    public static double finalArmAngle = 210, finalPivotPivotAngle = 130;
 
     public OutTake(HardwareMap hm){
         align = false;
         state = State.WAITING_FOR_PIXELS;
-        State.motionStage = 0;
 
         elevator = new Elevator();
         elevatorArm = new ElevatorArm();
         outTakeExtension = new OutTakeExtension(
                 hm.get(DistanceSensor.class, "sensor"),
-                new AutoServo(SERVO_PORTS.S4, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON)
-                );
+                new AutoServo(SERVO_PORTS.S4, 0, true, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON));
 
         leftGripper = new Grippers(
                 new AutoServo(SERVO_PORTS.S0, 0, false, Hubs.EXPANSION_HUB, AutoServo.TYPE.MICRO_LEGO),
@@ -68,28 +66,24 @@ public class OutTake implements Part{
                 new AutoServo(SERVO_PORTS.S1, 0, false, Hubs.EXPANSION_HUB, AutoServo.TYPE.MICRO_LEGO),
                 hm.get(DigitalChannel.class, "cD1")
         );
-        imu = hm.get(IMU.class, "imu");
 
-        imu.initialize(new IMU.Parameters(
-            new RevHubOrientationOnRobot(
-                    RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD
-            )
-        ));
-        imu.resetYaw();
+
+        elevatorArm.setArmAngle(0);
+        elevatorArm.setPivotAngle(0);
+
         elevatorArm.update();
-        new Thread(() -> { // sussy
-            if(elevatorArm.reachedStationary()){
-                while (elevator.reatchedTargetPosition()) elevator.update();
-            }
-        }).start();
+        outTakeExtension.deactivate();
+        elevator.setTargetPosition(0);
+        state = State.WAITING_FOR_PIXELS;
+//        elevator.state = Elevator.State.RESET;
     }
 
     private void controls(){
         if(Controls.ExtendElevator) state = State.EXTENDING;
         else if(Controls.RetractElevator) state = State.RETRACTING;
         else {
-            if(Controls.ElevatorUp) state = State.LVL_UP;
-            if(Controls.ElevatorDown) state = State.LVL_DOWN;
+            if(Controls.ElevatorUp) State.level++;
+            if(Controls.ElevatorDown) State.level--;
             if(Controls.DropLeft || Controls.DropRight){
                 rightGripper.drop();
                 leftGripper.drop();
@@ -100,53 +94,54 @@ public class OutTake implements Part{
     @Override
     public void update(){
         controls();
+        if(State.level > 10) State.level = 10;
+        if(State.level < 0) State.level = 0;
         switch (state){
             case WAITING_FOR_PIXELS:
                 leftGripper.update();
                 rightGripper.update();
                 break;
             case EXTENDING:
-                outTakeExtension.activate();
-                elevator.setTargetPosition(100);
-                if(elevator.reatchedTargetPosition() && State.motionStage == 0){
-                    elevatorArm.setArmAngle(transitionArmAngle);
-                    elevatorArm.setPivotAngle(transitionPivotAngle);
-                    State.motionStage ++;
-                } else if(elevatorArm.reachedStationary() && State.motionStage == 1) {
-                    elevatorArm.setArmAngle(finalArmAngle);
-                    elevatorArm.setPivotAngle(finalPivotPivotAngle);
-                    state = State.EXTENDED;
-                }
-
+                elevator.setTargetPosition(State.step * 1);
+                elevatorArm.setArmAngle(finalArmAngle);
+                elevatorArm.setPivotAngle(finalPivotPivotAngle);
+                state = State.EXTENDED;
+                break;
             case EXTENDED:
                 elevator.setTargetPosition(State.level * State.step);
+                outTakeExtension.activate();
                 align = true;
+                state = State.NULL;
                 break;
             case RETRACTING:
                 align = false;
                 outTakeExtension.deactivate();
-                outTakeExtension.reset();
-                elevatorArm.setOrientation(90);
-                elevator.setTargetPosition(200);
-                if(elevatorArm.reachedTargetTourretPosition() && State.motionStage == 1){
-                    elevatorArm.setArmAngle(transitionArmAngle);
-                    elevatorArm.setPivotAngle(transitionPivotAngle);
-                    State.motionStage --;
-                } else if(elevatorArm.reachedStationary() && State.motionStage == 0){
-                    elevatorArm.setPivotAngle(0);
-                    elevatorArm.setArmAngle(0);
-                }
-                if(elevatorArm.reachedStationary()){
+
+                elevatorArm.setOrientation(0);
+                elevatorArm.setArmAngle(0);
+                elevatorArm.update();
+                elevatorArm.setPivotAngle(0);
+                elevatorArm.update();
+
+                elevator.setTargetPosition(State.step);
+
+                if(elevator.reatchedTargetPosition()){
                     state = State.RETRACTED;
                 }
+
                 break;
             case RETRACTED:
                 elevator.setTargetPosition(0);
-                state = State.WAITING_FOR_PIXELS;
+                if(elevator.reatchedTargetPosition())
+                    state = State.WAITING_FOR_PIXELS;
+                break;
+            case NULL:
                 break;
         }
         if(align){
-            elevatorArm.setOrientation(imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+            elevatorArm.setOrientation(-ExpansionHub.getRobotRotation(AngleUnit.DEGREES));
+        } else {
+            elevatorArm.setOrientation(0);
         }
         outTakeExtension.update();
         elevator.update();
@@ -157,6 +152,7 @@ public class OutTake implements Part{
     public void update_values(){
         elevator.update_values();
         elevatorArm.update_values();
+        outTakeExtension.update_values();
 
         Grippers.State leftPrev = leftGripper.state, rightPrev = rightGripper.state;
 
@@ -181,6 +177,7 @@ public class OutTake implements Part{
         elevatorArm.runTelemetry();
         leftGripper.runTelemetry("LEFT CLAW");
         rightGripper.runTelemetry("RIGHT CLAW");
+        ControlHub.telemetry.addData("Outtake state", state.toString());
 
 
     }

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.OpModes;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -46,50 +47,44 @@ public class MainOp extends LinearOpMode {
     public static Controls c;
     public static Hang hang;
     public static Avion avion;
-    ElapsedTime time;
+    ElapsedTime time = new ElapsedTime();
 
     @Override
     public void runOpMode(){
-        ExpansionHub eh = new ExpansionHub(hardwareMap);
-        ControlHub ch = new ControlHub(hardwareMap);
-        c = new Controls(gamepad1, gamepad2);
-        time = new ElapsedTime();
-        hang = new Hang();
-        avion = new Avion();
+        ControlHub c = new ControlHub(hardwareMap);
+        ExpansionHub e = new ExpansionHub(hardwareMap);
+        Controls ctr = new Controls(gamepad1, gamepad2);
 
-        FtcDashboard a = FtcDashboard.getInstance();
-        telemetry = new MultipleTelemetry(telemetry, a.getTelemetry());
+        telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(), telemetry);
+        ControlHub.telemetry = telemetry;
 
-        mecanumDrive = new MecanumDrive(telemetry, hardwareMap);
-        intake = new Intake();
         outTake = new OutTake(hardwareMap);
+        intake = new Intake();
+        mecanumDrive = new MecanumDrive(telemetry);
 
         waitForStart();
         time.reset();
-
         while(opModeIsActive() && !isStopRequested()){
 
-            ControlHub.teleMotorCurrents(telemetry);
-            ExpansionHub.teleMotorCurrents(telemetry);
+
+
+//            ControlHub.teleMotorCurrents(telemetry);
+//            ExpansionHub.teleMotorCurrents(telemetry);
 
 
             mecanumDrive.update(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_trigger, gamepad1.left_trigger,
                     gamepad1.a);
 
-            intake.update_values();
+            outTake.update();
             intake.update();
 
             outTake.update_values();
-            outTake.update();
+            intake.update_values();
 
             outTake.runTelemetry();
             intake.runTelemetry();
 
-            hang.update();
-            avion.update();
-
-            c.loop();
-            telemetry.addData("hang level", ControlHub.getEncoderPosition(ENCODER_PORTS.E3));
+            ctr.loop();
             telemetry.addData("Hz", 1/time.seconds());
             time.reset();
             telemetry.update();

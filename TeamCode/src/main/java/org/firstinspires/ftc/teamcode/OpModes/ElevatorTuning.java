@@ -10,16 +10,20 @@ import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Components.Elevator;
 import org.firstinspires.ftc.teamcode.Components.ElevatorArm;
 import org.firstinspires.ftc.teamcode.Components.OutTakeExtension;
+import org.firstinspires.ftc.teamcode.Parts.MotionProfile;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
+import org.firstinspires.ftc.teamcode.internals.Hubs;
 import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
+import org.firstinspires.ftc.teamcode.utils.AutoServo;
 
 @TeleOp(name = "elevator tune")
 @Config
 public class ElevatorTuning extends LinearOpMode {
     public static Elevator elevator;
-    public static ElevatorArm arm;
-    public static double pos = 0;
+    public static double pos = 0, maxUp = 51000;
+    public static double lvl = maxUp / 11;
+    public static boolean update = false;
 
 
     @Override
@@ -33,23 +37,29 @@ public class ElevatorTuning extends LinearOpMode {
         ControlHub.telemetry = telemetry;
 
         elevator = new Elevator();
-        arm = new ElevatorArm();
-        ControlHub.setServoPosition(SERVO_PORTS.S4, 0);
+        ElevatorArm arm = new ElevatorArm();
+        arm.setArmAngle(0);
+        arm.setOrientation(0);
+        arm.setPivotAngle(0);
 
         waitForStart();
         while (opModeIsActive() && !isStopRequested()){
-            if(Controls.ElevatorUp){
-                pos += 100;
-                elevator.setTargetPosition(pos);
+            if(Controls.ElevatorUp || update){
+                elevator.setTargetPosition(pos*lvl);
+                update = false;
             }
-            if(Controls.ElevatorDown){
-                pos -= 100;
-                elevator.setTargetPosition(pos);
+            if(Controls.ElevatorDown || update){
+                elevator.setTargetPosition(pos * lvl);
+                update = false;
             }
             elevator.update();
             arm.update();
 
+            elevator.update_values();
+            arm.update_values();
+
             elevator.runTelemetry();
+            c.loop();
         }
 
 

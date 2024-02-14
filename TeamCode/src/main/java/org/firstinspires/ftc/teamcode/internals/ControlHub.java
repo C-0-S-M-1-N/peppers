@@ -19,6 +19,7 @@ public class ControlHub {
     private static Servo servo0, servo1, servo2, servo3, servo4, servo5;
     public static Telemetry telemetry;
     private static double voltage;
+    private static final double compensation = 12;
 
     public static void initTelemetry(Telemetry t){
         telemetry = t;
@@ -174,16 +175,16 @@ public class ControlHub {
     public static void setMotorPower(MOTOR_PORTS motor, double power){
         switch (motor){
             case M0:
-                motor0.setPower(power);
+                motor0.setPower(power * compensation / voltage);
                 break;
             case M1:
-                motor1.setPower(power);
+                motor1.setPower(power * compensation / voltage);
                 break;
             case M2:
-                motor2.setPower(power);
+                motor2.setPower(power * compensation / voltage);
                 break;
             case M3:
-                motor3.setPower(power);
+                motor3.setPower(power * compensation / voltage);
                 break;
         }
     }

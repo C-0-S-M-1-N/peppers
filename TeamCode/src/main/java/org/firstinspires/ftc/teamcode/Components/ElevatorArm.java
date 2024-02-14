@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Part;
+import org.firstinspires.ftc.teamcode.Parts.MotionProfile;
 import org.firstinspires.ftc.teamcode.internals.Hubs;
 import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
@@ -15,18 +16,18 @@ public class ElevatorArm implements Part {
     private ElapsedTime TMP_arm = new ElapsedTime(),
                         TMP_pivot = new ElapsedTime(),
                         TMP_turret = new ElapsedTime();
+    private MotionProfile armProfile = new MotionProfile(700, 1000);
+    private double currentArmAngle = 0, defaultTouretDegrees = 185;
 
     public ElevatorArm(){
-        virtual1 = new AutoServo(SERVO_PORTS.S0, 0.03, false, Hubs.EXPANSION_HUB, AutoServo.TYPE.AXON);
-        virtual2 = new AutoServo(SERVO_PORTS.S2, 0, true, Hubs.EXPANSION_HUB, AutoServo.TYPE.AXON);
+        virtual1 = new AutoServo(SERVO_PORTS.S0, 0.03 + 5.f/355, false, Hubs.EXPANSION_HUB, AutoServo.TYPE.AXON);
+        virtual2 = new AutoServo(SERVO_PORTS.S2, 5.f/355, true, Hubs.EXPANSION_HUB, AutoServo.TYPE.AXON);
 
-        pivot = new AutoServo(SERVO_PORTS.S2, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
+        pivot = new AutoServo(SERVO_PORTS.S0, 0, true, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
 
-        turret = new AutoServo(SERVO_PORTS.S1, (double)185/355, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
+        turret = new AutoServo(SERVO_PORTS.S1, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
 
-
-
-        turret.setAngle(90);
+        turret.setAngle(defaultTouretDegrees);
         virtual1.setAngle(0);
         virtual2.setAngle(0);
         pivot.setAngle(0);
@@ -41,6 +42,9 @@ public class ElevatorArm implements Part {
         virtual1.setAngle(angle);
         virtual2.setAngle(angle);
         TMP_arm.reset();
+
+        armProfile.startMotion(currentArmAngle, angle);
+        currentArmAngle = angle;
     }
     public void setPivotAngle(double angle){
         pivot.setAngle(angle);
@@ -48,8 +52,15 @@ public class ElevatorArm implements Part {
     }
 
     public void setOrientation(double angle){
-        turret.setAngle(angle);
+        if(Math.abs(angle) > 30) angle = 30 * Math.signum(angle);
+        turret.setAngle(angle + defaultTouretDegrees);
         TMP_turret.reset();
+    }
+    public double getArmAngle(){
+        return currentArmAngle;
+    }
+    public double getLiveArmAngle(){
+        return armProfile.getPosition();
     }
 
     public boolean reachedTargetArmPosition(){
@@ -59,20 +70,26 @@ public class ElevatorArm implements Part {
         return TMP_pivot.seconds() >= 0.5;
     }
     public boolean reachedTargetTourretPosition(){
-        return TMP_turret.seconds() >= 1.5;
+        return TMP_turret.seconds() >= 0.2;
     }
 
     public boolean reachedStationary(){
-        return reachedTargetTourretPosition() && reachedTargetArmPosition() && reachedTargetPivotPosition();
+        return armProfile.motionEnded();
     }
 
     @Override
     public void update(){
+        virtual1.setAngle(armProfile.getPosition());
+        virtual2.setAngle(armProfile.getPosition());
 
     }
     @Override
     public void update_values(){
-
+        armProfile.update();
+        virtual1.update();
+        virtual2.update();
+        pivot.update();
+        turret.update();
     }
     @Override
     public void runTelemetry(){

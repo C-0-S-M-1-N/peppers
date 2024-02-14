@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.utils;
 
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.Parts.MotionProfile;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.Hubs;
@@ -45,25 +46,40 @@ public class AutoServo {
                 MAX_ANGLE = 360;
                 break;
         }
+        switch (hub){
+            case CONTROL_HUB:
+                ControlHub.setServoDirection(port, isReversed ? Servo.Direction.REVERSE : Servo.Direction.FORWARD);
+                ControlHub.setServoPosition(port, position);
+                break;
+            case EXPANSION_HUB:
+                ExpansionHub.setServoDirection(port, isReversed ? Servo.Direction.REVERSE : Servo.Direction.FORWARD);
+                ExpansionHub.setServoPosition(port, position);
+                break;
+        }
     }
 
     public void update(){
         switch (hub){
             case CONTROL_HUB:
-                ControlHub.setServoPosition(port, position);
                 ControlHub.setServoDirection(port, isReversed ? Servo.Direction.REVERSE : Servo.Direction.FORWARD);
+                ControlHub.setServoPosition(port, position);
                 break;
             case EXPANSION_HUB:
-                ExpansionHub.setServoPosition(port, position);
                 ExpansionHub.setServoDirection(port, isReversed ? Servo.Direction.REVERSE : Servo.Direction.FORWARD);
+                ExpansionHub.setServoPosition(port, position);
                 break;
         }
     }
 
-    public void setAngle(double angle){ position = angle / MAX_ANGLE + initialPosition; }
-    public void setPosition(double pos){ position = pos + initialPosition; }
+    public void setAngle(double angle){
+        position = angle / MAX_ANGLE + initialPosition;
+    }
+    public void setPosition(double pos){
+        position = pos + initialPosition;
+        // NOT USED
+    }
 
-    public double getAngle(){ return (position - initialPosition) * MAX_ANGLE; }
+    public double getAngle(){return (position - initialPosition) * MAX_ANGLE; }
     public double getPosition(){ return position - initialPosition; }
 
 }

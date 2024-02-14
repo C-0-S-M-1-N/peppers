@@ -1,21 +1,30 @@
 package org.firstinspires.ftc.teamcode.internals;
 
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.checkerframework.checker.units.qual.A;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.internals.ENCODER_PORTS;
 
 public class ExpansionHub {
     public static DcMotorEx motor0, motor1, motor2, motor3;
     private static Encoder encoder0, encoder1, encoder2, encoder3;
     private static Servo servo0, servo1, servo2, servo3, servo4, servo5;
+    public static double voltage;
+    public static final double compensation = 12;
+    public static IMU imu;
+    public static DistanceSensor sensor;
 
     private static void setMotorsToMax(){
         MotorConfigurationType mct = motor0.getMotorType().clone();
@@ -64,8 +73,30 @@ public class ExpansionHub {
         encoder2 = new Encoder(motor2);
         encoder3 = new Encoder(motor3);
 
+        voltage = hm.voltageSensor.iterator().next().getVoltage();
+        imu = hm.get(IMU.class, "imu");
+        imu.initialize(new IMU.Parameters(
+                new RevHubOrientationOnRobot(
+                        RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD
+                )
+        ));
+        imu.resetYaw();
+        sensor = hm.get(DistanceSensor.class, "sensor");
+
         setMotorsToMax();
 
+    }
+    private static double angle, dist;
+    public static void update(){
+        angle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        dist = sensor.getDistance(DistanceUnit.MM);
+    }
+
+    public static double getRobotRotation(AngleUnit unit){
+        return unit == AngleUnit.DEGREES ? Math.toDegrees(angle) : angle;
+    }
+    public static double getSensorValue(){
+        return dist;
     }
 
     public static double getEncoderPosition(ENCODER_PORTS encoder){
@@ -170,16 +201,16 @@ public class ExpansionHub {
     public static void setMotorPower(MOTOR_PORTS motor, double power){
         switch (motor){
             case M0:
-                motor0.setPower(power);
+                motor0.setPower(power * compensation / voltage);
                 break;
             case M1:
-                motor1.setPower(power);
+                motor1.setPower(power * compensation / voltage);
                 break;
             case M2:
-                motor2.setPower(power);
+                motor2.setPower(power * compensation / voltage);
                 break;
             case M3:
-                motor3.setPower(power);
+                motor3.setPower(power * compensation / voltage);
                 break;
         }
     }

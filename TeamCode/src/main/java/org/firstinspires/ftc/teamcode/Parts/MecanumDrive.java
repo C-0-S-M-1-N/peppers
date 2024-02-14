@@ -15,22 +15,21 @@ import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
 
 /*
 * MAP:
-* 0 - FL / FL
-* 1 - FR / BL
-* 2 - BL / FR
-* 3 - BR / BR
+* 0 - BR
+* 1 - BL
+* 2 - FR
+* 3 - FL
 *
 * */
 @Config
 public class MecanumDrive{
     public static boolean Disable = false;
     public static double ACC = 0.1;
-    private double lastM0, lastM1, lastM2, lastM3;
     private Telemetry telemetry;
-    public MecanumDrive(Telemetry tele, HardwareMap hm){
+    public MecanumDrive(Telemetry tele){
         telemetry = tele;
         ExpansionHub.setMotorDirection(MOTOR_PORTS.M0, DcMotorSimple.Direction.REVERSE);
-        ExpansionHub.setMotorDirection(MOTOR_PORTS.M1, DcMotorSimple.Direction.REVERSE);
+        ExpansionHub.setMotorDirection(MOTOR_PORTS.M2, DcMotorSimple.Direction.REVERSE);
         ExpansionHub.motor0.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         ExpansionHub.motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         ExpansionHub.motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
