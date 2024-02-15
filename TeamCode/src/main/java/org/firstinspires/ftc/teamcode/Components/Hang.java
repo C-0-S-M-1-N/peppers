@@ -14,7 +14,6 @@ import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
 public class Hang {
     public static double maxUp = 6350;
     public Hang(){
-        ControlHub.motor3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         ControlHub.setEncoderDirection(ENCODER_PORTS.E3, Encoder.Direction.REVERSE);
     }
 

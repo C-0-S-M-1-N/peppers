@@ -9,7 +9,7 @@ public class LowPassFilter {
         this.t = t;
     }
     public double pass(double val){
-        prevValue = val;
-        return t * prevValue + (1 - t) * val;
+        prevValue =  t * prevValue + (1 - t) * val;
+        return prevValue;
     }
 }

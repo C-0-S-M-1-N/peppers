@@ -19,24 +19,9 @@ import org.firstinspires.ftc.teamcode.Parts.OutTake;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ENCODER_PORTS;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
+import com.outoftheboxrobotics.photoncore.PhotonCore;
 
-/*
-* MAP
-*   CH:
-*       - M1 + M2 -> elevator   E1 -> elevator
-*       - M3 -> intake
-*       - M4 -> hang
-*
-*       - S0 -> virtual1
-*       - S2 -> virtual2
-*   EH:
-*       - M1 + M2 + M3 + M4 -> chassis
-*
-*       - S0 + S1 -> grippers
-*       - S2 -> pivot
-*       - S3 -> pixelRotation
-*
-* */
+
 @TeleOp(name = "pipers \uD83C\uDF36️")
 @Config
 public class MainOp extends LinearOpMode {
@@ -65,6 +50,10 @@ public class MainOp extends LinearOpMode {
         waitForStart();
         time.reset();
         while(opModeIsActive() && !isStopRequested()){
+            for(int i = 0; i < 4; i++){
+                ControlHub.encoder[i].read = false;
+                ExpansionHub.encoder[i].read = false;
+            }
 
 
 

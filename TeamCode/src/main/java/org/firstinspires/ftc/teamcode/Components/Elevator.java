@@ -51,7 +51,7 @@ public class Elevator implements Part {
     public Elevator(){
         telemetry = ControlHub.telemetry;
 //        ControlHub.resetEncoder(ENCODER_PORTS.E0);
-        encoder = new Encoder(ControlHub.motor0);
+        encoder = new Encoder(ControlHub.motor[0]);
 //        encoder.setDirection(Encoder.Direction.REVERSE);
         motionProfile = new MotionProfile(maxVelo*DistanceToTicks, maxAcc*DistanceToTicks);
 //        state = State.RESET;
@@ -81,7 +81,7 @@ public class Elevator implements Part {
                 ControlHub.setMotorPower(MOTOR_PORTS.M0, 0);
                 ControlHub.setMotorPower(MOTOR_PORTS.M1, 0);
 //                ControlHub.resetEncoder(ENCODER_PORTS.E0);
-                encoder = new Encoder(ControlHub.motor0);
+                encoder = new Encoder(ControlHub.motor[0]);
 
             }
         } else {
