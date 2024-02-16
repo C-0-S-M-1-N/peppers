@@ -36,7 +36,7 @@ public class OutTake implements Part{
         NULL;
 
 
-        public static final double MAX_EXTEND = 5100;
+        public static final double MAX_EXTEND = 925;
         public static double level = 5, step = MAX_EXTEND/10;
     }
     public static State state = State.WAITING_FOR_PIXELS;
@@ -113,7 +113,7 @@ public class OutTake implements Part{
                 break;
             case EXTENDING:
                 if(!extending) {
-                    elevator.setTargetPosition(State.step * 5);
+                    elevator.setTargetPosition(State.step * 2);
                     elevatorArm.setArmAngle(10);
                     elevatorArm.setPivotAngle(-5);
                     extending = true;
@@ -132,7 +132,7 @@ public class OutTake implements Part{
                 break;
             case RETRACTING:
                 if(align) {
-                    elevator.setTargetPosition(State.step * 2);
+                    elevator.setTargetPosition(State.step * 1);
                     outTakeExtension.deactivate();
                     elevatorArm.setOrientation(0);
                     elevatorArm.setArmAngle(0);
@@ -148,11 +148,12 @@ public class OutTake implements Part{
                 break;
             case RETRACTED:
                 if(!set0Pos) {
-                    elevator.setTargetPosition(-50);
+                    elevator.setTargetPosition(-300);
                     set0Pos = true;
                 }
                 elevator.update();
                 if(elevator.reatchedTargetPosition()) {
+                    elevator.setTargetPosition(0);
                     state = State.WAITING_FOR_PIXELS;
                     set0Pos = false;
                 }
@@ -162,7 +163,7 @@ public class OutTake implements Part{
                     outTakeExtension.activate();
                 break;
         }
-        if(align){
+        if(align && elevatorArm.reachedStationary()){
             elevatorArm.setOrientation(-ExpansionHub.ImuYawAngle);
         } else {
             elevatorArm.setOrientation(0);

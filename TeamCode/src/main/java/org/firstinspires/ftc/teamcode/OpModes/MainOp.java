@@ -19,7 +19,6 @@ import org.firstinspires.ftc.teamcode.Parts.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
-import com.outoftheboxrobotics.photoncore.PhotonCore;
 
 
 @TeleOp(name = "pipers \uD83C\uDF36️")
