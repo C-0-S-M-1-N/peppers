@@ -54,7 +54,7 @@ public class ExpansionHub {
 
     }
     public static Thread runI2Cdevices;
-    public static Mutex I2CMutex = new Mutex();
+    public Mutex I2CMutex = new Mutex();
     public static double ImuYawAngle = 0, sensorDistance = 0;
 
     public ExpansionHub(HardwareMap hm){
@@ -65,10 +65,12 @@ public class ExpansionHub {
 
         for(int i = 0; i < 4; i++){
             motor[i].setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            motor_cache[i] = 69;
         }
 
         for(int i = 0; i < 6; i++){
-            servo[i] = hm.get(Servo.class, "eS" + (i + '0'));
+            servo[i] = hm.get(Servo.class, "eS" + i );
+            servo_cache[i] = 69;
         }
         for(int i = 0; i < 4; i++){
             encoder[i] = new Encoder(motor[i]);
@@ -100,18 +102,8 @@ public class ExpansionHub {
         setMotorsToMax();
 
     }
-    private static double angle, dist;
     public static void update(){
-        angle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-        dist = sensor.getDistance(DistanceUnit.MM);
 
-    }
-
-    public static double getRobotRotation(AngleUnit unit){
-        return unit == AngleUnit.DEGREES ? Math.toDegrees(angle) : angle;
-    }
-    public static double getSensorValue(){
-        return dist;
     }
 
     public static double getEncoderPosition(ENCODER_PORTS encoder_port){
@@ -235,25 +227,25 @@ public class ExpansionHub {
         switch (port){
             case M0:
                 if(motor_cache[0] != power){
-                    motor[0].setPower(power * compensation / voltage);
+                    motor[0].setPower(power );
                     motor_cache[0] = power;
                 }
                 break;
             case M1:
                 if(motor_cache[1] != power){
-                    motor[1].setPower(power * compensation / voltage);
+                    motor[1].setPower(power );
                     motor_cache[1] = power;
                 }
                 break;
             case M2:
                 if(motor_cache[2] != power){
-                    motor[2].setPower(power * compensation / voltage);
+                    motor[2].setPower(power );
                     motor_cache[2] = power;
                 }
                 break;
             case M3:
                 if(motor_cache[3] != power){
-                    motor[3].setPower(power * compensation / voltage);
+                    motor[3].setPower(power );
                     motor_cache[3] = power;
                 }
                 break;

@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.apache.commons.math3.analysis.function.Exp;
 import org.checkerframework.checker.units.qual.A;
 import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Components.Elevator;
@@ -17,7 +18,6 @@ import org.firstinspires.ftc.teamcode.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Parts.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
-import org.firstinspires.ftc.teamcode.internals.ENCODER_PORTS;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import com.outoftheboxrobotics.photoncore.PhotonCore;
 
@@ -48,6 +48,7 @@ public class MainOp extends LinearOpMode {
         mecanumDrive = new MecanumDrive(telemetry);
 
         waitForStart();
+        ExpansionHub.runI2Cdevices.start();
         time.reset();
         while(opModeIsActive() && !isStopRequested()){
             for(int i = 0; i < 4; i++){
@@ -75,8 +76,10 @@ public class MainOp extends LinearOpMode {
 
             ctr.loop();
             telemetry.addData("Hz", 1/time.seconds());
+            telemetry.addData("STATE", OutTake.state);
             time.reset();
             telemetry.update();
         }
+        e.I2CMutex.kill();
     }
 }

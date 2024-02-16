@@ -24,7 +24,7 @@ public class Grippers implements Part {
         this.servo = servo;
         this.sensorGate = sensor;
 
-        sensor.setMode(DigitalChannel.Mode.OUTPUT);
+        sensor.setMode(DigitalChannel.Mode.INPUT);
         state = State.OPEN;
     }
 
@@ -35,40 +35,43 @@ public class Grippers implements Part {
                 servo.setAngle(0);
                 break;
             case CLOSE:
-                if(time.seconds() >= 0.5 && !sensorGate.getState()){
+                if(time.seconds() >= 0.5 && sensorGate.getState()){
                     state = State.OPEN;
                 } else {
-                    servo.setAngle(90);
                     time.reset();
+                    servo.setAngle(80);
                 }
                 break;
         }
     }
-
+    private ElapsedTime gripperTime = new ElapsedTime();
     @Override
     public void update_values(){
-        if(sensorGate.getState()){
-            state = State.CLOSE;
-            time.reset();
-        }
+        if(!sensorGate.getState()){
+            if(gripperTime.seconds() >= 0.3) {
+                state = State.CLOSE;
+                time.reset();
+                gripperTime.reset();
+            }
+        } else gripperTime.reset();
+        servo.update();
     }
 
     public void drop(){
         state = State.OPEN;
+        update();
     }
 
     @Override
     public void runTelemetry(){ }
 
     public void runTelemetry(String s){
-        ControlHub.telemetry.update();
         ControlHub.telemetry.addLine("\n----");
         ControlHub.telemetry.addLine(s);
-        ControlHub.telemetry.addLine("----");
 
         ControlHub.telemetry.addData("\tState", state.toString());
-
-        ControlHub.telemetry.update();
+        ControlHub.telemetry.addData("beam breaker", sensorGate.getState());
+        ControlHub.telemetry.addLine("----");
     }
 
 }

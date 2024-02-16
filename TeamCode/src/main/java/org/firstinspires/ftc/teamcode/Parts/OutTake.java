@@ -36,7 +36,7 @@ public class OutTake implements Part{
         NULL;
 
 
-        public static final double MAX_EXTEND = 51000;
+        public static final double MAX_EXTEND = 5100;
         public static double level = 5, step = MAX_EXTEND/10;
     }
     public static State state = State.WAITING_FOR_PIXELS;
@@ -58,12 +58,12 @@ public class OutTake implements Part{
                 new AutoServo(SERVO_PORTS.S4, 0, true, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON));
 
         leftGripper = new Grippers(
-                new AutoServo(SERVO_PORTS.S0, 0, false, Hubs.EXPANSION_HUB, AutoServo.TYPE.MICRO_LEGO),
+                new AutoServo(SERVO_PORTS.S2, 0, true, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
                 hm.get(DigitalChannel.class, "cD0")
         );
 
         rightGripper = new Grippers(
-                new AutoServo(SERVO_PORTS.S1, 0, false, Hubs.EXPANSION_HUB, AutoServo.TYPE.MICRO_LEGO),
+                new AutoServo(SERVO_PORTS.S3, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
                 hm.get(DigitalChannel.class, "cD1")
         );
 
@@ -82,14 +82,24 @@ public class OutTake implements Part{
         if(Controls.ExtendElevator) state = State.EXTENDING;
         else if(Controls.RetractElevator) state = State.RETRACTING;
         else {
-            if(Controls.ElevatorUp) State.level++;
-            if(Controls.ElevatorDown) State.level--;
-            if(Controls.DropLeft || Controls.DropRight){
-                rightGripper.drop();
+            if(Controls.ElevatorUp) {
+                State.level++;
+                elevator.setTargetPosition(State.level * State.step);
+            }
+            if(Controls.ElevatorDown){
+                State.level--;
+                elevator.setTargetPosition(State.level * State.step);
+            }
+            if(Controls.DropLeft){
                 leftGripper.drop();
+            }
+            if(Controls.DropRight){
+                rightGripper.drop();
             }
         }
     }
+
+    boolean extending = false, set0Pos = false;
 
     @Override
     public void update(){
@@ -102,44 +112,58 @@ public class OutTake implements Part{
                 rightGripper.update();
                 break;
             case EXTENDING:
-                elevator.setTargetPosition(State.step * 1);
-                elevatorArm.setArmAngle(finalArmAngle);
-                elevatorArm.setPivotAngle(finalPivotPivotAngle);
-                state = State.EXTENDED;
+                if(!extending) {
+                    elevator.setTargetPosition(State.step * 5);
+                    elevatorArm.setArmAngle(10);
+                    elevatorArm.setPivotAngle(-5);
+                    extending = true;
+                } else
+                if(elevator.reatchedTargetPosition()) {
+                    elevatorArm.setArmAngle(finalArmAngle);
+                    elevatorArm.setPivotAngle(finalPivotPivotAngle);
+                    state = State.EXTENDED;
+                    extending = false;
+                }
                 break;
             case EXTENDED:
                 elevator.setTargetPosition(State.level * State.step);
-                outTakeExtension.activate();
                 align = true;
                 state = State.NULL;
                 break;
             case RETRACTING:
+                if(align) {
+                    elevator.setTargetPosition(State.step * 2);
+                    outTakeExtension.deactivate();
+                    elevatorArm.setOrientation(0);
+                    elevatorArm.setArmAngle(0);
+                    elevatorArm.setPivotAngle(0);
+                }
                 align = false;
-                outTakeExtension.deactivate();
 
-                elevatorArm.setOrientation(0);
-                elevatorArm.setArmAngle(0);
-                elevatorArm.update();
-                elevatorArm.setPivotAngle(0);
-                elevatorArm.update();
 
-                elevator.setTargetPosition(State.step);
-
-                if(elevator.reatchedTargetPosition()){
+                if(elevatorArm.reachedStationary()){
                     state = State.RETRACTED;
                 }
 
                 break;
             case RETRACTED:
-                elevator.setTargetPosition(0);
-                if(elevator.reatchedTargetPosition())
+                if(!set0Pos) {
+                    elevator.setTargetPosition(-50);
+                    set0Pos = true;
+                }
+                elevator.update();
+                if(elevator.reatchedTargetPosition()) {
                     state = State.WAITING_FOR_PIXELS;
+                    set0Pos = false;
+                }
                 break;
             case NULL:
+                if(elevatorArm.reachedStationary())
+                    outTakeExtension.activate();
                 break;
         }
         if(align){
-            elevatorArm.setOrientation(-ExpansionHub.getRobotRotation(AngleUnit.DEGREES));
+            elevatorArm.setOrientation(-ExpansionHub.ImuYawAngle);
         } else {
             elevatorArm.setOrientation(0);
         }
@@ -177,6 +201,7 @@ public class OutTake implements Part{
         elevatorArm.runTelemetry();
         leftGripper.runTelemetry("LEFT CLAW");
         rightGripper.runTelemetry("RIGHT CLAW");
+        outTakeExtension.runTelemetry();
         ControlHub.telemetry.addData("Outtake state", state.toString());
 
 

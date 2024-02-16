@@ -29,7 +29,7 @@ public class MecanumDrive{
     public MecanumDrive(Telemetry tele){
         telemetry = tele;
         ExpansionHub.setMotorDirection(MOTOR_PORTS.M0, DcMotorSimple.Direction.REVERSE);
-        ExpansionHub.setMotorDirection(MOTOR_PORTS.M2, DcMotorSimple.Direction.REVERSE);
+        ExpansionHub.setMotorDirection(MOTOR_PORTS.M1, DcMotorSimple.Direction.REVERSE);
     }
 
     public void update(double left_stick_y, double left_stick_x,
@@ -39,10 +39,10 @@ public class MecanumDrive{
         double rotation = right_trigger - left_trigger;
         double denominator = Math.max(abs(left_stick_x) + abs(left_stick_y) + abs(rotation), 1);
 
-        double m0Power = (left_stick_x + left_stick_y + rotation)/denominator;
-        double m2Power = (left_stick_x - left_stick_y - rotation)/denominator;
-        double m1Power = (left_stick_x - left_stick_y + rotation)/denominator;
-        double m3Power = (left_stick_x + left_stick_y - rotation)/denominator;
+        double m0Power = (-left_stick_x - left_stick_y + rotation)/denominator;
+        double m2Power = (-left_stick_x + left_stick_y - rotation)/denominator;
+        double m1Power = (-left_stick_x + left_stick_y + rotation)/denominator;
+        double m3Power = (-left_stick_x - left_stick_y - rotation)/denominator;
 
         if(boost){
             ACC = 1;

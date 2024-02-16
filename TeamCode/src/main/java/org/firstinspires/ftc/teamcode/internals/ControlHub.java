@@ -65,10 +65,12 @@ public class ControlHub {
 
         for(int i = 0; i < 4; i++){
             motor[i].setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            motor_cache[i] = 69;
         }
 
         for(int i = 0; i < 6; i++){
-            servo[i] = hm.get(Servo.class, "cS" + (i + '0'));
+            servo[i] = hm.get(Servo.class, "cS" + i );
+            servo_cache[i] = 69;
         }
         for(int i = 0; i < 4; i++){
             encoder[i] = new Encoder(motor[i]);

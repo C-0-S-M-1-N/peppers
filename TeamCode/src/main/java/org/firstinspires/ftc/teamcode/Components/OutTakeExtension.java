@@ -17,12 +17,15 @@ import org.opencv.core.Mat;
 public class OutTakeExtension implements Part {
     private DistanceSensor sensor;
     private AutoServo servo;
-    public static double t = 0.85;
+    public static double t = 0.5;
     public static LowPassFilter filter = new LowPassFilter(t);
     private double length, angle;
     private Telemetry telemetry = ControlHub.telemetry;
     public static boolean active = false;
-    public static double armLenghtInMM = 80;
+    public static double armLenghtInMM = 200;
+
+    public static double Start = 80;
+    public static double End = 20;
 
     public OutTakeExtension(DistanceSensor sensor, AutoServo servo){
 
@@ -42,7 +45,12 @@ public class OutTakeExtension implements Part {
     }
     private static final double t_min = 66.5, a = 29.8, b = 65, c = 134.387;
     private double getServoAngleByLenght(double l){
+        if(l > 280) return 0;
         if(Double.isNaN(l)) return 0;
+
+        double T = l / 120.0;
+        l += Start * (1 - T) + End * T;
+
         l += t_min;
 
         double theta = - (c*c - a*a - l*l - b*b) / (2*b*Math.sqrt(a*a + l*l));
@@ -61,17 +69,21 @@ public class OutTakeExtension implements Part {
     private double lastA = 0;
     @Override
     public void update(){
-        if(!active) return;
         double a = Math.min(getServoAngleByLenght(length), 118);
         if(Double.isNaN(a)) a = lastA;
+        if(!active) a = 0;
+
         servo.setAngle(a);
         servo.update();
         lastA = a;
     }
     @Override
     public void update_values(){
+        angle = ExpansionHub.ImuYawAngle;
+        angle = Math.toRadians(angle);
+        if(angle < 0) angle += 2 * Math.PI;
         filter.setT(t);
-        length = filter.pass(ExpansionHub.getSensorValue()) - armLenghtInMM / Math.cos(angle);
+        length = filter.pass(ExpansionHub.sensorDistance) - armLenghtInMM / Math.cos(angle);
     }
 
     @Override

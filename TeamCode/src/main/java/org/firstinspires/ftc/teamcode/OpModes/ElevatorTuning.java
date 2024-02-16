@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.utils.AutoServo;
 @Config
 public class ElevatorTuning extends LinearOpMode {
     public static Elevator elevator;
-    public static double pos = 0, maxUp = 51000;
+    public static double pos = 0, maxUp = 5100;
     public static double lvl = maxUp / 11;
     public static boolean update = false;
 

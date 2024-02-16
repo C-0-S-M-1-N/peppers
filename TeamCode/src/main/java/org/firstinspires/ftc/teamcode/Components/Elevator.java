@@ -35,7 +35,7 @@ public class Elevator implements Part {
     }
     public State state = State.IDLE;
 
-    public static PIDCoefficients pidCoefficients = new PIDCoefficients(0.0015, 0.005, 0.00001);
+    public static PIDCoefficients pidCoefficients = new PIDCoefficients(0.0015, 0.001, 0.00008);
     public static PIDController pidController = new PIDController(pidCoefficients);
 
     private Telemetry telemetry;
@@ -45,7 +45,7 @@ public class Elevator implements Part {
     private MotionProfile motionProfile;
     private double ticksToMM = 180*4 / 51000.f;
     private double DistanceToTicks = 51000.f/ (180*4);
-    public static double maxAcc = 6500, maxVelo = 30000;
+    public static double maxAcc = 650, maxVelo = 2000;
     public static double ff1 = 0;
 
     public Elevator(){
@@ -58,12 +58,10 @@ public class Elevator implements Part {
     }
 
     public void setTargetPosition(double position){
-        if(targetPosition > position) state = State.UP;
+        if(targetPosition >= position) state = State.UP;
         else if(targetPosition < position) state = State.DOWN;
-        else state = State.IDLE;
 
         targetPosition = position;
-        pidController.setTargetPosition(targetPosition);
         motionProfile.startMotion(this.position, targetPosition);
     }
 
@@ -71,17 +69,16 @@ public class Elevator implements Part {
         return state == State.IDLE;
     }
 
+    private ElapsedTime veloTime = new ElapsedTime();
+
     @Override
     public void update(){
         if (Objects.requireNonNull(state) == State.RESET) {
             ControlHub.setMotorPower(MOTOR_PORTS.M0, -1);
             ControlHub.setMotorPower(MOTOR_PORTS.M1, -1);
-            if (velocity <= 200 && time.seconds() >= 0.2) {
-                state = State.IDLE;
+            if (velocity <= 40 && time.seconds() >= 0.2) {
                 ControlHub.setMotorPower(MOTOR_PORTS.M0, 0);
                 ControlHub.setMotorPower(MOTOR_PORTS.M1, 0);
-//                ControlHub.resetEncoder(ENCODER_PORTS.E0);
-                encoder = new Encoder(ControlHub.motor[0]);
 
             }
         } else {
@@ -120,9 +117,10 @@ public class Elevator implements Part {
     }
     @Override
     public void update_values(){
-        velocity = Math.abs(position - previousPosition);
+        velocity = Math.abs(position - previousPosition) / veloTime.seconds();
         previousPosition = position;
-        position = encoder.getCurrentPosition();
+        position = encoder.getCurrentPosition() / 10;
         motionProfile.update();
+        veloTime.reset();
     }
 }

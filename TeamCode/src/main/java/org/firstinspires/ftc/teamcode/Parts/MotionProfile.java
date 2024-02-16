@@ -11,12 +11,13 @@ public class MotionProfile {
     private double accelerationTime, deccelarationTime, constantTime,
                     currentPosition, initialPosition, targetPosition, mvUsed,
                     velocity, sig;
-    private double t0, t1, t2;
+    private double t0 = 0, t1 = 0, t2 = 0;
     public MotionProfile(double maxVelocity, double acceleration){
         this.maxVelocity = maxVelocity;
         this.acceleration = acceleration;
     }
     public void startMotion(double initialPos, double targetPos){
+        if(initialPos == targetPos) return;
         double dist = Math.abs(targetPos - initialPos);
         double mv = dist / Math.sqrt(dist / acceleration);
         sig = Math.signum(targetPos - initialPos);
@@ -71,6 +72,7 @@ public class MotionProfile {
 //        ControlHub.telemetry.addData("t0", t0);
 //        ControlHub.telemetry.addData("t1", t1);
 //        ControlHub.telemetry.addData("t2", t2);
+//        ControlHub.telemetry.addData("acceleration", acceleration);
 //        ControlHub.telemetry.addData("currentPos", currentPosition);
     }
     public double getPosition(){
