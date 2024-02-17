@@ -161,10 +161,7 @@ public class OutTake implements Part{
             case NULL:
                 if(elevatorArm.reachedStationary())
                     outTakeExtension.activate();
-                if(!fullPixel()) state = State.RETRACTING;t add .
-                git commit - m"cod"
-                    git push
-                            
+                if(!fullPixel()) state = State.RETRACTING;
                 break;
         }
         if(align && elevatorArm.reachedStationary()){
