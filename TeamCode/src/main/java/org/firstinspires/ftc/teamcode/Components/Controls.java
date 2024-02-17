@@ -12,7 +12,9 @@ public class Controls {
     public static boolean updateDetected;
     public static boolean Intake, RevIntake,
             ExtendElevator, RetractElevator, ElevatorUp,  ElevatorDown,
-            DropLeft, DropRight, Hang, Avion;
+            DropLeft, DropRight, Hang, Avion, ResetTourret,
+            DownElevator,
+            ResetElevator;
     public static double HangLevel = 0;
     private static AutoGamepad gamepad1;
     private static AutoGamepad gamepad2;
@@ -40,7 +42,9 @@ public class Controls {
         RevIntake       = false;
         Hang            = false;
         Avion           = false;
-
+        ResetTourret    = false;
+        ResetElevator   = false;
+        DownElevator    = false;
     }
 
     public void loop(){
@@ -61,6 +65,9 @@ public class Controls {
             HangLevel = gamepad2.gamepad.left_stick_y;
         } else HangLevel = 0;
         if(gamepad2.wasPressed.x) Avion = true;
+        if(gamepad2.wasPressed.triangle) ResetTourret = true;
+        if(gamepad2.wasReleased.circle)  ResetElevator = true;
+        if(gamepad2.wasPressed.circle) DownElevator = true;
 
         updateDetected = ExtendElevator || RetractElevator || ElevatorUp || ElevatorDown || Intake
                 || DropRight || DropLeft || RevIntake;

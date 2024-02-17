@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.internals;
 
+import android.provider.ContactsContract;
+
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -86,6 +88,7 @@ public class ExpansionHub {
         imu.resetYaw();
 
         sensor = hm.get(DistanceSensor.class, "sensor");
+        beforeReset = 0;
 
         runI2Cdevices = new Thread(() -> {
             while(!I2CMutex.kill) {
@@ -93,7 +96,7 @@ public class ExpansionHub {
                 double y = sensor.getDistance(DistanceUnit.MM);
 
                 I2CMutex.lock();
-                ImuYawAngle = x;
+                ImuYawAngle = x - beforeReset;
                 sensorDistance = y;
                 I2CMutex.unlock();
             }
@@ -101,6 +104,10 @@ public class ExpansionHub {
 
         setMotorsToMax();
 
+    }
+    private static double beforeReset = 0;
+    public static void resetIMU(){
+        beforeReset += ImuYawAngle;
     }
     public static void update(){
 

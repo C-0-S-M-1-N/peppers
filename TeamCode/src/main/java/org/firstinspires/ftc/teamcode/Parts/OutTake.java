@@ -97,6 +97,7 @@ public class OutTake implements Part{
                 rightGripper.drop();
             }
         }
+        if(Controls.ResetTourret) ExpansionHub.resetIMU();
     }
 
     boolean extending = false, set0Pos = false;
@@ -148,12 +149,11 @@ public class OutTake implements Part{
                 break;
             case RETRACTED:
                 if(!set0Pos) {
-                    elevator.setTargetPosition(-300);
+                    elevator.setTargetPosition(-60);
                     set0Pos = true;
                 }
                 elevator.update();
                 if(elevator.reatchedTargetPosition()) {
-                    elevator.setTargetPosition(0);
                     state = State.WAITING_FOR_PIXELS;
                     set0Pos = false;
                 }
@@ -161,6 +161,10 @@ public class OutTake implements Part{
             case NULL:
                 if(elevatorArm.reachedStationary())
                     outTakeExtension.activate();
+                if(!fullPixel()) state = State.RETRACTING;t add .
+                git commit - m"cod"
+                    git push
+                            
                 break;
         }
         if(align && elevatorArm.reachedStationary()){

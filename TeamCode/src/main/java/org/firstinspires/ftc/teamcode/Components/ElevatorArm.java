@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Part;
 import org.firstinspires.ftc.teamcode.Parts.MotionProfile;
+import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.Hubs;
 import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
@@ -17,8 +18,7 @@ public class ElevatorArm implements Part {
                         TMP_pivot = new ElapsedTime(),
                         TMP_turret = new ElapsedTime();
     private MotionProfile armProfile = new MotionProfile(900, 1500);
-    private double currentArmAngle = 0, defaultTouretDegrees = 187;
-
+    private double currentArmAngle = 0, defaultTouretDegrees = 187, imuResetedAngle = 0;
     public ElevatorArm(){
         virtual1 = new AutoServo(SERVO_PORTS.S0, 0.03, false, Hubs.EXPANSION_HUB, AutoServo.TYPE.AXON);
         virtual2 = new AutoServo(SERVO_PORTS.S2, 0, true, Hubs.EXPANSION_HUB, AutoServo.TYPE.AXON);

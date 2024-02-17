@@ -83,7 +83,7 @@ public class Intake implements Part {
                 servo.setAngle(ground);
                 break;
             case REVERSE:
-                ControlHub.setMotorPower(MOTOR_PORTS.M2, -0.7);
+                ControlHub.setMotorPower(MOTOR_PORTS.M2, -1);
                 servo.setAngle(ground);
                 break;
         }
