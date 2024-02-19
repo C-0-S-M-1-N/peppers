@@ -54,7 +54,6 @@ public class OutTakeExtension implements Part {
         l += t_min;
 
         double theta = - (c*c - a*a - l*l - b*b) / (2*b*Math.sqrt(a*a + l*l));
-        telemetry.addData("theta", theta);
         if(Math.abs(theta) > 1) theta = 1 * Math.signum(theta);
         theta = Math.acos(theta);
         theta = Math.toDegrees(theta);
@@ -76,6 +75,8 @@ public class OutTakeExtension implements Part {
         servo.setAngle(a);
         servo.update();
         lastA = a;
+
+        if(Controls.DownElevator) sensor.resetDeviceConfigurationForOpMode();
     }
     @Override
     public void update_values(){

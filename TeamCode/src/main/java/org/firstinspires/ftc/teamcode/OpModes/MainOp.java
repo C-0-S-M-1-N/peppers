@@ -41,6 +41,7 @@ public class MainOp extends LinearOpMode {
 
         telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(), telemetry);
         ControlHub.telemetry = telemetry;
+        gamepad1.setLedColor(1.0, 1.0, 1.0, (int) 1e10);
 
         outTake = new OutTake(hardwareMap);
         intake = new Intake();

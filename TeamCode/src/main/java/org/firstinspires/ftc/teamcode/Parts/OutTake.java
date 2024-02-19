@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Components.Controls;
@@ -15,6 +16,7 @@ import org.firstinspires.ftc.teamcode.Components.ElevatorArm;
 import org.firstinspires.ftc.teamcode.Components.Grippers;
 import org.firstinspires.ftc.teamcode.Components.OutTakeExtension;
 import org.firstinspires.ftc.teamcode.Part;
+import org.firstinspires.ftc.teamcode.internals.AprilTagDetector;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.Hubs;
@@ -31,6 +33,7 @@ public class OutTake implements Part{
         EXTENDED,
         RETRACTING,
         RETRACTED,
+        RELEASING,
         LVL_UP,
         LVL_DOWN,
         NULL;
@@ -46,6 +49,7 @@ public class OutTake implements Part{
     public static OutTakeExtension outTakeExtension;
     public boolean align = false;
     public static double finalArmAngle = 210, finalPivotPivotAngle = 130;
+    private ElapsedTime releasingTime = new ElapsedTime();
 
     public OutTake(HardwareMap hm){
         align = false;
@@ -59,12 +63,12 @@ public class OutTake implements Part{
 
         leftGripper = new Grippers(
                 new AutoServo(SERVO_PORTS.S2, 0, true, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
-                hm.get(DigitalChannel.class, "cD0")
+                hm.get(DigitalChannel.class, "cD1")
         );
 
         rightGripper = new Grippers(
                 new AutoServo(SERVO_PORTS.S3, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
-                hm.get(DigitalChannel.class, "cD1")
+                hm.get(DigitalChannel.class, "cD0")
         );
 
 
@@ -73,7 +77,7 @@ public class OutTake implements Part{
 
         elevatorArm.update();
         outTakeExtension.deactivate();
-        elevator.setTargetPosition(0);
+        elevator.setTargetPosition(-80);
         state = State.WAITING_FOR_PIXELS;
 //        elevator.state = Elevator.State.RESET;
     }
@@ -109,8 +113,10 @@ public class OutTake implements Part{
         if(State.level < 0) State.level = 0;
         switch (state){
             case WAITING_FOR_PIXELS:
-                leftGripper.update();
-                rightGripper.update();
+                if(elevator.state == Elevator.State.NOT_RESET) {
+                    leftGripper.update();
+                    rightGripper.update();
+                }
                 break;
             case EXTENDING:
                 if(!extending) {
@@ -131,6 +137,11 @@ public class OutTake implements Part{
                 align = true;
                 state = State.NULL;
                 break;
+            case RELEASING:
+                if(releasingTime.time() > 0.5) {
+                    state = State.RETRACTING;
+                }
+                break;
             case RETRACTING:
                 if(align) {
                     elevator.setTargetPosition(State.step * 1);
@@ -149,10 +160,9 @@ public class OutTake implements Part{
                 break;
             case RETRACTED:
                 if(!set0Pos) {
-                    elevator.setTargetPosition(-60);
+                    elevator.setTargetPosition(-80);
                     set0Pos = true;
                 }
-                elevator.update();
                 if(elevator.reatchedTargetPosition()) {
                     state = State.WAITING_FOR_PIXELS;
                     set0Pos = false;
@@ -161,14 +171,20 @@ public class OutTake implements Part{
             case NULL:
                 if(elevatorArm.reachedStationary())
                     outTakeExtension.activate();
-                if(!fullPixel()) state = State.RETRACTING;
+                if(!onePixel()) {
+                    state = State.RELEASING;
+                    releasingTime.reset();
+                }
                 break;
         }
         if(align && elevatorArm.reachedStationary()){
+
+
             elevatorArm.setOrientation(-ExpansionHub.ImuYawAngle);
         } else {
             elevatorArm.setOrientation(0);
         }
+
         outTakeExtension.update();
         elevator.update();
         elevatorArm.update();
@@ -211,5 +227,9 @@ public class OutTake implements Part{
 
     public static boolean fullPixel(){
         return rightGripper.state == Grippers.State.CLOSE && leftGripper.state == Grippers.State.CLOSE;
+    }
+
+    public static boolean onePixel() {
+        return rightGripper.state == Grippers.State.CLOSE || leftGripper.state == Grippers.State.CLOSE;
     }
 }

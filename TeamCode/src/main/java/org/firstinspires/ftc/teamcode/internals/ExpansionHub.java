@@ -15,9 +15,13 @@ import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigu
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.utils.Mutex;
+import org.openftc.apriltag.AprilTagDetection;
 
 import java.util.List;
 
@@ -91,9 +95,19 @@ public class ExpansionHub {
         beforeReset = 0;
 
         runI2Cdevices = new Thread(() -> {
+            AprilTagDetector.init(hm);
+
             while(!I2CMutex.kill) {
                 double x = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
                 double y = sensor.getDistance(DistanceUnit.MM);
+
+//                AprilTagDetection detections[] = AprilTagDetector.getDetections();
+//
+//                if(detections.length > 0) {
+//                    Orientation rot = Orientation.getOrientation(detections[0].pose.R, AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
+//
+//                    beforeReset = 0.8*beforeReset + 0.2*(x - rot.secondAngle);
+//                }
 
                 I2CMutex.lock();
                 ImuYawAngle = x - beforeReset;

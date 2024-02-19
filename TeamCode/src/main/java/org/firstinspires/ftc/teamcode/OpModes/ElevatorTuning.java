@@ -27,7 +27,7 @@ public class ElevatorTuning extends LinearOpMode {
 
 
     @Override
-    public void runOpMode(){
+    public void runOpMode() throws InterruptedException {
 
         ControlHub ch = new ControlHub(hardwareMap);
         ExpansionHub eh = new ExpansionHub(hardwareMap);

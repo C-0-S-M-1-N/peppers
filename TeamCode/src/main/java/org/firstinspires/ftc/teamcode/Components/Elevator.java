@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Components;
 
+import static org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS.M0;
+import static org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS.M1;
 import static java.lang.Math.abs;
 import static java.lang.Math.pow;
 
@@ -7,6 +9,7 @@ import android.os.health.PidHealthStats;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -30,11 +33,13 @@ import java.util.ResourceBundle;
 public class Elevator implements Part {
     public enum State{
         RESET,
+        TO_RESET,
+        RUN_DOWN,
         NOT_RESET
     }
     public State state;
 
-    public static PIDFCoefficients pidCoefficients = new PIDFCoefficients(10, 10, 1, 0);
+    public static PIDFCoefficients pidCoefficients = new PIDFCoefficients(10, 10, 1, 5);
     private Telemetry telemetry;
     private double position, velocity, previousPosition;
     private Encoder encoder1, encoder2;
@@ -44,6 +49,7 @@ public class Elevator implements Part {
     public static double maxAcc = 100, maxVelo = 300;
     public static int error2 = 0;
     public static PIDFCoefficients lastPIDF = null;
+    private ElapsedTime resetElevator = new ElapsedTime();
 
 
     public Elevator(){
@@ -51,11 +57,12 @@ public class Elevator implements Part {
         encoder1 = new Encoder(ControlHub.motor[0]);
         encoder2 = new Encoder(ControlHub.motor[1]);
         motionProfile = new MotionProfile(maxVelo*DistanceToTicks, maxAcc*DistanceToTicks);
+
         ControlHub.motor[0].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         ControlHub.motor[1].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        ControlHub.motor[0].setTargetPosition(0);
-        ControlHub.motor[1].setTargetPosition(0);
+        ControlHub.motor[0].setTargetPosition(-60);
+        ControlHub.motor[1].setTargetPosition(-60);
 
         ControlHub.motor[0].setMode(DcMotor.RunMode.RUN_TO_POSITION);
         ControlHub.motor[1].setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -75,6 +82,8 @@ public class Elevator implements Part {
 
         motionProfile.startMotion(this.position, p);
         motionProfile.update();
+
+        if(p <= 0) state = State.RESET;
     }
 
     public boolean reatchedTargetPosition(){
@@ -85,7 +94,7 @@ public class Elevator implements Part {
     private boolean firstUpdate = true;
 
     @Override
-    public void update(){
+    public void update() {
         if(firstUpdate) {resetTime.reset(); firstUpdate = false;}
         if(pidCoefficients != lastPIDF) {
             ControlHub.motor[0].setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidCoefficients);
@@ -93,8 +102,8 @@ public class Elevator implements Part {
             lastPIDF = pidCoefficients;
         }
 
-        if(state != State.RESET) {
-            if (position <= 1 && targetPos <= 0) {
+        if(state == State.NOT_RESET) {
+            if (position <= 23  && targetPos <= 0) {
 //            ControlHub.motor[0].setPower(0);
 //            ControlHub.motor[1].setPower(0);
                 ControlHub.motor[0].setMotorDisable();
@@ -103,38 +112,44 @@ public class Elevator implements Part {
             } else {
                 ControlHub.motor[0].setMotorEnable();
                 ControlHub.motor[1].setMotorEnable();
-                ControlHub.motor[0].setTargetPosition((int) motionProfile.getPosition());
-                ControlHub.motor[1].setTargetPosition((int) motionProfile.getPosition() - error2);
+                ControlHub.motor[0].setTargetPosition((int) motionProfile.getPosition() + 20);
+                ControlHub.motor[1].setTargetPosition((int) motionProfile.getPosition() + 20 - error2);
             }
         }
 
-        if(Controls.DownElevator){
-            state = State.RESET;
+        if(state == State.RESET) {
+            ControlHub.motor[0].setTargetPosition((int) -6900);
+            ControlHub.motor[1].setTargetPosition((int) -6900 - error2);
+            resetElevator.reset();
+            state = State.RUN_DOWN;
+        }
+
+        if(velocity <= 1 && state == State.RUN_DOWN && resetElevator.seconds() > 0.2) {
+            ControlHub.motor[0].setMotorDisable();
+            ControlHub.motor[1].setMotorDisable();
+            state = State.TO_RESET;
+            resetTime.reset();
+        }
+
+        if(state == State.TO_RESET) {
             ControlHub.motor[0].setMotorEnable();
             ControlHub.motor[1].setMotorEnable();
 
-            ControlHub.motor[0].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            ControlHub.motor[1].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-            ControlHub.setMotorPower(MOTOR_PORTS.M0, -0.5);
-            ControlHub.setMotorPower(MOTOR_PORTS.M1, -0.5);
-        } else if(Controls.ResetElevator){
-            state = State.NOT_RESET;
             ControlHub.motor[0].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             ControlHub.motor[1].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
             ControlHub.motor[0].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             ControlHub.motor[1].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-            ControlHub.motor[0].setTargetPosition(0);
-            ControlHub.motor[1].setTargetPosition(0);
+            ControlHub.motor[0].setTargetPosition(-60);
+            ControlHub.motor[1].setTargetPosition(-60);
 
             ControlHub.motor[0].setMode(DcMotor.RunMode.RUN_TO_POSITION);
             ControlHub.motor[1].setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             ControlHub.motor[0].setPower(1);
             ControlHub.motor[1].setPower(1);
-
+            state = State.NOT_RESET;
         }
 
     }
@@ -144,7 +159,7 @@ public class Elevator implements Part {
 
         telemetry.addLine("\n----Elevator----\n");
         telemetry.addData("power usage",
-                ControlHub.getCurrentFromMotor(MOTOR_PORTS.M0, CurrentUnit.AMPS) + ControlHub.getCurrentFromMotor(MOTOR_PORTS.M1, CurrentUnit.AMPS));
+                ControlHub.getCurrentFromMotor(M0, CurrentUnit.AMPS) + ControlHub.getCurrentFromMotor(M1, CurrentUnit.AMPS));
         telemetry.addData("motion profile position", motionProfile.getPosition());
         telemetry.addData("velocity", velocity);
         telemetry.addData("position", position);
@@ -157,10 +172,10 @@ public class Elevator implements Part {
     }
     @Override
     public void update_values(){
-        velocity = Math.abs(position - previousPosition) / veloTime.seconds();
+        velocity = ControlHub.motor[0].getVelocity();
         previousPosition = position;
-        position = encoder1.getCurrentPosition();
-        error2 = (int) (position - encoder2.getCurrentPosition());
+        position = ControlHub.motor[0].getCurrentPosition();
+        error2 = (int) (position - ControlHub.motor[1].getCurrentPosition());
         motionProfile.update();
         veloTime.reset();
     }

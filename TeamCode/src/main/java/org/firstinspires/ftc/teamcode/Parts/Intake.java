@@ -59,7 +59,7 @@ public class Intake implements Part {
             grippersHave = false;
         } else if(grippersHaveTime == 0) {
             grippersHaveTime = clock.seconds();
-        } else if(clock.seconds() - grippersHaveTime > 0.7) {
+        } else if(clock.seconds() - grippersHaveTime > 0.1) {
             grippersHave = true;
         }
         if(usedCurrent > maxTrashHold){
@@ -84,7 +84,7 @@ public class Intake implements Part {
                 break;
             case REVERSE:
                 ControlHub.setMotorPower(MOTOR_PORTS.M2, -1);
-                servo.setAngle(ground);
+                servo.setAngle(0);
                 break;
         }
         servo.update();

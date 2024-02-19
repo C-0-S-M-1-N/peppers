@@ -48,12 +48,9 @@ public class Grippers implements Part {
     @Override
     public void update_values(){
         if(!sensorGate.getState()){
-            if(gripperTime.seconds() >= 0.3) {
-                state = State.CLOSE;
-                time.reset();
-                gripperTime.reset();
-            }
-        } else gripperTime.reset();
+            state = State.CLOSE;
+            time.reset();
+        }
         servo.update();
     }
 
