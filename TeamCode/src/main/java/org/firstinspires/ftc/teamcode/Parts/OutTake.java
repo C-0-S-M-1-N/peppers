@@ -51,6 +51,7 @@ public class OutTake implements Part{
     public static double finalArmAngle = 210, finalPivotPivotAngle = 130;
     public static double intermediarPivot = 130;
     private ElapsedTime releasingTime = new ElapsedTime();
+    private ElapsedTime FUCKING_EXTENSIE = new ElapsedTime();
 
     public void setElevatorLevel(int level){
         elevator.setTargetPosition(level * State.step);
@@ -95,11 +96,11 @@ public class OutTake implements Part{
         if(Controls.ExtendElevator) state = State.EXTENDING;
         else if(Controls.RetractElevator) state = State.RETRACTING;
         else {
-            if(Controls.ElevatorUp) {
+            if(Controls.ElevatorUp && state == State.NULL) {
                 State.level++;
                 elevator.setTargetPosition(State.level * State.step);
             }
-            if(Controls.ElevatorDown){
+            if(Controls.ElevatorDown && state == State.NULL){
                 State.level--;
                 elevator.setTargetPosition(State.level * State.step);
             }
@@ -155,13 +156,19 @@ public class OutTake implements Part{
                     elevator.setTargetPosition(State.step * 1);
                     outTakeExtension.deactivate();
                     elevatorArm.setOrientation(0);
-                    elevatorArm.setArmAngle(0);
-                    elevatorArm.setPivotAngle(0);
+                    elevatorArm.setArmAngle(90);
+                    elevatorArm.setPivotAngle(50);
+                    FUCKING_EXTENSIE.reset();
                 }
                 align = false;
 
+                if(FUCKING_EXTENSIE.seconds() > 0.4) {
+                    elevatorArm.setArmAngle(0);
+                    elevatorArm.setPivotAngle(0);
+                }
 
-                if(elevatorArm.reachedStationary()){
+
+                if(elevatorArm.reachedStationary() && FUCKING_EXTENSIE.seconds() > 0.4){
                     state = State.RETRACTED;
                 }
 
