@@ -19,10 +19,10 @@ public class OutTakeExtension implements Part {
     private AutoServo servo;
     public static double t = 0.5;
     public static LowPassFilter filter = new LowPassFilter(t);
-    private double length, angle;
+    public static double length, angle;
     private Telemetry telemetry = ControlHub.telemetry;
     public static boolean active = false;
-    public static double armLenghtInMM = 200;
+    public static double armLenghtInMM = 210;
 
     public static double Start = 80;
     public static double End = 20;

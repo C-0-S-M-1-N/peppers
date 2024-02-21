@@ -76,7 +76,7 @@ public class Controls {
     }
 
     private static void playEffects(){
-        if(FullLoad || (LeftGot && RightGot)){
+        if(FullLoad){
             gamepad1.gamepad.runRumbleEffect(RumbleEffects.fullLoad);
             gamepad2.gamepad.runRumbleEffect(RumbleEffects.fullLoad);
         }

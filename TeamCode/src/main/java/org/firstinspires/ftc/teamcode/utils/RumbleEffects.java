@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.utils;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import java.util.ArrayList;
+
 public class RumbleEffects {
 
     public static Gamepad.RumbleEffect fullLoad, pixelLost, LeftPixel, RightPixel, LeftLost, RightLost, ENDGAME, FINISHED;
@@ -46,5 +48,15 @@ public class RumbleEffects {
         RightLost = RightLost_b.build();
         ENDGAME = ENDGAME_b.build();
         FINISHED = FINISHED_b.build();
+
+
+    }
+
+    public static Gamepad.LedEffect ledEffect;
+
+    public static void runLEDEffect(){
+        new Thread(() -> {
+
+        });
     }
 }

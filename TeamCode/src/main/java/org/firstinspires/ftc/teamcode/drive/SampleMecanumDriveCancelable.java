@@ -55,13 +55,15 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kV;
 
 /*
  * Simple mecanum drive hardware implementation for REV hardware.
+ * TP - 3.5 1.1 0.3
+ * HP - 5.5 0.38 0.38
  */
 @Config
 public class SampleMecanumDriveCancelable extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(3.5, 1.1, 0.3);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(5,1, 0.3);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(5.5, 0.38, 0.38);
 
-    public static double LATERAL_MULTIPLIER = 1;
+    public static double LATERAL_MULTIPLIER = 2.42;
 
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
@@ -100,10 +102,10 @@ public class SampleMecanumDriveCancelable extends MecanumDrive {
         // TODO: adjust the names of the following hardware devices to match your configuration
 
 
-        leftFront = hardwareMap.get(DcMotorEx.class, "eM0");
-        leftRear = hardwareMap.get(DcMotorEx.class, "eM2"); // 1
-        rightRear = hardwareMap.get(DcMotorEx.class, "eM3");
-        rightFront = hardwareMap.get(DcMotorEx.class, "eM1"); // 2
+        leftFront = hardwareMap.get(DcMotorEx.class, "eM3");
+        leftRear = hardwareMap.get(DcMotorEx.class, "eM1"); // 1
+        rightRear = hardwareMap.get(DcMotorEx.class, "eM0");
+        rightFront = hardwareMap.get(DcMotorEx.class, "eM2"); // 2
 
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 

@@ -19,6 +19,7 @@ public class Grippers implements Part {
     private final DigitalChannel sensorGate;
     private final AutoServo servo;
     private final ElapsedTime time = new ElapsedTime();
+    public double closed_offset = 0;
 
     public Grippers(AutoServo servo, DigitalChannel sensor){
         this.servo = servo;
@@ -38,8 +39,7 @@ public class Grippers implements Part {
                 if(time.seconds() >= 0.5 && sensorGate.getState()){
                     state = State.OPEN;
                 } else {
-                    time.reset();
-                    servo.setAngle(80);
+                    servo.setAngle(80 + closed_offset);
                 }
                 break;
         }

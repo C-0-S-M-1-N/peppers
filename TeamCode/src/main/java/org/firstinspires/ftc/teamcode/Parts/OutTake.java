@@ -49,7 +49,14 @@ public class OutTake implements Part{
     public static OutTakeExtension outTakeExtension;
     public boolean align = false;
     public static double finalArmAngle = 210, finalPivotPivotAngle = 130;
+    public static double intermediarPivot = 130;
     private ElapsedTime releasingTime = new ElapsedTime();
+
+    public void setElevatorLevel(int level){
+        elevator.setTargetPosition(level * State.step);
+    }
+
+
 
     public OutTake(HardwareMap hm){
         align = false;
@@ -70,6 +77,8 @@ public class OutTake implements Part{
                 new AutoServo(SERVO_PORTS.S3, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
                 hm.get(DigitalChannel.class, "cD0")
         );
+
+        rightGripper.closed_offset = 4;
 
 
         elevatorArm.setArmAngle(0);
@@ -124,12 +133,11 @@ public class OutTake implements Part{
                     elevatorArm.setArmAngle(10);
                     elevatorArm.setPivotAngle(-5);
                     extending = true;
-                } else
-                if(elevator.reatchedTargetPosition()) {
+                } else if(elevator.reatchedTargetPosition()) {
                     elevatorArm.setArmAngle(finalArmAngle);
-                    elevatorArm.setPivotAngle(finalPivotPivotAngle);
-                    state = State.EXTENDED;
+                    elevatorArm.setPivotAngle(intermediarPivot);
                     extending = false;
+                    state = State.EXTENDED;
                 }
                 break;
             case EXTENDED:
@@ -169,8 +177,10 @@ public class OutTake implements Part{
                 }
                 break;
             case NULL:
-                if(elevatorArm.reachedStationary())
+                if(elevatorArm.reachedStationary()) {
                     outTakeExtension.activate();
+                    elevatorArm.setPivotAngle(finalPivotPivotAngle);
+                }
                 if(!onePixel()) {
                     state = State.RELEASING;
                     releasingTime.reset();
@@ -178,8 +188,6 @@ public class OutTake implements Part{
                 break;
         }
         if(align && elevatorArm.reachedStationary()){
-
-
             elevatorArm.setOrientation(-ExpansionHub.ImuYawAngle);
         } else {
             elevatorArm.setOrientation(0);

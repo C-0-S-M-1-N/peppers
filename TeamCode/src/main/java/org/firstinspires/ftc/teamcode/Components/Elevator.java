@@ -83,7 +83,7 @@ public class Elevator implements Part {
         motionProfile.startMotion(this.position, p);
         motionProfile.update();
 
-        if(p <= 0) state = State.RESET;
+        if(p < 0) state = State.RESET;
     }
 
     public boolean reatchedTargetPosition(){

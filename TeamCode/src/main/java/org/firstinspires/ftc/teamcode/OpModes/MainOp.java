@@ -46,6 +46,8 @@ public class MainOp extends LinearOpMode {
         outTake = new OutTake(hardwareMap);
         intake = new Intake();
         mecanumDrive = new MecanumDrive(telemetry);
+        hang = new Hang();
+        avion = new Avion();
 
         waitForStart();
         ExpansionHub.runI2Cdevices.start();
@@ -67,6 +69,8 @@ public class MainOp extends LinearOpMode {
 
             outTake.update();
             intake.update();
+            hang.update();
+            avion.update();
 
             outTake.update_values();
             intake.update_values();
