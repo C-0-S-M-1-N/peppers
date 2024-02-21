@@ -10,10 +10,13 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.checkerframework.checker.units.qual.C;
 import org.firstinspires.ftc.teamcode.Components.Grippers;
+import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
+
+import java.util.ArrayList;
 
 @TeleOp(name = "servoTest")
 @Config
@@ -28,7 +31,7 @@ public class ServoTest extends LinearOpMode {
 
 
         ControlHub c = new ControlHub(hardwareMap);
-        ExpansionHub h = new ExpansionHub(hardwareMap);
+        ExpansionHub h = new ExpansionHub(hardwareMap, new StandardTrackingWheelLocalizer(hardwareMap, new ArrayList<>(), new ArrayList<>()));
 
         waitForStart();
 

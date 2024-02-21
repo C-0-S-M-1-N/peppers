@@ -9,8 +9,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
+import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
+
+import java.util.ArrayList;
 
 @Config
 @TeleOp(name = "Tune")
@@ -24,7 +27,7 @@ public class Tune extends LinearOpMode {
 
         telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(), telemetry);
 
-        ExpansionHub eh = new ExpansionHub(hardwareMap);
+        ExpansionHub eh = new ExpansionHub(hardwareMap, new StandardTrackingWheelLocalizer(hardwareMap, new ArrayList<>(), new ArrayList<>()));
         ControlHub ch = new ControlHub(hardwareMap);
         time = new ElapsedTime();
         controls = new Controls(gamepad1, gamepad2);

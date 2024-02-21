@@ -11,11 +11,14 @@ import org.firstinspires.ftc.teamcode.Components.Elevator;
 import org.firstinspires.ftc.teamcode.Components.ElevatorArm;
 import org.firstinspires.ftc.teamcode.Components.OutTakeExtension;
 import org.firstinspires.ftc.teamcode.Parts.MotionProfile;
+import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.Hubs;
 import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
+
+import java.util.ArrayList;
 
 @TeleOp(name = "elevator tune")
 @Config
@@ -30,7 +33,7 @@ public class ElevatorTuning extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         ControlHub ch = new ControlHub(hardwareMap);
-        ExpansionHub eh = new ExpansionHub(hardwareMap);
+        ExpansionHub eh = new ExpansionHub(hardwareMap, new StandardTrackingWheelLocalizer(hardwareMap, new ArrayList<>(), new ArrayList<>()));
         FtcDashboard a = FtcDashboard.getInstance();
         Controls c = new Controls(gamepad1, gamepad2);
         telemetry = new MultipleTelemetry(telemetry, a.getTelemetry());

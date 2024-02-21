@@ -146,7 +146,7 @@ public class OutTake implements Part{
                 state = State.NULL;
                 break;
             case RELEASING:
-                if(releasingTime.time() > 0.5) {
+                if(releasingTime.time() > 0.3) {
                     state = State.RETRACTING;
                 }
                 break;

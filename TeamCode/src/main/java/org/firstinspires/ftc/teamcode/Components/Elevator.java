@@ -46,7 +46,7 @@ public class Elevator implements Part {
     private MotionProfile motionProfile;
     private double ticksToMM = 180*4 / 51000.f;
     private double DistanceToTicks = 51000.f/ (180*4);
-    public static double maxAcc = 100, maxVelo = 300;
+    public static double maxAcc = 60, maxVelo = 200;
     public static int error2 = 0;
     public static PIDFCoefficients lastPIDF = null;
     private ElapsedTime resetElevator = new ElapsedTime();

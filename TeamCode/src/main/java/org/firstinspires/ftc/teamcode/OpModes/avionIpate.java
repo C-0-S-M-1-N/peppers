@@ -5,8 +5,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Parts.Avion;
+import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
+
+import java.util.ArrayList;
 
 @TeleOp(name = "avion")
 public class avionIpate extends LinearOpMode {
@@ -14,7 +17,7 @@ public class avionIpate extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         ControlHub c = new ControlHub(hardwareMap);
-        ExpansionHub e = new ExpansionHub(hardwareMap);
+        ExpansionHub e = new ExpansionHub(hardwareMap, new StandardTrackingWheelLocalizer(hardwareMap, new ArrayList<>(), new ArrayList<>()));
         Controls cn = new Controls(gamepad1, gamepad2);
 
         ControlHub.telemetry = telemetry;

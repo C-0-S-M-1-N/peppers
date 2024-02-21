@@ -1,7 +1,14 @@
 package org.firstinspires.ftc.teamcode.internals;
 
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+import static java.lang.Math.sqrt;
+
 import android.provider.ContactsContract;
 
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.localization.Localizer;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -13,6 +20,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
+import org.apache.commons.math3.analysis.function.Exp;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -25,6 +33,7 @@ import org.openftc.apriltag.AprilTagDetection;
 
 import java.util.List;
 
+@Config
 public class ExpansionHub {
     public static DcMotorEx[] motor = new DcMotorEx[4];
     public static Encoder[] encoder = new Encoder[4];
@@ -62,8 +71,13 @@ public class ExpansionHub {
     public static Thread runI2Cdevices;
     public Mutex I2CMutex = new Mutex();
     public static double ImuYawAngle = 0, sensorDistance = 0;
+    private Localizer localizer = null;
+    private boolean READ_SENSOR = false;
+    private boolean READ_IMU = false;
 
-    public ExpansionHub(HardwareMap hm){
+    public ExpansionHub(HardwareMap hm, Localizer localizer){
+        this.localizer = localizer;
+
         motor[0] = hm.get(DcMotorEx.class, "eM0");
         motor[1] = hm.get(DcMotorEx.class, "eM1");
         motor[2] = hm.get(DcMotorEx.class, "eM2");
@@ -99,7 +113,15 @@ public class ExpansionHub {
 
             while(!I2CMutex.kill) {
                 double x = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+                I2CMutex.lock();
+                READ_IMU = true;
+                ImuYawAngle = x - beforeReset;
+                I2CMutex.unlock();
                 double y = sensor.getDistance(DistanceUnit.MM);
+                I2CMutex.lock();
+                READ_SENSOR = true;
+                sensorDistance = y;
+                I2CMutex.unlock();
 
 //                AprilTagDetection detections[] = AprilTagDetector.getDetections();
 //
@@ -109,22 +131,48 @@ public class ExpansionHub {
 //                    beforeReset = 0.8*beforeReset + 0.2*(x - rot.secondAngle);
 //                }
 
-                I2CMutex.lock();
-                ImuYawAngle = x - beforeReset;
-                sensorDistance = y;
-                I2CMutex.unlock();
+
             }
         });
 
         setMotorsToMax();
 
     }
+
     private static double beforeReset = 0;
+    public static double VELOCITY_COMPENSATION = -5;
     public static void resetIMU(){
         beforeReset += ImuYawAngle;
     }
-    public static void update(){
+    public void update(boolean update_localizer){
+        if(update_localizer) localizer.update();
+        Pose2d pose = localizer.getPoseEstimate();
 
+        if(READ_IMU) {
+            READ_IMU = false;
+            localizer.setPoseEstimate(new Pose2d(pose.getX(), pose.getY(), ImuYawAngle));
+        } else {
+            ImuYawAngle = pose.getHeading();
+        }
+
+        if(READ_SENSOR) {
+            READ_SENSOR = false;
+
+            double alpha = pose.getHeading();
+
+            // (sensorDistance + distanceFromCenterOfRobot) rotated by alpha is position of robit
+
+            double distanceFromCenter = 20.0 / 2.54;
+            double dist = sensorDistance + distanceFromCenter;
+            double x = cos(alpha) * dist;
+            localizer.setPoseEstimate(new Pose2d(x, 0, alpha));
+
+            sensorDistance += VELOCITY_COMPENSATION * localizer.getPoseVelocity().getX() / cos(alpha);
+        } else {
+            double distanceFromCenter = 20.0 / 2.54;
+            sensorDistance = (pose.getX() - distanceFromCenter) / cos(pose.getHeading());
+            sensorDistance += VELOCITY_COMPENSATION * localizer.getPoseVelocity().getX() / cos(pose.getHeading());
+        }
     }
 
     public static double getEncoderPosition(ENCODER_PORTS encoder_port){

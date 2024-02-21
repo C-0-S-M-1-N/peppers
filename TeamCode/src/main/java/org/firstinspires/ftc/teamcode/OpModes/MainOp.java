@@ -17,8 +17,11 @@ import org.firstinspires.ftc.teamcode.Parts.Avion;
 import org.firstinspires.ftc.teamcode.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Parts.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
+import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
+
+import java.util.ArrayList;
 
 
 @TeleOp(name = "pipers \uD83C\uDF36️")
@@ -36,7 +39,7 @@ public class MainOp extends LinearOpMode {
     @Override
     public void runOpMode(){
         ControlHub c = new ControlHub(hardwareMap);
-        ExpansionHub e = new ExpansionHub(hardwareMap);
+        ExpansionHub e = new ExpansionHub(hardwareMap, new StandardTrackingWheelLocalizer(hardwareMap, new ArrayList<>(), new ArrayList<>()));
         Controls ctr = new Controls(gamepad1, gamepad2);
 
         telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(), telemetry);
@@ -71,6 +74,7 @@ public class MainOp extends LinearOpMode {
             intake.update();
             hang.update();
             avion.update();
+            e.update(true);
 
             outTake.update_values();
             intake.update_values();

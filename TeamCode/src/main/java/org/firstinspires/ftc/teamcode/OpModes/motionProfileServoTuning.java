@@ -8,11 +8,14 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.apache.commons.math3.geometry.euclidean.twod.Line;
 import org.firstinspires.ftc.teamcode.Parts.MotionProfile;
+import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.Hubs;
 import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
+
+import java.util.ArrayList;
 
 @TeleOp(name = "motionProfileServoTest")
 @Config
@@ -29,7 +32,7 @@ public class motionProfileServoTuning extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         ControlHub c = new ControlHub(hardwareMap);
-        ExpansionHub e = new ExpansionHub(hardwareMap);
+        ExpansionHub e = new ExpansionHub(hardwareMap, new StandardTrackingWheelLocalizer(hardwareMap, new ArrayList<>(), new ArrayList<>()));
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         ControlHub.telemetry = telemetry;
