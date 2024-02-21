@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
@@ -9,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.checkerframework.checker.units.qual.C;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -17,6 +19,7 @@ import org.firstinspires.ftc.teamcode.Components.OutTakeExtension;
 import org.firstinspires.ftc.teamcode.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDriveCancelable;
+import org.firstinspires.ftc.teamcode.internals.AprilTagDetectionPipeline;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.Hubs;
@@ -34,16 +37,18 @@ import org.firstinspires.ftc.teamcode.utils.AutoServo;
 * */
 
 @Autonomous(name = "redClose")
+@Config
 public class RedClose extends LinearOpMode {
     enum State{
         INTAKE,
         NOT_INTAKE
     }
     private State state = State.NOT_INTAKE;
+    private boolean relocalize = false;
 
     public static double middlePurple_x = 21.5, middlePurple_y = -1.3,
     middleYellow_x = 25.24, middleYellow_y = -23.56,
-    stack_x = 21, stack_y = 76.01,
+    stack_x = 21, stack_y = 76.5,
     prebackdropMiddle_x = 25.24, prebackdropMiddle_y = -6;
 
     public static Pose2d middlePurple = new Pose2d(middlePurple_x, middlePurple_y, 0),
@@ -58,6 +63,7 @@ public class RedClose extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+
         telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(), telemetry);
         ControlHub ch = new ControlHub(hardwareMap);
         ControlHub.telemetry = telemetry;
@@ -73,6 +79,8 @@ public class RedClose extends LinearOpMode {
         OutTake.finalArmAngle = 230;
         OutTake.intermediarPivot = 130;
         ExpansionHub.sensorDistance = 260;
+
+
 
         SampleMecanumDriveCancelable mecanumDrive = new SampleMecanumDriveCancelable(hardwareMap);
 
@@ -152,21 +160,36 @@ public class RedClose extends LinearOpMode {
                 })
                 .lineToLinearHeading(prebackdropMiddle)
                 .UNSTABLE_addTemporalMarkerOffset(-0.3, () -> {
-                    OutTake.State.level = 3;
+                    OutTake.State.level ++;
                     Controls.ExtendElevator = true;
+                    relocalize = true;
                 })
                 .splineToConstantHeading(new Vector2d(middleYellow_x, middleYellow_y), Math.toRadians(-89))
                 .addTemporalMarker(() -> {
                     Controls.DropRight = true;
                     Controls.DropLeft = true;
                 })
+                .waitSeconds(0.3)
+                .lineToLinearHeading(stack)
+                .addTemporalMarker(() -> {
+                    state = State.INTAKE;
+                    mecanumDrive.followTrajectorySequenceAsync(takeFromStack);
+                })
+                .waitSeconds(0)
                 .build();
+
+        OutTake.leftGripper.update_values();
+        OutTake.rightGripper.update_values();
+
+        OutTake.leftGripper.update();
+        OutTake.rightGripper.update();
 
         while(opModeInInit()){
             outTake.update();
             outTake.update_values();
         }
         mecanumDrive.followTrajectorySequenceAsync(middle);
+        freq.reset();
 
 
         while (opModeIsActive() && !isStopRequested()){
@@ -183,9 +206,17 @@ public class RedClose extends LinearOpMode {
                     state = null;
                     mecanumDrive.breakFollowing();
                     mecanumDrive.followTrajectorySequenceAsync(toBackdrop);
+                    stackPos ++;
                 } else if(!mecanumDrive.isBusy()){
+                    stackPos ++;
                     mecanumDrive.followTrajectorySequenceAsync(takeFromStack);
                 }
+            }
+
+            if(relocalize){
+
+
+                relocalize = false;
             }
 
             mecanumDrive.update();
@@ -195,6 +226,9 @@ public class RedClose extends LinearOpMode {
 
             outTake.runTelemetry();
             telemetry.addData("angle", ExpansionHub.ImuYawAngle);
+            telemetry.addData("freq", 1.0/freq.seconds());
+            freq.reset();
+
             telemetry.update();
             c.loop();
         }
@@ -202,4 +236,5 @@ public class RedClose extends LinearOpMode {
         OutTake.intermediarPivot = 130;
         OutTake.finalArmAngle = 210;
     }
+    ElapsedTime freq = new ElapsedTime();
 }
