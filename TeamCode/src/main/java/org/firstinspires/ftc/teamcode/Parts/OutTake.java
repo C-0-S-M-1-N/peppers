@@ -93,7 +93,7 @@ public class OutTake implements Part{
     }
 
     private void controls(){
-        if(Controls.ExtendElevator) state = State.EXTENDING;
+        if(Controls.ExtendElevator && state != State.NULL) state = State.EXTENDING;
         else if(Controls.RetractElevator) state = State.RETRACTING;
         else {
             if(Controls.ElevatorUp && state == State.NULL) {

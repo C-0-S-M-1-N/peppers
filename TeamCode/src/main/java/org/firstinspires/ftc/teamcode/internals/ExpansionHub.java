@@ -140,7 +140,7 @@ public class ExpansionHub {
     }
 
     private static double beforeReset = 0;
-    public static double VELOCITY_COMPENSATION = -5;
+    public static double VELOCITY_COMPENSATION = 1;
     public static void resetIMU(){
         beforeReset += ImuYawAngle;
     }

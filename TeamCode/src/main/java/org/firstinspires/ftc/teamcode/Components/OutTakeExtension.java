@@ -24,8 +24,8 @@ public class OutTakeExtension implements Part {
     public static boolean active = false;
     public static double armLenghtInMM = 210;
 
-    public static double Start = 80;
-    public static double End = 20;
+    public static double Start = 95;
+    public static double End = 45;
 
     public OutTakeExtension(DistanceSensor sensor, AutoServo servo){
 
@@ -45,7 +45,7 @@ public class OutTakeExtension implements Part {
     }
     private static final double t_min = 66.5, a = 29.8, b = 65, c = 134.387;
     private double getServoAngleByLenght(double l){
-        if(l > 280) return 0;
+        if(l > 310) return 0;
         if(Double.isNaN(l)) return 0;
 
         double T = l / 120.0;
