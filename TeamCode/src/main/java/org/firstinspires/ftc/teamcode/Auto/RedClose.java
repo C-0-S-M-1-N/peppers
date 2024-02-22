@@ -16,6 +16,7 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.checkerframework.checker.units.qual.C;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Components.OutTakeExtension;
@@ -31,6 +32,8 @@ import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
 import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
 
 
 /* x, y
@@ -79,6 +82,7 @@ public class RedClose extends LinearOpMode {
     private SampleMecanumDriveCancelable mecanumDrive;
     private int cycle = 0;
     private ElapsedTime TIME = new ElapsedTime();
+    private OpenCvCamera camera;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -90,6 +94,9 @@ public class RedClose extends LinearOpMode {
         ExpansionHub eh = new ExpansionHub(hardwareMap, mecanumDrive.getLocalizer());
         Controls c = new Controls(gamepad1, gamepad2);
         distanceSensor = hardwareMap.get(DistanceSensor.class, "sensor");
+
+        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"),
+                hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName()));
 
         OutTake outTake = new OutTake(hardwareMap);
         Intake intake = new Intake();
