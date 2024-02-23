@@ -76,6 +76,13 @@ public class Elevator implements Part {
         resetTime.reset();
     }
     private double targetPos = 0;
+
+    public void setInstantPosition(double p) {
+        targetPos = p;
+
+        motionProfile.startMotion(p, p);
+        motionProfile.update();
+    }
     public void setTargetPosition(double p){
 
         targetPos = p;

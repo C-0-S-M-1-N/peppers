@@ -45,7 +45,6 @@ public class OutTakeExtension implements Part {
     }
     private static final double t_min = 66.5, a = 29.8, b = 65, c = 134.387;
     private double getServoAngleByLenght(double l){
-        if(l > 310) return 0;
         if(Double.isNaN(l)) return 0;
 
         double T = l / 120.0;

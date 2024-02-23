@@ -98,11 +98,11 @@ public class OutTake implements Part{
         else {
             if(Controls.ElevatorUp && state == State.NULL) {
                 State.level++;
-                elevator.setTargetPosition(State.level * State.step);
+                elevator.setInstantPosition(State.level * State.step);
             }
             if(Controls.ElevatorDown && state == State.NULL){
                 State.level--;
-                elevator.setTargetPosition(State.level * State.step);
+                elevator.setInstantPosition(State.level * State.step);
             }
             if(Controls.DropLeft){
                 leftGripper.drop();
@@ -143,7 +143,6 @@ public class OutTake implements Part{
                 break;
             case EXTENDED:
                 elevator.setTargetPosition(State.level * State.step);
-                align = true;
                 state = State.NULL;
                 break;
             case RELEASING:
@@ -156,19 +155,18 @@ public class OutTake implements Part{
                     elevator.setTargetPosition(State.step * 1);
                     outTakeExtension.deactivate();
                     elevatorArm.setOrientation(0);
-                    elevatorArm.setArmAngle(90);
-                    elevatorArm.setPivotAngle(50);
+                    elevatorArm.setArmAngle(120);
+                    elevatorArm.setPivotAngle(60);
                     FUCKING_EXTENSIE.reset();
                 }
                 align = false;
 
-                if(FUCKING_EXTENSIE.seconds() > 0.4) {
+                if(FUCKING_EXTENSIE.seconds() > 0.6) {
                     elevatorArm.setArmAngle(0);
                     elevatorArm.setPivotAngle(0);
                 }
 
-
-                if(elevatorArm.reachedStationary() && FUCKING_EXTENSIE.seconds() > 0.4){
+                if(elevatorArm.reachedStationary() && FUCKING_EXTENSIE.seconds() > 0.6){
                     state = State.RETRACTED;
                 }
 
@@ -184,7 +182,8 @@ public class OutTake implements Part{
                 }
                 break;
             case NULL:
-                if(elevatorArm.reachedStationary()) {
+                if(elevatorArm.getLiveArmAngle() > 90) {
+                    align = true;
                     outTakeExtension.activate();
                     elevatorArm.setPivotAngle(finalPivotPivotAngle);
                 }
