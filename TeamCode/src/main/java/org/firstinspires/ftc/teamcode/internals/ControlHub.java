@@ -55,7 +55,7 @@ public class ControlHub {
         resetEncoder(ENCODER_PORTS.E3);
 
     }
-    private static List<LynxModule> all;
+    public static List<LynxModule> all;
 
     public ControlHub(HardwareMap hm){
         motor[0] = hm.get(DcMotorEx.class, "cM0");
@@ -81,18 +81,13 @@ public class ControlHub {
         all = hm.getAll(LynxModule.class);
 
         for(LynxModule m : all){
-            m.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+            m.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
 
         setMotorsToMax();
 
     }
     private static double angle, dist;
-    public static void update(){
-        angle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-        dist = sensor.getDistance(DistanceUnit.MM);
-
-    }
 
     public static double getSensorValue(){
         return dist;

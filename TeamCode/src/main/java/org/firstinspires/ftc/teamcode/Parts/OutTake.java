@@ -94,18 +94,17 @@ public class OutTake implements Part{
         if(Controls.ExtendElevator && state != State.NULL) state = State.EXTENDING;
         else if(Controls.RetractElevator) state = State.RETRACTING;
         else {
-            if(Controls.ElevatorUp && state == State.NULL) {
+            if(Controls.ElevatorUp) {
                 State.level++;
-                elevator.setInstantPosition(State.level * State.step);
-            } else if(Controls.ElevatorUp) {
-                State.level++;
+                if(state == State.NULL)
+                    elevator.setInstantPosition(State.level * State.step);
             }
-            if(Controls.ElevatorDown && state == State.NULL){
+            if(Controls.ElevatorDown){
                 State.level--;
-                elevator.setInstantPosition(State.level * State.step);
-            } else if(Controls.ElevatorDown) {
-                State.level--;
+                if(state == State.NULL)
+                    elevator.setInstantPosition(State.level * State.step);
             }
+
             if(Controls.DropLeft){
                 leftGripper.drop();
             }
@@ -132,11 +131,11 @@ public class OutTake implements Part{
                 break;
             case EXTENDING:
                 if(!extending) {
-                    elevator.setTargetPosition(State.step * 2);
+                    elevator.setTargetPosition(Math.max(State.step * 2, State.level * State.step));
                     elevatorArm.setArmAngle(10);
                     elevatorArm.setPivotAngle(-5);
                     extending = true;
-                } else if(elevator.reatchedTargetPosition()) {
+                } else if(elevator.getLivePosition() >= State.step * 0.2) {
                     elevatorArm.setArmAngle(finalArmAngle);
                     elevatorArm.setPivotAngle(intermediarPivot);
                     extending = false;
@@ -144,7 +143,7 @@ public class OutTake implements Part{
                 }
                 break;
             case EXTENDED:
-                elevator.setTargetPosition(State.level * State.step);
+                elevator.setInstantPosition(State.level * State.step);
                 state = State.NULL;
                 break;
             case RELEASING:
@@ -153,6 +152,7 @@ public class OutTake implements Part{
                 }
                 if(releasingTime.time() > 0.4) {
                     state = State.RETRACTING;
+                    align = true;
                 }
                 break;
             case RETRACTING:

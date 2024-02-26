@@ -87,7 +87,7 @@ public class Elevator implements Part {
 
         targetPos = p;
 
-        motionProfile.startMotion(this.position, p);
+        motionProfile.startMotion(position, targetPos);
         motionProfile.update();
 
         if(p < 0) state = State.RESET;
@@ -99,6 +99,9 @@ public class Elevator implements Part {
 
     private ElapsedTime veloTime = new ElapsedTime(), resetTime = new ElapsedTime();
     private boolean firstUpdate = true;
+    public double getLivePosition(){
+        return position;
+    }
 
     @Override
     public void update() {
@@ -111,20 +114,23 @@ public class Elevator implements Part {
 
         if(state == State.NOT_RESET) {
             if (position <= 23  && targetPos <= 0) {
-//            ControlHub.motor[0].setPower(0);
-//            ControlHub.motor[1].setPower(0);
                 ControlHub.motor[0].setMotorDisable();
                 ControlHub.motor[1].setMotorDisable();
 
             } else {
                 ControlHub.motor[0].setMotorEnable();
                 ControlHub.motor[1].setMotorEnable();
+
                 ControlHub.motor[0].setTargetPosition((int) motionProfile.getPosition() + 20);
                 ControlHub.motor[1].setTargetPosition((int) motionProfile.getPosition() + 20 - error2);
             }
         }
 
         if(state == State.RESET) {
+
+            ControlHub.motor[0].setMotorEnable();
+            ControlHub.motor[1].setMotorEnable();
+
             ControlHub.motor[0].setTargetPosition((int) -6900);
             ControlHub.motor[1].setTargetPosition((int) -6900 - error2);
             resetElevator.reset();
@@ -134,6 +140,7 @@ public class Elevator implements Part {
         if(velocity <= 1 && state == State.RUN_DOWN && resetElevator.seconds() > 0.2) {
             ControlHub.motor[0].setMotorDisable();
             ControlHub.motor[1].setMotorDisable();
+
             state = State.TO_RESET;
             resetTime.reset();
         }
