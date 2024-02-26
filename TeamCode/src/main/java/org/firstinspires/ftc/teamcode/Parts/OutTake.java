@@ -99,10 +99,14 @@ public class OutTake implements Part{
             if(Controls.ElevatorUp && state == State.NULL) {
                 State.level++;
                 elevator.setInstantPosition(State.level * State.step);
+            } else if(Controls.ElevatorUp) {
+                State.level++;
             }
             if(Controls.ElevatorDown && state == State.NULL){
                 State.level--;
                 elevator.setInstantPosition(State.level * State.step);
+            } else if(Controls.ElevatorDown) {
+                State.level--;
             }
             if(Controls.DropLeft){
                 leftGripper.drop();
@@ -161,12 +165,12 @@ public class OutTake implements Part{
                 }
                 align = false;
 
-                if(FUCKING_EXTENSIE.seconds() > 0.6) {
+                if(FUCKING_EXTENSIE.seconds() > 0.5) {
                     elevatorArm.setArmAngle(0);
                     elevatorArm.setPivotAngle(0);
                 }
 
-                if(elevatorArm.reachedStationary() && FUCKING_EXTENSIE.seconds() > 0.6){
+                if(elevatorArm.reachedStationary() && FUCKING_EXTENSIE.seconds() > 0.7){
                     state = State.RETRACTED;
                 }
 
@@ -184,9 +188,11 @@ public class OutTake implements Part{
             case NULL:
                 if(elevatorArm.getLiveArmAngle() > 90) {
                     align = true;
-                    outTakeExtension.activate();
+                    outTakeExtension.preactivate();
                     elevatorArm.setPivotAngle(finalPivotPivotAngle);
                 }
+                if(elevatorArm.reachedStationary()) outTakeExtension.activate();
+
                 if(!onePixel()) {
                     state = State.RELEASING;
                     releasingTime.reset();

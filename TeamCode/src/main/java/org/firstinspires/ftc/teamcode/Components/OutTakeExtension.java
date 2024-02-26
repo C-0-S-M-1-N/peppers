@@ -17,15 +17,14 @@ import org.opencv.core.Mat;
 public class OutTakeExtension implements Part {
     private DistanceSensor sensor;
     private AutoServo servo;
-    public static double t = 0.5;
-    public static LowPassFilter filter = new LowPassFilter(t);
     public static double length, angle;
     private Telemetry telemetry = ControlHub.telemetry;
+    public static boolean preactive = false;
     public static boolean active = false;
-    public static double armLenghtInMM = 210;
+    public static double armLenghtInMM = -200;
 
-    public static double Start = 95;
-    public static double End = 45;
+    public static double Start = -210;
+    public static double End = -240;
 
     public OutTakeExtension(DistanceSensor sensor, AutoServo servo){
 
@@ -33,10 +32,16 @@ public class OutTakeExtension implements Part {
         this.servo = servo;
     }
 
+    public void preactivate() {
+        preactive = true;
+    }
+
     public void activate(){
+        preactive = true;
         active = true;
     }
     public void deactivate(){
+        preactive = false;
         active = false;
     }
     public void setImuAngle(double angle){
@@ -82,8 +87,9 @@ public class OutTakeExtension implements Part {
         angle = ExpansionHub.ImuYawAngle;
         angle = Math.toRadians(angle);
         if(angle < 0) angle += 2 * Math.PI;
-        filter.setT(t);
-        length = filter.pass(ExpansionHub.sensorDistance) - armLenghtInMM / Math.cos(angle);
+
+        length = ExpansionHub.extension_length - armLenghtInMM / Math.cos(angle);
+        if(preactive && !active) length -= 60;
     }
 
     @Override
@@ -91,5 +97,7 @@ public class OutTakeExtension implements Part {
         telemetry.addLine("\n------- EXTENSION --------");
         telemetry.addData("recorded length", length);
         telemetry.addData("raw servo angle", getServoAngleByLenght(length));
+        telemetry.addData("angle: ", angle);
+        telemetry.addData("armAngleCompensation: ",  - armLenghtInMM / Math.cos(angle));
     }
 }

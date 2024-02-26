@@ -33,7 +33,7 @@ public class Intake implements Part {
     }
     public STATES STATE;
     public static double maxTrashHold = 1200;
-    public static double ground = 93;
+    public static double ground = 100;
     private double usedCurrent = 0;
     public AutoServo servo;
 
@@ -52,7 +52,7 @@ public class Intake implements Part {
         ControlHub.setMotorDirection(MOTOR_PORTS.M2, DcMotorSimple.Direction.REVERSE);
         servo = new AutoServo(SERVO_PORTS.S5, 0,
                 true, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
-        servo.setAngle(0);
+        servo.setAngle(30);
         servo.update();
         clock = NanoClock.system();
         setPixelStackPosition(4);
@@ -84,7 +84,7 @@ public class Intake implements Part {
         switch (STATE){
             case IDLE:
                 ControlHub.setMotorPower(MOTOR_PORTS.M2, 0);
-                servo.setAngle(0);
+                servo.setAngle(30);
                 break;
             case FORWARD:
                 ControlHub.setMotorPower(MOTOR_PORTS.M2, 1);
@@ -92,7 +92,7 @@ public class Intake implements Part {
                 break;
             case REVERSE:
                 ControlHub.setMotorPower(MOTOR_PORTS.M2, -1);
-                servo.setAngle(0);
+                servo.setAngle(30);
                 break;
         }
         servo.update();

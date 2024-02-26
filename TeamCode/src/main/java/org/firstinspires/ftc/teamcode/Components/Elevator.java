@@ -80,7 +80,7 @@ public class Elevator implements Part {
     public void setInstantPosition(double p) {
         targetPos = p;
 
-        motionProfile.startMotion(p, p);
+        motionProfile.startMotion(p-0.1, p);
         motionProfile.update();
     }
     public void setTargetPosition(double p){

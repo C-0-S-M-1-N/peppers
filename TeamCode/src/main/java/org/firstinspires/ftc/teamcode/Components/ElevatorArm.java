@@ -17,7 +17,7 @@ public class ElevatorArm implements Part {
     private ElapsedTime TMP_arm = new ElapsedTime(),
                         TMP_pivot = new ElapsedTime(),
                         TMP_turret = new ElapsedTime();
-    private MotionProfile armProfile = new MotionProfile(900, 1500);
+    private MotionProfile armProfile = new MotionProfile(1000, 2000);
     private double currentArmAngle = 0, defaultTouretDegrees = 187, imuResetedAngle = 0;
     public ElevatorArm(){
         virtual1 = new AutoServo(SERVO_PORTS.S0, 0.03, false, Hubs.EXPANSION_HUB, AutoServo.TYPE.AXON);
@@ -50,7 +50,10 @@ public class ElevatorArm implements Part {
     }
 
     public void setOrientation(double angle){
-        if(Math.abs(angle) > 60) angle = 60 * Math.signum(angle);
+        if(angle > 180) angle -= 360;
+        if(angle < -180) angle += 360;
+
+        if(Math.abs(angle) > 90) angle = 90 * Math.signum(angle);
         turret.setAngle(angle + defaultTouretDegrees);
         TMP_turret.reset();
     }
@@ -71,7 +74,8 @@ public class ElevatorArm implements Part {
         return TMP_turret.seconds() >= 0.2;
     }
 
-    public boolean reachedStationary(){
+    public boolean
+    reachedStationary(){
         return armProfile.motionEnded();
     }
 
