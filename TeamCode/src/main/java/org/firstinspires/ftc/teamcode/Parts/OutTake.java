@@ -79,8 +79,6 @@ public class OutTake implements Part{
                 hm.get(DigitalChannel.class, "cD0")
         );
 
-        rightGripper.closed_offset = 4;
-
 
         elevatorArm.setArmAngle(0);
         elevatorArm.setPivotAngle(0);
@@ -150,7 +148,10 @@ public class OutTake implements Part{
                 state = State.NULL;
                 break;
             case RELEASING:
-                if(releasingTime.time() > 0.3) {
+                if(releasingTime.time() > 0.2) {
+                    outTakeExtension.deactivate();
+                }
+                if(releasingTime.time() > 0.4) {
                     state = State.RETRACTING;
                 }
                 break;
@@ -159,18 +160,12 @@ public class OutTake implements Part{
                     elevator.setTargetPosition(State.step * 1);
                     outTakeExtension.deactivate();
                     elevatorArm.setOrientation(0);
-                    elevatorArm.setArmAngle(120);
-                    elevatorArm.setPivotAngle(60);
-                    FUCKING_EXTENSIE.reset();
-                }
-                align = false;
-
-                if(FUCKING_EXTENSIE.seconds() > 0.5) {
                     elevatorArm.setArmAngle(0);
                     elevatorArm.setPivotAngle(0);
                 }
+                align = false;
 
-                if(elevatorArm.reachedStationary() && FUCKING_EXTENSIE.seconds() > 0.7){
+                if(elevatorArm.reachedStationary()){
                     state = State.RETRACTED;
                 }
 
@@ -186,7 +181,7 @@ public class OutTake implements Part{
                 }
                 break;
             case NULL:
-                if(elevatorArm.getLiveArmAngle() > 90) {
+                if(elevatorArm.getLiveArmAngle() > 80) {
                     align = true;
                     outTakeExtension.preactivate();
                     elevatorArm.setPivotAngle(finalPivotPivotAngle);
