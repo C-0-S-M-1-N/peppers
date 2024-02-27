@@ -14,6 +14,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Components.Elevator;
 import org.firstinspires.ftc.teamcode.Components.Hang;
+import org.firstinspires.ftc.teamcode.Components.OutTakeExtension;
 import org.firstinspires.ftc.teamcode.Parts.Avion;
 import org.firstinspires.ftc.teamcode.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Parts.MecanumDrive;
@@ -52,6 +53,8 @@ public class MainOp extends LinearOpMode {
         mecanumDrive = new MecanumDrive(telemetry);
         hang = new Hang();
         avion = new Avion();
+
+        OutTakeExtension.MOTION_PROFILED = true;
 
         waitForStart();
         ExpansionHub.runI2Cdevices.start();

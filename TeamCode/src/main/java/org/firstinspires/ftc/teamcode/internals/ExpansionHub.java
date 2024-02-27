@@ -109,7 +109,7 @@ public class ExpansionHub {
         beforeReset = 0;
 
         runI2Cdevices = new Thread(() -> {
-            AprilTagDetector.init(hm);
+            //AprilTagDetector.init(hm);
 
             while(!I2CMutex.kill) {
                 double x = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
@@ -130,21 +130,22 @@ public class ExpansionHub {
         beforeReset += ImuYawAngle;
     }
     public void update(boolean update_localizer){
-        if(update_localizer) localizer.update();
-        Pose2d pose = localizer.getPoseEstimate();
-        Pose2d velocity = localizer.getPoseVelocity();
-
-        if(READ_IMU) {
-            READ_IMU = false;
-            localizer.setPoseEstimate(new Pose2d(pose.getX(), pose.getY(), ImuYawAngle));
-        } else {
-            ImuYawAngle = pose.getHeading();
-        }
-
-        double sensorDistance = sensor.getDistance(DistanceUnit.MM);
-
-        extension_length = sensorDistance / cos(pose.getHeading());
-        extension_length += VELOCITY_COMPENSATION * velocity.getX() / cos(pose.getHeading());
+        extension_length = 690;
+//        if(update_localizer) localizer.update();
+//        Pose2d pose = localizer.getPoseEstimate();
+//        Pose2d velocity = localizer.getPoseVelocity();
+//
+//        if(READ_IMU) {
+//            READ_IMU = false;
+//            localizer.setPoseEstimate(new Pose2d(pose.getX(), pose.getY(), ImuYawAngle));
+//        } else {
+//            ImuYawAngle = pose.getHeading();
+//        }
+//
+//        double sensorDistance = 690; // sensor.getDistance(DistanceUnit.MM);
+//
+//        extension_length = sensorDistance / cos(pose.getHeading());
+//        extension_length += VELOCITY_COMPENSATION * velocity.getX() / cos(pose.getHeading());
     }
 
     public static double getEncoderPosition(ENCODER_PORTS encoder_port){

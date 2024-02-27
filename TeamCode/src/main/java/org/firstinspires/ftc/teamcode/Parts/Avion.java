@@ -11,7 +11,7 @@ import java.util.ResourceBundle;
 
 @Config
 public class Avion {
-    public static double armatPos = (double)53 / 180, shootPos = 23.f / 180;
+    public static double armatPos = 0.68, shootPos = 0.45;
     public boolean shoot = false;
     public Avion(){
 

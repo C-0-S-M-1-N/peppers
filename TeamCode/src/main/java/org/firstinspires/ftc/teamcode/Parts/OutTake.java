@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Parts;
 
+import static java.lang.Math.max;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
@@ -94,17 +96,18 @@ public class OutTake implements Part{
         if(Controls.ExtendElevator && state != State.NULL) state = State.EXTENDING;
         else if(Controls.RetractElevator) state = State.RETRACTING;
         else {
-            if(Controls.ElevatorUp) {
+            if(Controls.ElevatorUp && state == State.NULL) {
                 State.level++;
-                if(state == State.NULL)
-                    elevator.setInstantPosition(State.level * State.step);
+                elevator.setInstantPosition(State.level * State.step);
+            } else if(Controls.ElevatorUp) {
+                State.level++;
             }
-            if(Controls.ElevatorDown){
+            if(Controls.ElevatorDown && state == State.NULL){
                 State.level--;
-                if(state == State.NULL)
-                    elevator.setInstantPosition(State.level * State.step);
+                elevator.setInstantPosition(State.level * State.step);
+            } else if(Controls.ElevatorDown) {
+                State.level--;
             }
-
             if(Controls.DropLeft){
                 leftGripper.drop();
             }
@@ -131,11 +134,13 @@ public class OutTake implements Part{
                 break;
             case EXTENDING:
                 if(!extending) {
-                    elevator.setTargetPosition(Math.max(State.step * 2, State.level * State.step));
+                    elevator.setTargetPosition(max(State.step * 2, State.level * State.step));
                     elevatorArm.setArmAngle(10);
                     elevatorArm.setPivotAngle(-5);
                     extending = true;
-                } else if(elevator.getLivePosition() >= State.step * 0.2) {
+
+                    FUCKING_EXTENSIE.reset();
+                } else if(FUCKING_EXTENSIE.seconds() > 0.4) {
                     elevatorArm.setArmAngle(finalArmAngle);
                     elevatorArm.setPivotAngle(intermediarPivot);
                     extending = false;
@@ -143,16 +148,15 @@ public class OutTake implements Part{
                 }
                 break;
             case EXTENDED:
-                elevator.setInstantPosition(State.level * State.step);
+                if(State.level < 2) elevator.setTargetPosition(State.level * State.step);
                 state = State.NULL;
                 break;
             case RELEASING:
                 if(releasingTime.time() > 0.2) {
                     outTakeExtension.deactivate();
                 }
-                if(releasingTime.time() > 0.4) {
+                if(outTakeExtension.getLivePosition() < 80) {
                     state = State.RETRACTING;
-                    align = true;
                 }
                 break;
             case RETRACTING:
@@ -165,7 +169,7 @@ public class OutTake implements Part{
                 }
                 align = false;
 
-                if(elevatorArm.reachedStationary()){
+                if(elevatorArm.reachedStationary() && elevator.reatchedTargetPosition()){
                     state = State.RETRACTED;
                 }
 
@@ -183,12 +187,12 @@ public class OutTake implements Part{
             case NULL:
                 if(elevatorArm.getLiveArmAngle() > 80) {
                     align = true;
-                    outTakeExtension.preactivate();
+                    outTakeExtension.activate();
                     elevatorArm.setPivotAngle(finalPivotPivotAngle);
                 }
                 if(elevatorArm.reachedStationary()) outTakeExtension.activate();
 
-                if(!onePixel()) {
+                if(!onePixel() && elevatorArm.reachedStationary()) {
                     state = State.RELEASING;
                     releasingTime.reset();
                 }
