@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.utils.AutoServo;
 
 @Config
 public class Grippers implements Part {
+    public static boolean manualMode;
     public enum State{
         OPEN,
         CLOSE
@@ -29,10 +30,33 @@ public class Grippers implements Part {
         state = State.OPEN;
         update();
         update_values();
+        manualMode = false;
+    }
+    public void open() {
+        if(manualMode){
+            state = State.OPEN;
+        }
+    }
+    public void close(){
+        if(manualMode){
+            state = State.CLOSE;
+        }
+    }
+    private void manualUpdate(){
+        switch (state){
+            case OPEN:
+                servo.setAngle(0);
+                break;
+            case CLOSE:
+                servo.setAngle(80 + closed_offset);
+                break;
+        }
+        servo.update();
     }
 
     @Override
     public void update(){
+        if(manualMode) manualUpdate();
         switch (state){
             case OPEN:
                 servo.setAngle(0);
@@ -50,6 +74,7 @@ public class Grippers implements Part {
     private ElapsedTime gripperTime = new ElapsedTime();
     @Override
     public void update_values(){
+        if(manualMode) return;
         if(!sensorGate.getState()){
             state = State.CLOSE;
             time.reset();
