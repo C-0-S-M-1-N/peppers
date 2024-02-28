@@ -7,9 +7,11 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Components.Controls;
+import org.firstinspires.ftc.teamcode.Components.Grippers;
 import org.firstinspires.ftc.teamcode.Part;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.Hubs;
@@ -57,10 +59,55 @@ public class Intake implements Part {
         clock = NanoClock.system();
         setPixelStackPosition(4);
     }
+    private boolean close = false;
+    private ElapsedTime manualTimer = new ElapsedTime();
+    STATES prevState = STATES.IDLE;
+    private void manualUpdate(){
+        STATE = STATES.IDLE;
+        if(Controls.Intake){
+            STATE = STATES.FORWARD;
+            prevState = STATES.FORWARD;
+            manualTimer.reset();
+        }
+        if(Controls.RevIntake){
+            STATE = STATES.REVERSE;
+            prevState = STATES.REVERSE;
+            manualTimer.reset();
+        }
 
+        close = manualTimer.seconds() >= 0.3;
+
+        if(close){
+            OutTake.leftGripper.close();
+            OutTake.rightGripper.close();
+        } else {
+            OutTake.rightGripper.open();
+            OutTake.leftGripper.open();
+        }
+
+        switch (STATE){
+            case IDLE:
+                ControlHub.setMotorPower(MOTOR_PORTS.M2, 0);
+                servo.setAngle(30);
+                break;
+            case FORWARD:
+                ControlHub.setMotorPower(MOTOR_PORTS.M2, 1);
+                servo.setAngle(ground);
+                break;
+            case REVERSE:
+                ControlHub.setMotorPower(MOTOR_PORTS.M2, -1);
+                servo.setAngle(30);
+                break;
+        }
+
+
+        servo.update();
+
+    }
     @Override
     public void update(){
         if(Disabled) return;
+        if(Grippers.manualMode) manualUpdate();
 
         if(!OutTake.fullPixel()) {
             grippersHaveTime = 0;

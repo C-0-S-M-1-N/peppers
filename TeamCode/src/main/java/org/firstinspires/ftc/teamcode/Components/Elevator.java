@@ -169,7 +169,6 @@ public class Elevator implements Part {
     }
     @Override
     public void runTelemetry(){
-        telemetry.update();
 
         telemetry.addLine("\n----Elevator----\n");
         telemetry.addData("power usage",

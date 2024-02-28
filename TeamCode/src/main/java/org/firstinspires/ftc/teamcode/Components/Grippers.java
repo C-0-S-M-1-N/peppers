@@ -21,7 +21,6 @@ public class Grippers implements Part {
         CLOSE
     }
     public State state;
-    private DigitalChannel sensorGate;
     private ColorRangeSensor sensor;
     private AutoServo servo;
     private final ElapsedTime time = new ElapsedTime();
@@ -29,7 +28,6 @@ public class Grippers implements Part {
 
     public Grippers(AutoServo servo, DigitalChannel sensor){
         this.servo = servo;
-        this.sensorGate = sensor;
 
         sensor.setMode(DigitalChannel.Mode.INPUT);
         state = State.OPEN;
@@ -85,15 +83,14 @@ public class Grippers implements Part {
         }
     }
     private ElapsedTime gripperTime = new ElapsedTime();
-    public static double trashHoldDist = 15;
-    private LowPassFilter filter = new LowPassFilter(0.4);
+    public static double trashHoldDist = 10;
     @Override
     public void update_values(){
         if(manualMode) return;
-        dist = filter.pass(sensor.getDistance(DistanceUnit.MM));
+        dist = sensor.getDistance(DistanceUnit.MM);
         if(dist <= trashHoldDist){
-            state = State.OPEN;
-        } else state = State.CLOSE;
+            state = State.CLOSE;
+        }
 
         servo.update();
     }
@@ -111,7 +108,7 @@ public class Grippers implements Part {
         ControlHub.telemetry.addLine(s);
 
         ControlHub.telemetry.addData("\tState", state.toString());
-        ControlHub.telemetry.addData("beam breaker", sensorGate.getState());
+        ControlHub.telemetry.addData("sensor reading", dist);
         ControlHub.telemetry.addLine("----");
     }
 

@@ -14,7 +14,7 @@ public class Controls {
             ExtendElevator, RetractElevator, ElevatorUp,  ElevatorDown,
             DropLeft, DropRight, Hang, Avion, ResetTourret,
             DownElevator,
-            ResetElevator;
+            ResetElevator, ManualMode;
     public static double HangLevel = 0;
     private static AutoGamepad gamepad1;
     private static AutoGamepad gamepad2;
@@ -45,6 +45,7 @@ public class Controls {
         ResetTourret    = false;
         ResetElevator   = false;
         DownElevator    = false;
+        ManualMode      = false;
     }
 
     public void loop(){
@@ -68,6 +69,7 @@ public class Controls {
         if(gamepad2.wasPressed.triangle) ResetTourret = true;
         if(gamepad2.wasReleased.circle)  ResetElevator = true;
         if(gamepad2.wasPressed.circle) DownElevator = true;
+        if(gamepad2.wasPressed.left_bumper && gamepad2.wasPressed.right_bumper) ManualMode = true;
 
         updateDetected = ExtendElevator || RetractElevator || ElevatorUp || ElevatorDown || Intake
                 || DropRight || DropLeft || RevIntake;
