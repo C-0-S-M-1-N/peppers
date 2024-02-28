@@ -49,11 +49,11 @@ public class AutoServo {
         switch (hub){
             case CONTROL_HUB:
                 ControlHub.setServoDirection(port, isReversed ? Servo.Direction.REVERSE : Servo.Direction.FORWARD);
-                ControlHub.setServoPosition(port, position);
+                ControlHub.setServoPosition(port, position + initialPosition);
                 break;
             case EXPANSION_HUB:
                 ExpansionHub.setServoDirection(port, isReversed ? Servo.Direction.REVERSE : Servo.Direction.FORWARD);
-                ExpansionHub.setServoPosition(port, position);
+                ExpansionHub.setServoPosition(port, position + initialPosition);
                 break;
         }
     }

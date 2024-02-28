@@ -72,12 +72,12 @@ public class OutTake implements Part{
                 new AutoServo(SERVO_PORTS.S4, 0, true, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON));
 
         leftGripper = new Grippers(
-                new AutoServo(SERVO_PORTS.S2, 0, true, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
+                new AutoServo(SERVO_PORTS.S2, 20.f/180, true, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
                 hm.get(DigitalChannel.class, "cD1")
         );
 
         rightGripper = new Grippers(
-                new AutoServo(SERVO_PORTS.S3, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
+                new AutoServo(SERVO_PORTS.S3, 20.f/180, false, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
                 hm.get(DigitalChannel.class, "cD0")
         );
 
@@ -135,12 +135,12 @@ public class OutTake implements Part{
             case EXTENDING:
                 if(!extending) {
                     elevator.setTargetPosition(max(State.step * 2, State.level * State.step));
-                    elevatorArm.setArmAngle(10);
-                    elevatorArm.setPivotAngle(-5);
+//                    elevatorArm.setArmAngle(10);
+//                    elevatorArm.setPivotAngle(-5);
                     extending = true;
 
                     FUCKING_EXTENSIE.reset();
-                } else if(FUCKING_EXTENSIE.seconds() > 0.4) {
+                } else if(FUCKING_EXTENSIE.seconds() > 0.3) {
                     elevatorArm.setArmAngle(finalArmAngle);
                     elevatorArm.setPivotAngle(intermediarPivot);
                     extending = false;
@@ -186,11 +186,12 @@ public class OutTake implements Part{
                 break;
             case NULL:
                 if(elevatorArm.getLiveArmAngle() > 80) {
-                    align = true;
-                    outTakeExtension.activate();
                     elevatorArm.setPivotAngle(finalPivotPivotAngle);
                 }
-                if(elevatorArm.reachedStationary()) outTakeExtension.activate();
+                if(elevatorArm.reachedStationary() && onePixel()) {
+                    align = true;
+                    outTakeExtension.activate();
+                }
 
                 if(!onePixel() && elevatorArm.reachedStationary()) {
                     state = State.RELEASING;

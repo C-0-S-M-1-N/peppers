@@ -33,14 +33,14 @@ public class Intake implements Part {
     }
     public STATES STATE;
     public static double maxTrashHold = 1200;
-    public static double ground = 100;
+    public static double ground = 145;
     private double usedCurrent = 0;
     public AutoServo servo;
 
     NanoClock clock;
     private double grippersHaveTime = 0;
     private boolean grippersHave = false;
-    public static double[] stackPositions = {73, 80, 95, 95, 95};
+    public static double[] stackPositions = {73, 80, 105, 105, 105};
 
     public void setPixelStackPosition(int level){
         if(level > 4) level = 4;
@@ -67,7 +67,7 @@ public class Intake implements Part {
             grippersHave = false;
         } else if(grippersHaveTime == 0) {
             grippersHaveTime = clock.seconds();
-        } else if(clock.seconds() - grippersHaveTime > 0.1) {
+        } else if(clock.seconds() - grippersHaveTime > 0) {
             grippersHave = true;
         }
         if(usedCurrent > maxTrashHold){

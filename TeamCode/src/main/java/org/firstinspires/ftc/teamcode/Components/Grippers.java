@@ -27,6 +27,8 @@ public class Grippers implements Part {
 
         sensor.setMode(DigitalChannel.Mode.INPUT);
         state = State.OPEN;
+        update();
+        update_values();
     }
 
     @Override
@@ -36,9 +38,10 @@ public class Grippers implements Part {
                 servo.setAngle(0);
                 break;
             case CLOSE:
-                if(time.seconds() >= 0.5 && sensorGate.getState()){
+                if(time.seconds() >= 0.6 && sensorGate.getState()){
                     state = State.OPEN;
                 } else {
+                    if(!sensorGate.getState()) time.reset();
                     servo.setAngle(80 + closed_offset);
                 }
                 break;
