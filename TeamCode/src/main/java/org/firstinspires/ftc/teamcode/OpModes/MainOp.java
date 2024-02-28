@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.apache.commons.math3.analysis.function.Exp;
 import org.checkerframework.checker.units.qual.A;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Components.Elevator;
 import org.firstinspires.ftc.teamcode.Components.Hang;
@@ -95,6 +96,7 @@ public class MainOp extends LinearOpMode {
             telemetry.addData("Hz", 1/time.seconds());
             telemetry.addData("STATE", OutTake.state);
             time.reset();
+
             telemetry.update();
         }
         e.I2CMutex.kill();

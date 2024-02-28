@@ -163,19 +163,20 @@ public class OutTake implements Part{
                     outTakeExtension.deactivate();
                     elevatorArm.setOrientation(0);
                     elevatorArm.setArmAngle(0);
-                    elevatorArm.setPivotAngle(0);
+                    elevatorArm.setPivotAngle(finalPivotPivotAngle / 2);
                 }
                 align = false;
 
                 if(elevatorArm.reachedStationary() && elevator.reatchedTargetPosition()){
+                    elevatorArm.setPivotAngle(0);
                     state = State.RETRACTED;
                 }
 
                 break;
             case RETRACTED:
                 if(!set0Pos) {
-                    elevator.setTargetPosition(-80);
                     set0Pos = true;
+                    elevator.setTargetPosition(-80);
                 }
                 if(elevator.reatchedTargetPosition()) {
                     state = State.WAITING_FOR_PIXELS;

@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Part;
+import org.firstinspires.ftc.teamcode.Parts.OutTake;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
 import org.firstinspires.ftc.teamcode.utils.LowPassFilter;
@@ -64,7 +65,7 @@ public class Grippers implements Part {
         }
         servo.update();
     }
-    private double dist;
+    private double dist = 0;
     @Override
     public void update(){
         if(manualMode) manualUpdate();
@@ -87,7 +88,11 @@ public class Grippers implements Part {
     @Override
     public void update_values(){
         if(manualMode) return;
-        dist = sensor.getDistance(DistanceUnit.MM);
+        if(OutTake.state == OutTake.State.WAITING_FOR_PIXELS) {
+            dist = sensor.getDistance(DistanceUnit.MM);
+        } else {
+            dist = 6900;
+        }
         if(dist <= trashHoldDist){
             state = State.CLOSE;
         }
