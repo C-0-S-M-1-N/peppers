@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.utils;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchDevice;
+import com.qualcomm.robotcore.hardware.I2cWaitControl;
 import com.qualcomm.robotcore.hardware.configuration.annotations.DeviceProperties;
 import com.qualcomm.robotcore.hardware.configuration.annotations.I2cDeviceType;
 import com.qualcomm.robotcore.util.TypeConversion;
@@ -18,8 +19,8 @@ public class BetterColorRangeSensor extends I2cDeviceSynchDevice<I2cDeviceSynch>
     public void setReadWindow(I2cDeviceSynch.ReadMode mode){
         currentMode = mode;
         this.device.setReadWindow(new I2cDeviceSynch.ReadWindow(
-                REGISTERS.PS_DATA_0.reg,
-                REGISTERS.PS_DATA_1.reg - REGISTERS.PS_DATA_0.reg + 1,
+                REGISTERS.MAIN_STATUS.reg,
+                1,
                 mode
         ));
     }
@@ -27,11 +28,28 @@ public class BetterColorRangeSensor extends I2cDeviceSynchDevice<I2cDeviceSynch>
     protected short readProximity(REGISTERS r){
         return TypeConversion.byteArrayToShort(device.read(r.reg, 2), ByteOrder.LITTLE_ENDIAN);
     }
+    protected byte readRawByte(REGISTERS r){
+        return device.read8(r.reg);
+    }
     protected void writeToDevice(final REGISTERS r, short val){
         device.write(r.reg, TypeConversion.shortToByteArray(val, ByteOrder.LITTLE_ENDIAN));
     }
     protected short readByte(REGISTERS r){
         return TypeConversion.byteArrayToShort(device.read(r.reg, 1), ByteOrder.LITTLE_ENDIAN);
+    }
+
+    /**
+     * This is a very expensive operation DO NOT USE IT OUTSIDE OF INIT!
+     *
+     *
+     * default value = 0
+     *
+     * @param val the threshold value for close signal to be triggered
+     * */
+    public void setThresHold(int val){
+        byte[] send = {(byte) (val & 0xFF), (byte) (val & 0x0300)};
+        device.write8(REGISTERS.PS_THRES_LOW_0.reg ,send[0], I2cWaitControl.NONE);
+        device.write8(REGISTERS.PS_THRES_LOW_1.reg ,send[1], I2cWaitControl.NONE);
     }
 
     public BetterColorRangeSensor(I2cDeviceSynch device, boolean isOwned){
@@ -61,7 +79,9 @@ public class BetterColorRangeSensor extends I2cDeviceSynchDevice<I2cDeviceSynch>
     public String getDeviceName() {
         return "REV ColorSensor v3 - proximity";
     }
-
+    public boolean LogicProximityStatus(){
+        return (readRawByte(REGISTERS.MAIN_STATUS) & 0x4) != 0;
+    }
 
     public enum REGISTERS{
         MAIN_CTRL(0x0),
@@ -75,22 +95,8 @@ public class BetterColorRangeSensor extends I2cDeviceSynchDevice<I2cDeviceSynch>
         PS_DATA_0(0x8), // LSB
         PS_DATA_1(0x9), // MSB
 
-        LS_DATA_IR_0(0xA), // LSB
-        LS_DATA_IR_1(0xB),
-        LS_DATA_IR_2(0xC), // MSB
-
-        LS_DATA_GREEN_0(0xD), // LSB
-        LS_DATA_GREEN_1(0xE),
-        LS_DATA_GREEN_2(0xF), // MSB
-
-        LS_DATA_BLUE_0(0x10), // LSB
-        LS_DATA_BLUE_1(0x11),
-        LS_DATA_BLUE_2(0x12), // MSB
-
-        LS_DATA_RED_0(0x13), // LSB
-        LS_DATA_RED_1(0x14),
-        LS_DATA_RED_2(0x15), // MSB
-        ;
+        PS_THRES_LOW_0(0x1D),
+        PS_THRES_LOW_1(0x1E);
 
         REGISTERS(int hex){
            reg = hex;
