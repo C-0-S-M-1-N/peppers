@@ -27,8 +27,8 @@ public class OutTakeExtension implements Part {
 
     public static double Start = -210;
     public static double End = -240;
-    public static double Vel = 2000;
-    public static double Accel = 3000;
+    public static double Vel = 3000;
+    public static double Accel = 4000;
     public static boolean MOTION_PROFILED = false;
 
     public OutTakeExtension(DistanceSensor sensor, AutoServo servo){

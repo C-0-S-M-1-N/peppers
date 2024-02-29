@@ -17,7 +17,7 @@ public class ElevatorArm implements Part {
     private ElapsedTime TMP_arm = new ElapsedTime(),
                         TMP_pivot = new ElapsedTime(),
                         TMP_turret = new ElapsedTime();
-    private MotionProfile armProfile = new MotionProfile(1000, 2000);
+    private MotionProfile armProfile = new MotionProfile(4000, 4000);
     private double currentArmAngle = 0, defaultTouretDegrees = 187, imuResetedAngle = 0;
     public ElevatorArm(){
         virtual1 = new AutoServo(SERVO_PORTS.S0, 0.03, false, Hubs.EXPANSION_HUB, AutoServo.TYPE.AXON);
