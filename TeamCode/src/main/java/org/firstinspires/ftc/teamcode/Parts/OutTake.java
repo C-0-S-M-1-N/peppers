@@ -73,12 +73,12 @@ public class OutTake implements Part{
                 new AutoServo(SERVO_PORTS.S4, 0, true, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON));
 
         leftGripper = new Grippers(
-                new AutoServo(SERVO_PORTS.S2, 20.f/180, true, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
+                new AutoServo(SERVO_PORTS.S2, 40.f/180, true, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
                 hm.get(ColorRangeSensor.class, "leftSensor")
         );
 
         rightGripper = new Grippers(
-                new AutoServo(SERVO_PORTS.S3, 20.f/180, false, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
+                new AutoServo(SERVO_PORTS.S3, 40.f/180, false, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
                 hm.get(ColorRangeSensor.class, "rightSensor")
         );
 

@@ -78,7 +78,7 @@ public class Grippers implements Part {
                     state = State.OPEN;
                 } else {
                     if(dist <= trashHoldDist) time.reset();
-                    servo.setAngle(80 + closed_offset);
+                    servo.setAngle(83 + closed_offset);
                 }
                 break;
         }

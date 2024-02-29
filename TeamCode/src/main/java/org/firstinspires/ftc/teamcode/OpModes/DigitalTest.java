@@ -6,22 +6,22 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 
+import org.firstinspires.ftc.teamcode.utils.BetterColorRangeSensor;
+
 @TeleOp(name = "digitalTest")
 public class DigitalTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException{
-        DigitalChannel s0 = hardwareMap.get(DigitalChannel.class, "cD0");
-        DigitalChannel s1 = hardwareMap.get(DigitalChannel.class, "cD1");
 
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        BetterColorRangeSensor sensor = hardwareMap.get(BetterColorRangeSensor.class, "leftSensor");
 
-        s0.setMode(DigitalChannel.Mode.INPUT);
-        s1.setMode(DigitalChannel.Mode.INPUT);
         waitForStart();
-
+        int val = sensor.getManufacturerRawID();
         while (opModeIsActive() && !isStopRequested()){
-            telemetry.addData("state0", s0.getState());
-            telemetry.addData("state1", s1.getState());
+            telemetry.addData("ID", val);
+            if(val == 0xC2){
+                telemetry.addLine("MERGEEE!!$#@RGRGE");
+            }
             telemetry.update();
         }
     }
