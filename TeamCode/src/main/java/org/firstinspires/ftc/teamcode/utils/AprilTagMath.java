@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.utils;
 
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
+import static java.lang.Math.sqrt;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -11,17 +13,31 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.openftc.apriltag.AprilTagDetection;
 
+@Config
 public class AprilTagMath {
-    public static Pose2d poseFromTag(AprilTagDetection detection) {
-        Orientation rot = Orientation.getOrientation(detection.pose.R, AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
+    public static double distanceToCenter = 20 / 2.54;
+    public static double AprilTagToINCHES = 25.4; // assume distance is in meters
+    public static double[] TAG_X_OFFSET = {0, 0, 0, 0, 0, 0, 0};
+    public static double[] TAG_Y_OFFSET = {0, 0, 0, 0, 0, 0, 0};
+
+    public static Pose2d poseFromTag(Pose2d robotPose, AprilTagDetection detection, int id) {
+        Orientation rot = Orientation.getOrientation(detection.pose.R, AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.RADIANS);
 
         double tagYaw = rot.secondAngle;
-        double tagX = detection.pose.z;
-        double tagY = detection.pose.x;
+        double tagX = detection.pose.z * AprilTagToINCHES;
+        double tagY = detection.pose.x * AprilTagToINCHES;
 
-        double new_tag_x = cos(tagYaw) * tagX - sin(tagYaw) * tagY;
-        double new_tag_y = cos(tagYaw) * tagY + sin(tagYaw) * tagX;
+        double robotHeading = robotPose.getHeading();
 
-        return new Pose2d(new_tag_x, new_tag_y, tagYaw); // TODO: CHECK SIGNS OF X, Y, YAW
+        double alpha = robotHeading + tagYaw;
+        double dist = sqrt(tagX * tagX + tagY * tagY);
+
+        double x_displacement = sin(alpha) * dist;
+        double y_displacement = cos(alpha) * dist;
+
+        double x_to_center = cos(robotHeading) * distanceToCenter;
+        double y_to_center = sin(robotHeading) * distanceToCenter;
+
+        return new Pose2d(x_displacement + x_to_center + TAG_X_OFFSET[id], y_displacement + y_to_center + TAG_Y_OFFSET[id], robotHeading);
     }
 }
