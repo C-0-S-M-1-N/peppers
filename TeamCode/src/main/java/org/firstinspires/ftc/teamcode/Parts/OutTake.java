@@ -25,6 +25,7 @@ import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.Hubs;
 import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
+import org.firstinspires.ftc.teamcode.utils.BetterColorRangeSensor;
 
 
 @Config
@@ -74,12 +75,12 @@ public class OutTake implements Part{
 
         leftGripper = new Grippers(
                 new AutoServo(SERVO_PORTS.S2, 40.f/180, true, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
-                hm.get(ColorRangeSensor.class, "leftSensor")
+                hm.get(BetterColorRangeSensor.class, "leftSensor")
         );
 
         rightGripper = new Grippers(
                 new AutoServo(SERVO_PORTS.S3, 40.f/180, false, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
-                hm.get(ColorRangeSensor.class, "rightSensor")
+                hm.get(BetterColorRangeSensor.class, "rightSensor")
         );
 
 
@@ -121,6 +122,7 @@ public class OutTake implements Part{
     }
 
     boolean extending = false, set0Pos = false;
+    private ElapsedTime retractTime = new ElapsedTime();
 
     @Override
     public void update(){
@@ -163,11 +165,12 @@ public class OutTake implements Part{
                     outTakeExtension.deactivate();
                     elevatorArm.setOrientation(0);
                     elevatorArm.setArmAngle(0);
-                    elevatorArm.setPivotAngle(finalPivotPivotAngle / 2);
+                    elevatorArm.setPivotAngle(finalPivotPivotAngle / 2 - 15);
+                    retractTime.reset();
                 }
                 align = false;
 
-                if(elevatorArm.reachedStationary() && elevator.reatchedTargetPosition()){
+                if(elevatorArm.reachedStationary() && elevator.reatchedTargetPosition() && retractTime.seconds() >= 0.1){
                     elevatorArm.setPivotAngle(0);
                     state = State.RETRACTED;
                 }
@@ -184,12 +187,12 @@ public class OutTake implements Part{
                 }
                 break;
             case NULL:
-                if(elevatorArm.getLiveArmAngle() > 80) {
+                if(elevatorArm.getLiveArmAngle() > 160) {
                     elevatorArm.setPivotAngle(finalPivotPivotAngle);
+                    outTakeExtension.activate();
                 }
                 if(elevatorArm.reachedStationary() && onePixel()) {
                     align = true;
-                    outTakeExtension.activate();
                 }
 
                 if(!onePixel() && elevatorArm.reachedStationary()) {

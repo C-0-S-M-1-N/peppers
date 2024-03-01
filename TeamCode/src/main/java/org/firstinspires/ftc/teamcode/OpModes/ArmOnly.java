@@ -22,7 +22,7 @@ import java.util.ArrayList;
 @Config
 @TeleOp(name = "armOnly")
 public class ArmOnly extends LinearOpMode {
-    public static double armAngle = 0, tourretAngle = 355/2, pivot = 0;
+    public static double armAngle = 0, tourretAngle = 355/2, pivot = 0, init = 0, init2 = 0;
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -31,14 +31,14 @@ public class ArmOnly extends LinearOpMode {
         ControlHub.telemetry = telemetry;
 
 
-        AutoServo virtual1 = new AutoServo(SERVO_PORTS.S0, 0.03, false, Hubs.EXPANSION_HUB, AutoServo.TYPE.AXON);
+        AutoServo virtual1 = new AutoServo(SERVO_PORTS.S0, 0, false, Hubs.EXPANSION_HUB, AutoServo.TYPE.AXON);
         AutoServo virtual2 = new AutoServo(SERVO_PORTS.S2, 0, true, Hubs.EXPANSION_HUB, AutoServo.TYPE.AXON);
 
         waitForStart();
 
         while (opModeIsActive() && !isStopRequested()){
-            virtual1.setAngle(armAngle);
-            virtual2.setAngle(armAngle);
+            virtual1.setAngle(armAngle + init);
+            virtual2.setAngle(armAngle + init2);
 
             virtual1.update();
             virtual2.update();
