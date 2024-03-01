@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Part;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
+import org.firstinspires.ftc.teamcode.utils.BetterColorRangeSensor;
 import org.firstinspires.ftc.teamcode.utils.LowPassFilter;
 
 @Config
@@ -22,7 +23,7 @@ public class Grippers implements Part {
         CLOSE
     }
     public State state;
-    private ColorRangeSensor sensor;
+    private BetterColorRangeSensor sensor;
     private AutoServo servo;
     private final ElapsedTime time = new ElapsedTime();
     public double closed_offset = 0;
@@ -36,7 +37,8 @@ public class Grippers implements Part {
         update();
         update_values();
     }
-    public Grippers(AutoServo servo, ColorRangeSensor sensor){
+    public Grippers(AutoServo servo, BetterColorRangeSensor sensor){
+        sensor.setThresHold(20);
         this.servo = servo;
         this.sensor = sensor;
         state = State.OPEN;
@@ -65,7 +67,6 @@ public class Grippers implements Part {
         }
         servo.update();
     }
-    private double dist = 0;
     @Override
     public void update(){
         if(manualMode) manualUpdate();
@@ -74,27 +75,22 @@ public class Grippers implements Part {
                 servo.setAngle(0);
                 break;
             case CLOSE:
-                if(time.seconds() >= 0.6 && dist > trashHoldDist){
+                if(!sensor.LogicProximityStatus()){
                     state = State.OPEN;
                 } else {
-                    if(dist <= trashHoldDist) time.reset();
+                    if(sensor.LogicProximityStatus()) time.reset();
                     servo.setAngle(83 + closed_offset);
                 }
                 break;
         }
     }
-    private ElapsedTime gripperTime = new ElapsedTime();
-    public static double trashHoldDist = 10;
     @Override
     public void update_values(){
         if(manualMode) return;
-        if(OutTake.state == OutTake.State.WAITING_FOR_PIXELS) {
-            dist = sensor.getDistance(DistanceUnit.MM);
-        } else {
-            dist = 6900;
-        }
-        if(dist <= trashHoldDist){
-            state = State.CLOSE;
+        if(OutTake.state == OutTake.State.WAITING_FOR_PIXELS){
+            if(sensor.LogicProximityStatus()){
+                state = State.CLOSE;
+            }
         }
 
         servo.update();
@@ -113,7 +109,7 @@ public class Grippers implements Part {
         ControlHub.telemetry.addLine(s);
 
         ControlHub.telemetry.addData("\tState", state.toString());
-        ControlHub.telemetry.addData("sensor reading", dist);
+        ControlHub.telemetry.addData("sensor", sensor.getProximityDistance());
         ControlHub.telemetry.addLine("----");
     }
 

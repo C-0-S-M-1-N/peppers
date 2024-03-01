@@ -171,8 +171,8 @@ public class Elevator implements Part {
     public void runTelemetry(){
 
         telemetry.addLine("\n----Elevator----\n");
-        telemetry.addData("power usage",
-                ControlHub.getCurrentFromMotor(M0, CurrentUnit.AMPS) + ControlHub.getCurrentFromMotor(M1, CurrentUnit.AMPS));
+//        telemetry.addData("power usage",
+//                ControlHub.getCurrentFromMotor(M0, CurrentUnit.AMPS) + ControlHub.getCurrentFromMotor(M1, CurrentUnit.AMPS));
         telemetry.addData("motion profile position", motionProfile.getPosition());
         telemetry.addData("velocity", velocity);
         telemetry.addData("position", position);
