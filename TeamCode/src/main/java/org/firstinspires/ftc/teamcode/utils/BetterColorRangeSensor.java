@@ -1,32 +1,20 @@
 package org.firstinspires.ftc.teamcode.utils;
 
-import androidx.annotation.NonNull;
-
-import com.qualcomm.hardware.broadcom.BroadcomColorSensor;
 import com.qualcomm.hardware.lynx.LynxI2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchDevice;
-import com.qualcomm.robotcore.hardware.I2cWaitControl;
 import com.qualcomm.robotcore.hardware.configuration.annotations.DeviceProperties;
 import com.qualcomm.robotcore.hardware.configuration.annotations.I2cDeviceType;
 import com.qualcomm.robotcore.util.RobotLog;
 import com.qualcomm.robotcore.util.TypeConversion;
-
-import java.lang.reflect.Type;
 import java.nio.ByteOrder;
-
-import javax.annotation.Nonnull;
-
-import kotlin.jvm.internal.MagicApiIntrinsics;
 
 @I2cDeviceType
 @DeviceProperties(xmlTag = "REVColorSensorv3", name = "REV Color Sensor v3 - proximity")
 public class BetterColorRangeSensor extends I2cDeviceSynchDevice<I2cDeviceSynch> {
-    private I2cDeviceSynch.ReadMode currentMode;
 
     public void setReadWindow(I2cDeviceSynch.ReadMode mode){
-        currentMode = mode;
         this.deviceClient.setReadWindow(new I2cDeviceSynch.ReadWindow(
                 0x00,
                 0x1E - 0x07 + 1,
@@ -40,6 +28,7 @@ public class BetterColorRangeSensor extends I2cDeviceSynchDevice<I2cDeviceSynch>
     protected void writeToDevice(final REGISTERS r, short val){
         deviceClient.write(r.reg, TypeConversion.shortToByteArray(val, ByteOrder.LITTLE_ENDIAN));
     }
+
     protected byte readByte(REGISTERS r){
         return deviceClient.read8(r.reg);
     }
@@ -134,8 +123,6 @@ public class BetterColorRangeSensor extends I2cDeviceSynchDevice<I2cDeviceSynch>
     public String getDeviceName() {
         return "REV ColorSensor v3 - proximity";
     }
-    private boolean lastState = false;
-    private long lastProximityTime = 0;
     public boolean LogicProximityStatus(){
         return thVal <= getProximityDistance();
     }

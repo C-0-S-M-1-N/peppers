@@ -64,8 +64,7 @@ public class MainOp extends LinearOpMode {
             for(LynxModule m : ControlHub.all){
                 m.clearBulkCache();
             }
-
-
+            
             for(int i = 0; i < 4; i++){
                 ControlHub.encoder[i].read = false;
                 ExpansionHub.encoder[i].read = false;

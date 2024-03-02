@@ -25,7 +25,9 @@ public class ControlHub {
     public static DcMotorEx[] motor = new DcMotorEx[4];
     public static Encoder[] encoder = new Encoder[4];
     public static Servo[] servo = new Servo[6];
-    private static double[] servo_cache = new double[6], motor_cache = new double[4];
+    private static final double[] servo_cache = new double[6];
+    private static final double[] motor_cache = new double[4];
+    private static final double[] motor_target_cache = new double[4];
 
     public static double voltage;
     public static final double compensation = 12;
@@ -66,6 +68,7 @@ public class ControlHub {
         for(int i = 0; i < 4; i++){
             motor[i].setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             motor_cache[i] = 69;
+            motor_target_cache[i] = 69;
         }
 
         for(int i = 0; i < 6; i++){
@@ -210,29 +213,57 @@ public class ControlHub {
                 break;
         }
     }
+    public static void setMotorTargetPosition(MOTOR_PORTS port, int position){
+        switch (port){
+            case M0:
+                if(motor_target_cache[0] != position){
+                    motor[0].setTargetPosition(position);
+                    motor_target_cache[0] = position;
+                }
+                break;
+            case M1:
+                if(motor_target_cache[1] != position){
+                    motor[1].setTargetPosition(position);
+                    motor_target_cache[1] = position;
+                }
+                break;
+            case M2:
+                if(motor_target_cache[2] != position){
+                    motor[2].setTargetPosition(position);
+                    motor_target_cache[2] = position;
+                }
+                break;
+            case M3:
+                if(motor_target_cache[3] != position){
+                    motor[3].setTargetPosition(position);
+                    motor_target_cache[3] = position;
+                }
+                break;
+        }
+    }
     public static void setMotorPower(MOTOR_PORTS port, double power){
         switch (port){
             case M0:
                 if(motor_cache[0] != power){
-                    motor[0].setPower(power * compensation / voltage);
+                    motor[0].setPower(power);
                     motor_cache[0] = power;
                 }
                 break;
             case M1:
                 if(motor_cache[1] != power){
-                    motor[1].setPower(power * compensation / voltage);
+                    motor[1].setPower(power);
                     motor_cache[1] = power;
                 }
                 break;
             case M2:
                 if(motor_cache[2] != power){
-                    motor[2].setPower(power * compensation / voltage);
+                    motor[2].setPower(power);
                     motor_cache[2] = power;
                 }
                 break;
             case M3:
                 if(motor_cache[3] != power){
-                    motor[3].setPower(power * compensation / voltage);
+                    motor[3].setPower(power);
                     motor_cache[3] = power;
                 }
                 break;

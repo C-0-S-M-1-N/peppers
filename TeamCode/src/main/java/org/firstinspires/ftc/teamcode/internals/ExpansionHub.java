@@ -1,16 +1,9 @@
 package org.firstinspires.ftc.teamcode.internals;
 
 import static java.lang.Math.PI;
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
-import static java.lang.Math.sqrt;
-
-import android.provider.ContactsContract;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.localization.Localizer;
-import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -22,28 +15,21 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.apache.commons.math3.analysis.function.Exp;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.utils.Mutex;
-import org.openftc.apriltag.AprilTagDetection;
-
-import java.util.List;
 
 @Config
 public class ExpansionHub {
     public static DcMotorEx[] motor = new DcMotorEx[4];
     public static Encoder[] encoder = new Encoder[4];
     public static Servo[] servo = new Servo[6];
-    private static double[] servo_cache = new double[6], motor_cache = new double[4];
+    private static final double[] servo_cache = new double[6];
+    private static final double[] motor_cache = new double[4];
+    private static final double[] motor_target_cache = new double[4];
 
     public static double voltage;
-    public static final double compensation = 12;
     public static IMU imu;
     public static DistanceSensor sensor;
 
@@ -74,9 +60,7 @@ public class ExpansionHub {
     public Mutex I2CMutex = new Mutex();
     public static double ImuYawAngle = 0, extension_length = 0, sensorDistance = 0;
     private Localizer localizer = null;
-    private boolean READ_SENSOR = false;
-    private boolean READ_IMU = false;
-    private double IMU_FREQ = 1; // in Hz
+    public static double IMU_FREQ = 0.5; // in Hz
 
     public ExpansionHub(HardwareMap hm, Localizer localizer){
         this.localizer = localizer;
@@ -111,22 +95,6 @@ public class ExpansionHub {
         sensor = hm.get(DistanceSensor.class, "sensor");
         beforeReset = 0;
 
-        runI2Cdevices = new Thread(() -> {
-            ElapsedTime imuTime = new ElapsedTime();
-
-            while(!I2CMutex.kill) {
-                if(imuTime.seconds() > 1.0 / IMU_FREQ) {
-                    imuTime.reset();
-
-                    double x = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-                    I2CMutex.lock();
-                    READ_IMU = true;
-                    ImuYawAngle = x - beforeReset;
-                    I2CMutex.unlock();
-                }
-            }
-        });
-
         setMotorsToMax();
 
     }
@@ -136,13 +104,16 @@ public class ExpansionHub {
     public static void resetIMU(){
         beforeReset += ImuYawAngle;
     }
+
+    ElapsedTime imuTime = new ElapsedTime();
+
     public void update(boolean update_localizer){
         extension_length = 690;
         localizer.update();
 
-        if(READ_IMU) {
-            READ_IMU = false;
-            localizer.setPoseEstimate(new Pose2d(0, 0, ImuYawAngle / 180.0 * PI));
+        if(imuTime.seconds() > 1.0 / IMU_FREQ) {
+            imuTime.reset();
+            ImuYawAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES) - beforeReset;
         } else {
             ImuYawAngle = localizer.getPoseEstimate().getHeading() * 180 / PI;
         }
@@ -265,34 +236,64 @@ public class ExpansionHub {
                 break;
         }
     }
+
+    public static void setMotorTargetPosition(MOTOR_PORTS port, int position){
+        switch (port){
+            case M0:
+                if(motor_target_cache[0] != position){
+                    motor[0].setTargetPosition(position);
+                    motor_target_cache[0] = position;
+                }
+                break;
+            case M1:
+                if(motor_target_cache[1] != position){
+                    motor[1].setTargetPosition(position);
+                    motor_target_cache[1] = position;
+                }
+                break;
+            case M2:
+                if(motor_target_cache[2] != position){
+                    motor[2].setTargetPosition(position);
+                    motor_target_cache[2] = position;
+                }
+                break;
+            case M3:
+                if(motor_target_cache[3] != position){
+                    motor[3].setTargetPosition(position);
+                    motor_target_cache[3] = position;
+                }
+                break;
+        }
+    }
     public static void setMotorPower(MOTOR_PORTS port, double power){
         switch (port){
             case M0:
                 if(motor_cache[0] != power){
-                    motor[0].setPower(power );
+                    motor[0].setPower(power);
                     motor_cache[0] = power;
                 }
                 break;
             case M1:
                 if(motor_cache[1] != power){
-                    motor[1].setPower(power );
+                    motor[1].setPower(power);
                     motor_cache[1] = power;
                 }
                 break;
             case M2:
                 if(motor_cache[2] != power){
-                    motor[2].setPower(power );
+                    motor[2].setPower(power);
                     motor_cache[2] = power;
                 }
                 break;
             case M3:
                 if(motor_cache[3] != power){
-                    motor[3].setPower(power );
+                    motor[3].setPower(power);
                     motor_cache[3] = power;
                 }
                 break;
         }
     }
+
     public void setEncoderDirection(ENCODER_PORTS port, Encoder.Direction dir){
         switch (port){
             case E0:
