@@ -78,7 +78,6 @@ public class Grippers implements Part {
                 if(!sensor.LogicProximityStatus()){
                     state = State.OPEN;
                 } else {
-                    if(sensor.LogicProximityStatus()) time.reset();
                     servo.setAngle(83 + closed_offset);
                 }
                 break;
@@ -109,7 +108,6 @@ public class Grippers implements Part {
         ControlHub.telemetry.addLine(s);
 
         ControlHub.telemetry.addData("\tState", state.toString());
-        ControlHub.telemetry.addData("sensor", sensor.getProximityDistance());
         ControlHub.telemetry.addLine("----");
     }
 

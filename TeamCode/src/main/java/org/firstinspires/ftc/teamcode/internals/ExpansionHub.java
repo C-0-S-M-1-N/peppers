@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.internals;
 
+import static java.lang.Math.PI;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
@@ -19,6 +20,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.apache.commons.math3.analysis.function.Exp;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -74,6 +76,7 @@ public class ExpansionHub {
     private Localizer localizer = null;
     private boolean READ_SENSOR = false;
     private boolean READ_IMU = false;
+    private double IMU_FREQ = 1; // in Hz
 
     public ExpansionHub(HardwareMap hm, Localizer localizer){
         this.localizer = localizer;
@@ -109,14 +112,18 @@ public class ExpansionHub {
         beforeReset = 0;
 
         runI2Cdevices = new Thread(() -> {
-            //AprilTagDetector.init(hm);
+            ElapsedTime imuTime = new ElapsedTime();
 
             while(!I2CMutex.kill) {
-                double x = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-                I2CMutex.lock();
-                READ_IMU = true;
-                ImuYawAngle = x - beforeReset;
-                I2CMutex.unlock();
+                if(imuTime.seconds() > 1.0 / IMU_FREQ) {
+                    imuTime.reset();
+
+                    double x = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+                    I2CMutex.lock();
+                    READ_IMU = true;
+                    ImuYawAngle = x - beforeReset;
+                    I2CMutex.unlock();
+                }
             }
         });
 
@@ -131,21 +138,14 @@ public class ExpansionHub {
     }
     public void update(boolean update_localizer){
         extension_length = 690;
-//        if(update_localizer) localizer.update();
-//        Pose2d pose = localizer.getPoseEstimate();
-//        Pose2d velocity = localizer.getPoseVelocity();
-//
-//        if(READ_IMU) {
-//            READ_IMU = false;
-//            localizer.setPoseEstimate(new Pose2d(pose.getX(), pose.getY(), ImuYawAngle));
-//        } else {
-//            ImuYawAngle = pose.getHeading();
-//        }
-//
-//        double sensorDistance = 690; // sensor.getDistance(DistanceUnit.MM);
-//
-//        extension_length = sensorDistance / cos(pose.getHeading());
-//        extension_length += VELOCITY_COMPENSATION * velocity.getX() / cos(pose.getHeading());
+        localizer.update();
+
+        if(READ_IMU) {
+            READ_IMU = false;
+            localizer.setPoseEstimate(new Pose2d(0, 0, ImuYawAngle / 180.0 * PI));
+        } else {
+            ImuYawAngle = localizer.getPoseEstimate().getHeading() * 180 / PI;
+        }
     }
 
     public static double getEncoderPosition(ENCODER_PORTS encoder_port){

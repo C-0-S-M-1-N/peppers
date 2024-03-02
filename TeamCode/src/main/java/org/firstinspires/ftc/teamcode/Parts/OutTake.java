@@ -154,7 +154,7 @@ public class OutTake implements Part{
                 if(releasingTime.time() > 0.2) {
                     outTakeExtension.deactivate();
                 }
-                if(outTakeExtension.getLivePosition() < 80) {
+                if((OutTakeExtension.MOTION_PROFILED && outTakeExtension.getLivePosition() < 80) || (!OutTakeExtension.MOTION_PROFILED && releasingTime.seconds() > 0.5)) {
                     state = State.RETRACTING;
                     align = true;
                 }
