@@ -111,14 +111,17 @@ public class Elevator implements Part {
         }
 
         if(state == State.NOT_RESET) {
-            if (position <= 23  && targetPos <= 0 && MOTOR_ENABLED) {
-                ControlHub.motor[0].setMotorDisable();
-                ControlHub.motor[1].setMotorDisable();
-                MOTOR_ENABLED = false;
+            if (position <= 23  && targetPos <= 0) {
+                if(MOTOR_ENABLED) {
+                    ControlHub.motor[0].setMotorDisable();
+                    ControlHub.motor[1].setMotorDisable();
+                    MOTOR_ENABLED = false;
+                }
             } else {
                 if(!MOTOR_ENABLED) {
                     ControlHub.motor[0].setMotorEnable();
                     ControlHub.motor[1].setMotorEnable();
+                    MOTOR_ENABLED = true;
                 }
 
                 ControlHub.setMotorTargetPosition(M0, (int) motionProfile.getPosition() + 20);

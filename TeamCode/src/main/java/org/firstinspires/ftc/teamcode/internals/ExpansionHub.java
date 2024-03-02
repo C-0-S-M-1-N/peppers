@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.internals;
 import static java.lang.Math.PI;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.localization.Localizer;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -56,8 +57,6 @@ public class ExpansionHub {
         resetEncoder(ENCODER_PORTS.E3);
 
     }
-    public static Thread runI2Cdevices;
-    public Mutex I2CMutex = new Mutex();
     public static double ImuYawAngle = 0, extension_length = 0, sensorDistance = 0;
     private Localizer localizer = null;
     public static double IMU_FREQ = 0.5; // in Hz
@@ -114,6 +113,7 @@ public class ExpansionHub {
         if(imuTime.seconds() > 1.0 / IMU_FREQ) {
             imuTime.reset();
             ImuYawAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES) - beforeReset;
+            localizer.setPoseEstimate(new Pose2d(0, 0, ImuYawAngle / 180.0 * PI));
         } else {
             ImuYawAngle = localizer.getPoseEstimate().getHeading() * 180 / PI;
         }

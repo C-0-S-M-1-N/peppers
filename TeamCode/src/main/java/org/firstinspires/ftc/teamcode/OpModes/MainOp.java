@@ -58,13 +58,12 @@ public class MainOp extends LinearOpMode {
         OutTakeExtension.MOTION_PROFILED = true;
 
         waitForStart();
-        ExpansionHub.runI2Cdevices.start();
         time.reset();
         while(opModeIsActive() && !isStopRequested()){
             for(LynxModule m : ControlHub.all){
                 m.clearBulkCache();
             }
-            
+
             for(int i = 0; i < 4; i++){
                 ControlHub.encoder[i].read = false;
                 ExpansionHub.encoder[i].read = false;
@@ -98,6 +97,5 @@ public class MainOp extends LinearOpMode {
 
             telemetry.update();
         }
-        e.I2CMutex.kill();
     }
 }
