@@ -102,10 +102,10 @@ public class SampleMecanumDriveCancelable extends MecanumDrive {
         // TODO: adjust the names of the following hardware devices to match your configuration
 
 
-        leftFront = hardwareMap.get(DcMotorEx.class, "eM3");
-        leftRear = hardwareMap.get(DcMotorEx.class, "eM1"); // 1
+        leftFront = hardwareMap.get(DcMotorEx.class, "eM2");
+        leftRear = hardwareMap.get(DcMotorEx.class, "eM3"); // 1
         rightRear = hardwareMap.get(DcMotorEx.class, "eM0");
-        rightFront = hardwareMap.get(DcMotorEx.class, "eM2"); // 2
+        rightFront = hardwareMap.get(DcMotorEx.class, "eM1"); // 2
 
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 

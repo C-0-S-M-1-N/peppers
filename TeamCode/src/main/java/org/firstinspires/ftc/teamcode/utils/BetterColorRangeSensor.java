@@ -60,6 +60,7 @@ public class BetterColorRangeSensor extends I2cDeviceSynchDevice<I2cDeviceSynch>
     public short getProximityDistance(){
         if(System.currentTimeMillis() - lastTime >= 100){
             last = (TypeConversion.byteArrayToShort(deviceClient.read(REGISTERS.PS_DATA_0.reg, 2), ByteOrder.LITTLE_ENDIAN));
+            last >>= 3;
             lastTime = System.currentTimeMillis();
         }
         return last;
@@ -101,11 +102,10 @@ public class BetterColorRangeSensor extends I2cDeviceSynchDevice<I2cDeviceSynch>
 
     @Override
     protected boolean doInitialize() {
-        deviceClient.write8(0x01, 0x36);
-        deviceClient.write8(0x2, 0x8);
-        deviceClient.write8(0x3, 0x5);
+        deviceClient.write8(0x01, 0b01110111);
+        deviceClient.write8(0x2, 16);
+        deviceClient.write8(0x3, 0b00011001);
         deviceClient.write8(0x19, 0x11);
-        deviceClient.write8(0x1A, 0x0);
         enable();
 
         return true;

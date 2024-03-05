@@ -112,12 +112,16 @@ public class ExpansionHub {
 
         if(imuTime.seconds() > 1.0 / IMU_FREQ) {
             imuTime.reset();
-            ImuYawAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES) - beforeReset;
-            localizer.setPoseEstimate(new Pose2d(0, 0, ImuYawAngle / 180.0 * PI));
+            double imuAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            ImuYawAngle = Math.toDegrees(imuAngle) - beforeReset;
+            localizer.setPoseEstimate(new Pose2d(0, 0, imuAngle));
         } else {
-            ImuYawAngle = localizer.getPoseEstimate().getHeading() * 180 / PI;
+//            ImuYawAngle = localizer.getPoseEstimate().getHeading() * 180 / PI;
+            ImuYawAngle = Math.toDegrees(localizer.getPoseEstimate().getHeading()) - beforeReset;
         }
     }
+
+    public void teleAngle(Telemetry telemetry) { telemetry.addData("Angle: ", ImuYawAngle); }
 
     public static double getEncoderPosition(ENCODER_PORTS encoder_port){
         switch(encoder_port){

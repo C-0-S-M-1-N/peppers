@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.OpModes;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -20,6 +21,7 @@ import org.firstinspires.ftc.teamcode.Parts.Avion;
 import org.firstinspires.ftc.teamcode.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Parts.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDriveCancelable;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
@@ -33,7 +35,7 @@ public class MainOp extends LinearOpMode {
 
     public static Intake intake;
     public static OutTake outTake;
-    public static MecanumDrive mecanumDrive;
+    public static SampleMecanumDriveCancelable drive;
     public static Controls c;
     public static Hang hang;
     public static Avion avion;
@@ -41,6 +43,7 @@ public class MainOp extends LinearOpMode {
 
     @Override
     public void runOpMode(){
+        drive = new SampleMecanumDriveCancelable(hardwareMap);
         ControlHub c = new ControlHub(hardwareMap);
         ExpansionHub e = new ExpansionHub(hardwareMap, new StandardTrackingWheelLocalizer(hardwareMap, new ArrayList<>(), new ArrayList<>()));
         Controls ctr = new Controls(gamepad1, gamepad2);
@@ -51,11 +54,11 @@ public class MainOp extends LinearOpMode {
 
         outTake = new OutTake(hardwareMap);
         intake = new Intake();
-        mecanumDrive = new MecanumDrive(telemetry);
         hang = new Hang();
         avion = new Avion();
 
         OutTakeExtension.MOTION_PROFILED = true;
+        boolean boost = false;
 
         waitForStart();
         time.reset();
@@ -69,19 +72,23 @@ public class MainOp extends LinearOpMode {
                 ExpansionHub.encoder[i].read = false;
             }
 
-
+            boost = gamepad1.cross;
 
 //            ControlHub.teleMotorCurrents(telemetry);
 //            ExpansionHub.teleMotorCurrents(telemetry);
 
 
-            mecanumDrive.update(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_trigger, gamepad1.left_trigger,
-                    gamepad1.a);
+            drive.setWeightedDrivePower( new Pose2d(
+                    -gamepad1.left_stick_y * (boost ? 1.0 : 0.6),
+                    -gamepad1.left_stick_x * (boost ? 1.0 : 0.6),
+                    (gamepad1.left_trigger - gamepad1.right_trigger) * (boost ? 1.0 : 0.6)
+            ));
 
             outTake.update();
             intake.update();
             hang.update();
             avion.update();
+            drive.update();
             e.update(true);
 
             outTake.update_values();
@@ -93,6 +100,7 @@ public class MainOp extends LinearOpMode {
             ctr.loop();
             telemetry.addData("Hz", 1/time.seconds());
             telemetry.addData("STATE", OutTake.state);
+            e.teleAngle(telemetry);
             time.reset();
 
             telemetry.update();

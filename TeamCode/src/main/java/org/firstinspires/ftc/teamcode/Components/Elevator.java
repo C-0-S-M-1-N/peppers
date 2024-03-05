@@ -111,7 +111,7 @@ public class Elevator implements Part {
         }
 
         if(state == State.NOT_RESET) {
-            if (position <= 23  && targetPos <= 0) {
+            if (position <= 30  && targetPos <= 0) {
                 if(MOTOR_ENABLED) {
                     ControlHub.motor[0].setMotorDisable();
                     ControlHub.motor[1].setMotorDisable();

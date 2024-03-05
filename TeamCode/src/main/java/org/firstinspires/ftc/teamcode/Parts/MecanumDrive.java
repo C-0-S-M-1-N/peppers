@@ -15,10 +15,10 @@ import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
 
 /*
 * MAP:
-* 0 - BR
-* 1 - BL
-* 2 - FR
-* 3 - FL
+* 0 - BR - R
+* 1 - FR
+* 2 - FL - R
+* 3 - BL
 *
 * */
 @Config
@@ -29,7 +29,7 @@ public class MecanumDrive{
     public MecanumDrive(Telemetry tele){
         telemetry = tele;
         ExpansionHub.setMotorDirection(MOTOR_PORTS.M0, DcMotorSimple.Direction.REVERSE);
-        ExpansionHub.setMotorDirection(MOTOR_PORTS.M1, DcMotorSimple.Direction.REVERSE);
+        ExpansionHub.setMotorDirection(MOTOR_PORTS.M2, DcMotorSimple.Direction.REVERSE);
     }
 
     public void update(double left_stick_y, double left_stick_x,

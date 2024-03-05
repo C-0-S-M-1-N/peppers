@@ -37,8 +37,8 @@ public class Grippers implements Part {
         update();
         update_values();
     }
-    public Grippers(AutoServo servo, BetterColorRangeSensor sensor){
-        sensor.setThresHold(20);
+    public Grippers(AutoServo servo, BetterColorRangeSensor sensor, int treshHold){
+        sensor.setThresHold(treshHold);
         this.servo = servo;
         this.sensor = sensor;
         state = State.OPEN;
@@ -62,7 +62,7 @@ public class Grippers implements Part {
                 servo.setAngle(0);
                 break;
             case CLOSE:
-                servo.setAngle(80 + closed_offset);
+                servo.setAngle(75 + closed_offset);
                 break;
         }
         servo.update();
@@ -108,6 +108,7 @@ public class Grippers implements Part {
         ControlHub.telemetry.addLine(s);
 
         ControlHub.telemetry.addData("\tState", state.toString());
+        ControlHub.telemetry.addData("sensor reading", sensor.getProximityDistance());
         ControlHub.telemetry.addLine("----");
     }
 

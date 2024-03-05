@@ -71,16 +71,18 @@ public class OutTake implements Part{
         elevatorArm = new ElevatorArm();
         outTakeExtension = new OutTakeExtension(
                 hm.get(DistanceSensor.class, "sensor"),
-                new AutoServo(SERVO_PORTS.S4, 0, true, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON));
+                new AutoServo(SERVO_PORTS.S3, 0, true, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON));
 
         leftGripper = new Grippers(
-                new AutoServo(SERVO_PORTS.S2, 40.f/180, true, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
-                hm.get(BetterColorRangeSensor.class, "leftSensor")
+                new AutoServo(SERVO_PORTS.S0, 40.f/180, false, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
+                hm.get(BetterColorRangeSensor.class, "leftSensor"),
+                650
         );
 
         rightGripper = new Grippers(
-                new AutoServo(SERVO_PORTS.S3, 40.f/180, false, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
-                hm.get(BetterColorRangeSensor.class, "rightSensor")
+                new AutoServo(SERVO_PORTS.S2, 40.f/180, true, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
+                hm.get(BetterColorRangeSensor.class, "rightSensor"),
+                300
         );
 
 
@@ -93,7 +95,6 @@ public class OutTake implements Part{
         state = State.WAITING_FOR_PIXELS;
 //        elevator.state = Elevator.State.RESET;
     }
-
     private void controls(){
         if(Controls.ManualMode) Grippers.manualMode = !Grippers.manualMode;
         if(Controls.ExtendElevator && state != State.NULL) state = State.EXTENDING;
@@ -224,11 +225,11 @@ public class OutTake implements Part{
         rightGripper.update_values();
 
         if(leftPrev != leftGripper.state){
-            if(leftPrev == Grippers.State.CLOSE) Controls.LeftLost = true;
+            if(leftPrev == Grippers.State.CLOSE) Controls.LeftLost = false;
             else Controls.LeftGot = true;
         }
         if(rightPrev != rightGripper.state){
-            if(rightPrev == Grippers.State.CLOSE) Controls.RightLost = true;
+            if(rightPrev == Grippers.State.CLOSE) Controls.RightLost = false;
             else Controls.RightGot = true;
         }
 
