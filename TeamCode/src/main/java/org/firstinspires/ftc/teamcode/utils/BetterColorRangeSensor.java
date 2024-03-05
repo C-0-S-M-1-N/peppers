@@ -104,7 +104,7 @@ public class BetterColorRangeSensor extends I2cDeviceSynchDevice<I2cDeviceSynch>
     protected boolean doInitialize() {
         deviceClient.write8(0x01, 0b01110111);
         deviceClient.write8(0x2, 16);
-        deviceClient.write8(0x3, 0b00011001);
+        deviceClient.write8(0x3, 0b00011100);
         deviceClient.write8(0x19, 0x11);
         enable();
 
