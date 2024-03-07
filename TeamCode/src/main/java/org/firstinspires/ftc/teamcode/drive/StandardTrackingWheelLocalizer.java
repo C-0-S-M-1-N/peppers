@@ -26,15 +26,16 @@ import java.util.List;
  *
  */
 @Config
-public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer {
+public class StandardTrackingWheelLocalizer extends CustomThreeWheelTracking {
     public static double TICKS_PER_REV = 8192;
     public static double WHEEL_RADIUS = 0.6889764; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
-    public static double LATERAL_DISTANCE = 10.94; // in; distance between the left and right wheels
+    public static double LATERAL_DISTANCE = 10.683; // in; distance between the left and right wheels
     public static double FORWARD_OFFSET = 6.24; // in; offset of the lateral wheel
     public static double X_MULTIPLIER = 1;
     public static double Y_MULTIPLIER = 1.0075;
+    public static double WEIRD_ANGLE = 0;
 
     private Encoder leftEncoder, rightEncoder, frontEncoder;
 
@@ -42,8 +43,8 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
 
     public StandardTrackingWheelLocalizer(HardwareMap hardwareMap, List<Integer> lastTrackingEncPositions, List<Integer> lastTrackingEncVels) {
         super(Arrays.asList(
-                new Pose2d(0, LATERAL_DISTANCE / 2, 0), // left
-                new Pose2d(0, -LATERAL_DISTANCE / 2, 0), // right
+                new Pose2d(0, LATERAL_DISTANCE / 2, WEIRD_ANGLE), // left
+                new Pose2d(0, -LATERAL_DISTANCE / 2, -WEIRD_ANGLE), // right
                 new Pose2d(FORWARD_OFFSET, 0, Math.toRadians(90)) // front
         ));
 
@@ -51,8 +52,8 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
         lastEncVels = lastTrackingEncVels;
 
         leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "eM3"));
-        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "cM3"));
-        frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "eM0"));
+        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "eM0"));
+        frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "cM3"));
 
         // TODO: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)
         rightEncoder.setDirection(Encoder.Direction.REVERSE);

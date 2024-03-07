@@ -42,7 +42,7 @@ public class Intake implements Part {
     NanoClock clock;
     private double grippersHaveTime = 0;
     private boolean grippersHave = false;
-    public static double[] stackPositions = {85, 100, 100, 125, 120};
+    public static double[] stackPositions = {90, 97, 105, 110, 120};
 
     public void setPixelStackPosition(int level){
         if(level > 4) level = 4;
@@ -54,7 +54,7 @@ public class Intake implements Part {
         ControlHub.setMotorDirection(MOTOR_PORTS.M2, DcMotorSimple.Direction.REVERSE);
         servo = new AutoServo(SERVO_PORTS.S4, 0,
                 true, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
-        servo.setAngle(30);
+        servo.setAngle(50);
         servo.update();
         clock = NanoClock.system();
         setPixelStackPosition(4);
@@ -88,7 +88,7 @@ public class Intake implements Part {
         switch (STATE){
             case IDLE:
                 ControlHub.setMotorPower(MOTOR_PORTS.M2, 0);
-                servo.setAngle(30);
+                servo.setAngle(70);
                 break;
             case FORWARD:
                 ControlHub.setMotorPower(MOTOR_PORTS.M2, 1);
@@ -96,7 +96,7 @@ public class Intake implements Part {
                 break;
             case REVERSE:
                 ControlHub.setMotorPower(MOTOR_PORTS.M2, -1);
-                servo.setAngle(30);
+                servo.setAngle(70);
                 break;
         }
 

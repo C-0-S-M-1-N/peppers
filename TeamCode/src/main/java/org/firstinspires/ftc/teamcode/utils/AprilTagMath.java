@@ -15,10 +15,10 @@ import org.openftc.apriltag.AprilTagDetection;
 
 @Config
 public class AprilTagMath {
-    public static double distanceToCenter = 20 / 2.54;
+    public static double distanceToCenter = 18.6 / 2.54;
     public static double AprilTagToINCHES = 25.4; // assume distance is in meters
-    public static double[] TAG_X_OFFSET = {0, 0, 0, 0, 0, 0, 0};
-    public static double[] TAG_Y_OFFSET = {0, 0, 0, 0, 0, 0, 0};
+    public static double[] TAG_X_OFFSET = {0, 0, 0, 0, 31, 25, 19};
+    public static double[] TAG_Y_OFFSET = {0, 0, 0, 0, -43, -43, -43};
 
     public static Pose2d poseFromTag(Pose2d robotPose, AprilTagDetection detection, int id) {
         Orientation rot = Orientation.getOrientation(detection.pose.R, AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.RADIANS);
@@ -29,15 +29,14 @@ public class AprilTagMath {
 
         double robotHeading = robotPose.getHeading();
 
-        double alpha = robotHeading + tagYaw;
-        double dist = sqrt(tagX * tagX + tagY * tagY);
+        double alpha = robotHeading;
 
-        double x_displacement = sin(alpha) * dist;
-        double y_displacement = cos(alpha) * dist;
+        double x_displacement = cos(alpha) * tagX - sin(alpha) * tagY;
+        double y_displacement = cos(alpha) * tagY + sin(alpha) * tagX;
 
         double x_to_center = cos(robotHeading) * distanceToCenter;
         double y_to_center = sin(robotHeading) * distanceToCenter;
 
-        return new Pose2d(x_displacement + x_to_center + TAG_X_OFFSET[id], y_displacement + y_to_center + TAG_Y_OFFSET[id], robotHeading);
+        return new Pose2d(-(x_displacement + x_to_center) + TAG_X_OFFSET[id], -(y_displacement + y_to_center) + TAG_Y_OFFSET[id], alpha);
     }
 }

@@ -9,6 +9,7 @@ import org.opencv.core.MatOfPoint3f;
 import org.opencv.core.Point;
 import org.opencv.core.Point3;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.apriltag.AprilTagDetectorJNI;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 
 public class AprilTagDetectionPipeline extends OpenCvPipeline
 {
+    public boolean ACTIVE_PIPELINE = true;
     private long nativeApriltagPtr;
     private Mat grey = new Mat();
     private ArrayList<AprilTagDetection> detections = new ArrayList<>();
@@ -78,38 +80,43 @@ public class AprilTagDetectionPipeline extends OpenCvPipeline
         }
     }
 
+
+
     @Override
-    public Mat processFrame(Mat input)
-    {
-        // Convert to greyscale
-        Imgproc.cvtColor(input, grey, Imgproc.COLOR_RGBA2GRAY);
+    public Mat processFrame(Mat input) {
+        if (ACTIVE_PIPELINE) {
+            // Convert to greyscale
+            // MONOCHROME LMAO
 
-        synchronized (decimationSync)
-        {
-            if(needToSetDecimation)
-            {
-                AprilTagDetectorJNI.setApriltagDetectorDecimation(nativeApriltagPtr, decimation);
-                needToSetDecimation = false;
+            Imgproc.resize(input, grey, new Size(640, 360));
+            Imgproc.cvtColor(grey, grey, Imgproc.COLOR_RGBA2GRAY);
+
+            synchronized (decimationSync) {
+                if (needToSetDecimation) {
+                    AprilTagDetectorJNI.setApriltagDetectorDecimation(nativeApriltagPtr, decimation);
+                    needToSetDecimation = false;
+                }
             }
+
+            // Run AprilTag
+            detections = AprilTagDetectorJNI.runAprilTagDetectorSimple(nativeApriltagPtr, grey, tagsize, fx, fy, cx, cy);
+
+            synchronized (detectionsUpdateSync) {
+                detectionsUpdate = detections;
+            }
+
+            // For fun, use OpenCV to draw 6DOF markers on the image. We actually recompute the pose using
+            // OpenCV because I haven't yet figured out how to re-use AprilTag's pose in OpenCV.
+//            for (AprilTagDetection detection : detections) {
+//                Pose pose = poseFromTrapezoid(detection.corners, cameraMatrix, tagsizeX, tagsizeY);
+//                drawAxisMarker(input, tagsizeY / 2.0, 6, pose.rvec, pose.tvec, cameraMatrix);
+//                draw3dCubeMarker(input, tagsizeX, tagsizeX, tagsizeY, 5, pose.rvec, pose.tvec, cameraMatrix);
+//            }
+
+            grey.release();
+
+            return input;
         }
-
-        // Run AprilTag
-        detections = AprilTagDetectorJNI.runAprilTagDetectorSimple(nativeApriltagPtr, grey, tagsize, fx, fy, cx, cy);
-
-        synchronized (detectionsUpdateSync)
-        {
-            detectionsUpdate = detections;
-        }
-
-        // For fun, use OpenCV to draw 6DOF markers on the image. We actually recompute the pose using
-        // OpenCV because I haven't yet figured out how to re-use AprilTag's pose in OpenCV.
-        for(AprilTagDetection detection : detections)
-        {
-            Pose pose = poseFromTrapezoid(detection.corners, cameraMatrix, tagsizeX, tagsizeY);
-            drawAxisMarker(input, tagsizeY/2.0, 6, pose.rvec, pose.tvec, cameraMatrix);
-            draw3dCubeMarker(input, tagsizeX, tagsizeX, tagsizeY, 5, pose.rvec, pose.tvec, cameraMatrix);
-        }
-
         return input;
     }
 

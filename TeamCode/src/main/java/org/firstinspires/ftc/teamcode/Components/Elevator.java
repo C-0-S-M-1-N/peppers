@@ -54,6 +54,8 @@ public class Elevator implements Part {
         double distanceToTicks = 51000.f / (180 * 4);
         motionProfile = new MotionProfile(maxVelo* distanceToTicks, maxAcc* distanceToTicks);
 
+        ControlHub.setMotorDirection(M1, DcMotorSimple.Direction.REVERSE);
+
         ControlHub.motor[0].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         ControlHub.motor[1].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 

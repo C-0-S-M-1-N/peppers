@@ -86,7 +86,7 @@ public class ExpansionHub {
         imu = hm.get(IMU.class, "imu");
         imu.initialize(new IMU.Parameters(
                 new RevHubOrientationOnRobot(
-                        RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD
+                        RevHubOrientationOnRobot.LogoFacingDirection.LEFT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD
                 )
         ));
         imu.resetYaw();
@@ -113,6 +113,7 @@ public class ExpansionHub {
         if(imuTime.seconds() > 1.0 / IMU_FREQ) {
             imuTime.reset();
             double imuAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+
             ImuYawAngle = Math.toDegrees(imuAngle) - beforeReset;
             localizer.setPoseEstimate(new Pose2d(0, 0, imuAngle));
         } else {
@@ -121,7 +122,10 @@ public class ExpansionHub {
         }
     }
 
-    public void teleAngle(Telemetry telemetry) { telemetry.addData("Angle: ", ImuYawAngle); }
+    public void teleAngle(Telemetry telemetry) {
+        telemetry.addData("Imu angle: ", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
+        telemetry.addData("Turret non normalized angle: ", Math.toDegrees(imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)) - beforeReset);
+    }
 
     public static double getEncoderPosition(ENCODER_PORTS encoder_port){
         switch(encoder_port){

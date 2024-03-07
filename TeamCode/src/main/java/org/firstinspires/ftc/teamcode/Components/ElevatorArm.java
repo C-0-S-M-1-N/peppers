@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Part;
 import org.firstinspires.ftc.teamcode.Parts.MotionProfile;
+import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.Hubs;
 import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
@@ -54,6 +55,7 @@ public class ElevatorArm implements Part {
         while(angle < -180) angle += 360;
 
         if(Math.abs(angle) > 90) angle = 90 * Math.signum(angle);
+
         turret.setAngle(angle + defaultTouretDegrees);
         TMP_turret.reset();
     }

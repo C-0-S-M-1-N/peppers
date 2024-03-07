@@ -57,6 +57,8 @@ public class OutTake implements Part{
     private ElapsedTime releasingTime = new ElapsedTime();
     private ElapsedTime FUCKING_EXTENSIE = new ElapsedTime();
 
+    public boolean ACTIVATE_SENSORS = true;
+
     public void setElevatorLevel(int level){
         elevator.setTargetPosition(level * State.step);
     }
@@ -74,13 +76,13 @@ public class OutTake implements Part{
                 new AutoServo(SERVO_PORTS.S3, 0, true, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON));
 
         leftGripper = new Grippers(
-                new AutoServo(SERVO_PORTS.S0, 40.f/180, false, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
+                new AutoServo(SERVO_PORTS.S0, 20.f/180, false, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
                 hm.get(BetterColorRangeSensor.class, "leftSensor"),
                 80
         );
 
         rightGripper = new Grippers(
-                new AutoServo(SERVO_PORTS.S2, 40.f/180, true, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
+                new AutoServo(SERVO_PORTS.S2, 25.f/180, true, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
                 hm.get(BetterColorRangeSensor.class, "rightSensor"),
                 80
         );
@@ -113,10 +115,14 @@ public class OutTake implements Part{
                 State.level--;
             }
             if(Controls.DropLeft){
-                leftGripper.drop();
+                rightGripper.drop();
+                rightGripper.update_values();
+                rightGripper.update();
             }
             if(Controls.DropRight){
-                rightGripper.drop();
+                leftGripper.drop();
+                leftGripper.update_values();
+                leftGripper.update();
             }
         }
         if(Controls.ResetTourret) ExpansionHub.resetIMU();
@@ -155,7 +161,7 @@ public class OutTake implements Part{
                 if(releasingTime.time() > 0.2) {
                     outTakeExtension.deactivate();
                 }
-                if((OutTakeExtension.MOTION_PROFILED && outTakeExtension.getLivePosition() < 80) || (!OutTakeExtension.MOTION_PROFILED && releasingTime.seconds() > 0.5)) {
+                if((OutTakeExtension.MOTION_PROFILED && outTakeExtension.getLivePosition() < 80 && releasingTime.seconds() > 0.4) || (!OutTakeExtension.MOTION_PROFILED && releasingTime.seconds() > 0.5 )) {
                     state = State.RETRACTING;
                     align = true;
                 }
@@ -189,10 +195,10 @@ public class OutTake implements Part{
                 break;
             case NULL:
                 if(elevatorArm.getLiveArmAngle() > 160) {
-                    elevatorArm.setPivotAngle(finalPivotPivotAngle);
                     outTakeExtension.activate();
                 }
                 if(elevatorArm.reachedStationary() && onePixel()) {
+                    elevatorArm.setPivotAngle(finalPivotPivotAngle);
                     align = true;
                 }
 
@@ -219,18 +225,20 @@ public class OutTake implements Part{
         elevatorArm.update_values();
         outTakeExtension.update_values();
 
-        Grippers.State leftPrev = leftGripper.state, rightPrev = rightGripper.state;
+        if(ACTIVATE_SENSORS) {
+            Grippers.State leftPrev = leftGripper.state, rightPrev = rightGripper.state;
 
-        leftGripper.update_values();
-        rightGripper.update_values();
+            leftGripper.update_values();
+            rightGripper.update_values();
 
-        if(leftPrev != leftGripper.state){
-            if(leftPrev == Grippers.State.CLOSE) Controls.LeftLost = false;
-            else Controls.LeftGot = true;
-        }
-        if(rightPrev != rightGripper.state){
-            if(rightPrev == Grippers.State.CLOSE) Controls.RightLost = false;
-            else Controls.RightGot = true;
+            if (leftPrev != leftGripper.state) {
+                if (leftPrev == Grippers.State.CLOSE) Controls.LeftLost = false;
+                else Controls.LeftGot = true;
+            }
+            if (rightPrev != rightGripper.state) {
+                if (rightPrev == Grippers.State.CLOSE) Controls.RightLost = false;
+                else Controls.RightGot = true;
+            }
         }
 
 

@@ -75,11 +75,7 @@ public class Grippers implements Part {
                 servo.setAngle(0);
                 break;
             case CLOSE:
-                if(!sensor.LogicProximityStatus()){
-                    state = State.OPEN;
-                } else {
-                    servo.setAngle(83 + closed_offset);
-                }
+                servo.setAngle(83 + closed_offset);
                 break;
         }
     }
@@ -88,9 +84,21 @@ public class Grippers implements Part {
         if(manualMode) return;
         if(OutTake.state == OutTake.State.WAITING_FOR_PIXELS){
             if(sensor.LogicProximityStatus()){
-                state = State.CLOSE;
+
+                if(state == State.OPEN && time.seconds() > 0.5) {
+                    state = State.CLOSE;
+                    time.reset();
+                }
+
+            } else {
+                if(state == State.CLOSE && time.seconds() > 0.5) {
+                    state = State.OPEN;
+                    time.reset();
+                }
             }
         }
+
+        update();
 
         servo.update();
     }
