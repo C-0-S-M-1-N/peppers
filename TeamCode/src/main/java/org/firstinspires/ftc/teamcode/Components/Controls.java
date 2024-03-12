@@ -56,6 +56,7 @@ public class Controls {
         if(gamepad2.wasPressed.dpad_down)   RetractElevator = true;
         if(gamepad2.wasPressed.dpad_right)  ElevatorUp      = true;
         if(gamepad2.wasPressed.dpad_left)   ElevatorDown    = true;
+        if(gamepad2.wasPressed.a) Hang = true;
 
         if(gamepad2.right_trigger >= 0.7)     Intake          = true;
         if(gamepad2.left_trigger >= 0.7)      RevIntake       = true;

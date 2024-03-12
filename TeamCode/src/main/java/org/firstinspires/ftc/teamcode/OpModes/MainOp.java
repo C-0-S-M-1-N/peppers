@@ -57,7 +57,7 @@ public class MainOp extends LinearOpMode {
         hang = new Hang();
         avion = new Avion();
 
-        OutTakeExtension.MOTION_PROFILED = true;
+        OutTake.outTakeExtension.MOTION_PROFILED = true;
         boolean boost = false;
 
         waitForStart();

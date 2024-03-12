@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
-import static java.lang.Math.E;
 import static java.lang.Math.min;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -8,21 +7,16 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.checkerframework.checker.units.qual.C;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-
+import org.firstinspires.ftc.teamcode.BlueCloseDetectionPipeline;
 import org.firstinspires.ftc.teamcode.Components.Controls;
-import org.firstinspires.ftc.teamcode.Components.Elevator;
 import org.firstinspires.ftc.teamcode.Components.Grippers;
 import org.firstinspires.ftc.teamcode.Components.Hang;
 import org.firstinspires.ftc.teamcode.Components.OutTakeExtension;
@@ -30,23 +24,17 @@ import org.firstinspires.ftc.teamcode.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDriveCancelable;
-import org.firstinspires.ftc.teamcode.internals.AprilTagDetectionPipeline;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
-import org.firstinspires.ftc.teamcode.internals.Hubs;
 import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
-import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.utils.AutoServo;
-import org.firstinspires.ftc.teamcode.utils.RedCloseDetectionPipeline;
-import org.firstinspires.ftc.teamcode.utils.RedCloseDetectionPipeline;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous(name = "redClose")
+@Autonomous(name = "blueClose")
 @Config
-public class RedClose extends LinearOpMode {
+public class BlueClose extends LinearOpMode {
     enum State{
         INTAKE,
         OTHER_INTAKE,
@@ -63,24 +51,21 @@ public class RedClose extends LinearOpMode {
     private State state = State.NOT_INTAKE;
     private boolean relocalize = false;
 
-    public static double middlePurple_x = 21.5, middlePurple_y = -1.3,
-            middleYellow_x = 23, middleYellow_y = -31, middleYellow_h = Math.toRadians(-70),
-    stack_x = 23, stack_y = 76.5,
-    prebackdropMiddle_x = 25.24, prebackdropMiddle_y = -6,
-    leftpurple_x = 14.5, leftpurple_y = 7, leftpurple_h = 0.44,
-    leftyellow_x = 29, leftyellow_y = -31, leftyellow_h = Math.toRadians(-70),
-            rightpurple_x = 11.6, rightpurple_y = -2, rightpurple_h = 6,
-            rightyellow_x = 17, rightyellow_y = -31, rightyellow_h = Math.toRadians(-70),
-    transit_x = 4, transit_y = 2, transit_h = Math.toRadians(-90),
-    angledStack_x = 21, angledStack_y = 76, angledStack_h = Math.toRadians(-115);
+    public static double middlePurple_x = 21.5, middlePurple_y = 1.3,
+            middleYellow_x = 23, middleYellow_y = 31, middleYellow_h = Math.toRadians(70),
+    stack_x = 23, stack_y = -76.5,
+    prebackdropMiddle_x = 25.24, prebackdropMiddle_y = 6,
+    leftpurple_x = 14.5, leftpurple_y = -7, leftpurple_h = -0.44,
+    leftyellow_x = 29, leftyellow_y = 32, leftyellow_h = Math.toRadians(70),
+            rightpurple_x = 11.6, rightpurple_y = 3, rightpurple_h = -6,
+            rightyellow_x = 17, rightyellow_y = 31, rightyellow_h = Math.toRadians(70),
+    transit_x = 3, transit_y = -2, transit_h = Math.toRadians(90),
+    angledStack_x = 21, angledStack_y = -76, angledStack_h = Math.toRadians(115);
 
     public static Pose2d middlePurple = new Pose2d(middlePurple_x, middlePurple_y, 0),
-    middleYellow = new Pose2d(middleYellow_x, middleYellow_y, middleYellow_h),
-    stack = new Pose2d(stack_x, stack_y, Math.toRadians(-90)),
-    prebackdropMiddle = new Pose2d(prebackdropMiddle_x, prebackdropMiddle_y, Math.toRadians(-89));
-    public DistanceSensor distanceSensor;
+    middleYellow = new Pose2d(middleYellow_x, middleYellow_y, middleYellow_h);
     boolean readSensor = false;
-    private TrajectorySequence takeFromStack, toBackdrop, toAngledStack, otherToAngledStack;
+    private TrajectorySequence toAngledStack, otherToAngledStack;
 
     private int stackPos = 0;
     private SampleMecanumDriveCancelable mecanumDrive;
@@ -103,7 +88,7 @@ public class RedClose extends LinearOpMode {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier
                 ("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-        RedCloseDetectionPipeline detector = new RedCloseDetectionPipeline(telemetry, false);
+        BlueCloseDetectionPipeline detector = new BlueCloseDetectionPipeline(telemetry, true);
 
         camera.setPipeline(detector);
         // ------------------ OpenCv code
@@ -152,13 +137,13 @@ public class RedClose extends LinearOpMode {
 
                 })
                 .lineToLinearHeading(new Pose2d(leftpurple_x, leftpurple_y, leftpurple_h))
-                .UNSTABLE_addTemporalMarkerOffset(-0.05, () -> {
+                .UNSTABLE_addTemporalMarkerOffset(-0.2, () -> {
                     Controls.ElevatorDown = true;
                     outTake.update_values();
                     outTake.update();
                 })
                 .UNSTABLE_addTemporalMarkerOffset(0.1, () -> {
-                    Controls.DropLeft = true;
+                    Controls.DropRight = true;
                 })
                 .waitSeconds(0.2)
                 .addTemporalMarker(() -> {
@@ -180,20 +165,21 @@ public class RedClose extends LinearOpMode {
                     ExpansionHub.extension_length = 6900;
                     OutTake.outTakeExtension.activate();
                     OutTake.outTakeExtension.update();
-                    ExpansionHub.ImuYawAngle = 90 + Math.toDegrees(leftyellow_h);
+                    ExpansionHub.ImuYawAngle = -90 + Math.toDegrees(leftyellow_h);
                 })
                 .lineToLinearHeading(new Pose2d(leftyellow_x, leftyellow_y, leftyellow_h))
                 .addTemporalMarker(() -> {
-                    Controls.DropRight = true;
+                    Controls.DropLeft = true;
+                    OutTake.outTakeExtension.MOTION_PROFILED = false;
                 })
                 .waitSeconds(0.1)
                 .setReversed(true)
                 .splineToSplineHeading(new Pose2d(transit_x, transit_y, transit_h), -transit_h)
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(50, 5, DriveConstants.TRACK_WIDTH))
-                .splineToConstantHeading(new Vector2d(transit_x, transit_y + 10), -transit_h)
+                .splineToConstantHeading(new Vector2d(transit_x, transit_y - 10), -transit_h)
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(65, 5, DriveConstants.TRACK_WIDTH))
-                .splineToConstantHeading(new Vector2d(transit_x, transit_y + 48), -transit_h)
-                .splineToSplineHeading(new Pose2d(angledStack_x, angledStack_y, angledStack_h), -angledStack_h - 1.2)
+                .splineToConstantHeading(new Vector2d(transit_x, transit_y - 48), -transit_h)
+                .splineToSplineHeading(new Pose2d(angledStack_x, angledStack_y, angledStack_h), -angledStack_h + 1.2)
                 .UNSTABLE_addTemporalMarkerOffset(-1.2, () -> {
                     intake.servo.setAngle(Intake.stackPositions[stackPos]);
                     ControlHub.setMotorPower(MOTOR_PORTS.M2, 1);
@@ -221,13 +207,13 @@ public class RedClose extends LinearOpMode {
 
                 })
                 .lineToLinearHeading(middlePurple)
-                .UNSTABLE_addTemporalMarkerOffset(-0.05, () -> {
+                .UNSTABLE_addTemporalMarkerOffset(-0.2, () -> {
                     Controls.ElevatorDown = true;
                     outTake.update_values();
                     outTake.update();
                 })
                 .UNSTABLE_addTemporalMarkerOffset(0.1, () -> {
-                    Controls.DropLeft = true;
+                    Controls.DropRight = true;
                 })
                 .waitSeconds(0.2)
                 .addTemporalMarker(() -> {
@@ -249,20 +235,21 @@ public class RedClose extends LinearOpMode {
                     ExpansionHub.extension_length = 6900;
                     OutTake.outTakeExtension.activate();
                     OutTake.outTakeExtension.update();
-                    ExpansionHub.ImuYawAngle = 90 + Math.toDegrees(middleYellow.getHeading());
+                    ExpansionHub.ImuYawAngle = -90 + Math.toDegrees(middleYellow.getHeading());
                 })
                 .lineToLinearHeading(middleYellow)
                 .addTemporalMarker(() -> {
-                    Controls.DropRight = true;
+                    Controls.DropLeft = true;
+                    OutTake.outTakeExtension.MOTION_PROFILED = true;
                 })
                 .waitSeconds(0.1)
                 .setReversed(true)
                 .splineToSplineHeading(new Pose2d(transit_x + 1, transit_y, transit_h), -transit_h)
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(50, 5, DriveConstants.TRACK_WIDTH))
-                .splineToConstantHeading(new Vector2d(transit_x + 1, transit_y + 10), -transit_h)
+                .splineToConstantHeading(new Vector2d(transit_x + 1, transit_y - 10), -transit_h)
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(65, 5, DriveConstants.TRACK_WIDTH))
-                .splineToConstantHeading(new Vector2d(transit_x + 1, transit_y + 48), -transit_h)
-                .splineToSplineHeading(new Pose2d(angledStack_x, angledStack_y, angledStack_h), -angledStack_h - 1.2)
+                .splineToConstantHeading(new Vector2d(transit_x + 1, transit_y - 48), -transit_h)
+                .splineToSplineHeading(new Pose2d(angledStack_x, angledStack_y, angledStack_h), -angledStack_h + 1.2)
                 .UNSTABLE_addTemporalMarkerOffset(-1.2, () -> {
                     intake.servo.setAngle(Intake.stackPositions[stackPos]);
                     ControlHub.setMotorPower(MOTOR_PORTS.M2, 1);
@@ -291,13 +278,13 @@ public class RedClose extends LinearOpMode {
                 })
                 .lineToLinearHeading(new Pose2d(rightpurple_x, rightpurple_y, rightpurple_h))
                 .waitSeconds(0.2)
-                .UNSTABLE_addTemporalMarkerOffset(-0.05, () -> {
+                .UNSTABLE_addTemporalMarkerOffset(-0.2, () -> {
                     Controls.ElevatorDown = true;
                     outTake.update_values();
                     outTake.update();
                 })
                 .UNSTABLE_addTemporalMarkerOffset(0.1, () -> {
-                    Controls.DropLeft = true;
+                    Controls.DropRight = true;
                 })
                 .waitSeconds(0.2)
                 .addTemporalMarker(() -> {
@@ -319,20 +306,21 @@ public class RedClose extends LinearOpMode {
                     ExpansionHub.extension_length = 6900;
                     OutTake.outTakeExtension.activate();
                     OutTake.outTakeExtension.update();
-                    ExpansionHub.ImuYawAngle = 90 + Math.toDegrees(leftyellow_h);
+                    ExpansionHub.ImuYawAngle = -90 + Math.toDegrees(leftyellow_h);
                 })
                 .lineToLinearHeading(new Pose2d(rightyellow_x, rightyellow_y, rightyellow_h))
                 .addTemporalMarker(() -> {
-                    Controls.DropRight = true;
+                    Controls.DropLeft = true;
+                    OutTake.outTakeExtension.MOTION_PROFILED = false;
                 })
                 .waitSeconds(0.1)
                 .setReversed(true)
                 .splineToSplineHeading(new Pose2d(transit_x, transit_y, transit_h), -transit_h)
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(50, 5, DriveConstants.TRACK_WIDTH))
-                .splineToConstantHeading(new Vector2d(transit_x, transit_y + 10), -transit_h)
+                .splineToConstantHeading(new Vector2d(transit_x, transit_y - 10), -transit_h)
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(65, 5, DriveConstants.TRACK_WIDTH))
-                .splineToConstantHeading(new Vector2d(transit_x, transit_y + 48), -transit_h)
-                .splineToSplineHeading(new Pose2d(angledStack_x, angledStack_y, angledStack_h), -angledStack_h - 1.2)
+                .splineToConstantHeading(new Vector2d(transit_x, transit_y - 48), -transit_h)
+                .splineToSplineHeading(new Pose2d(angledStack_x, angledStack_y, angledStack_h), -angledStack_h + 1.2)
                 .UNSTABLE_addTemporalMarkerOffset(-1.2, () -> {
                     intake.servo.setAngle(Intake.stackPositions[stackPos]);
                     ControlHub.setMotorPower(MOTOR_PORTS.M2, 1);
@@ -376,9 +364,9 @@ public class RedClose extends LinearOpMode {
                 .addTemporalMarker(1.4, () -> {
                     ControlHub.setMotorPower(MOTOR_PORTS.M2, 0);
                 })
-                .lineToSplineHeading(new Pose2d(transit_x, transit_y + 48, transit_h))
+                .lineToSplineHeading(new Pose2d(transit_x, transit_y - 48, transit_h))
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(45, 5, DriveConstants.TRACK_WIDTH))
-                .splineToConstantHeading(new Vector2d(transit_x, transit_y + 30), transit_h)
+                .splineToConstantHeading(new Vector2d(transit_x, transit_y - 30), transit_h)
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(65, 5, DriveConstants.TRACK_WIDTH))
                 .splineToConstantHeading(new Vector2d(transit_x, transit_y), transit_h)
                 .UNSTABLE_addTemporalMarkerOffset(-1, () -> {
@@ -387,7 +375,7 @@ public class RedClose extends LinearOpMode {
                     readSensor = true;
                 })
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(40))
-                .splineToSplineHeading(new Pose2d(leftyellow_x-15, leftyellow_y, Math.toRadians(-60)), Math.toRadians(-60))
+                .splineToSplineHeading(new Pose2d(leftyellow_x-15, leftyellow_y, Math.toRadians(60)), Math.toRadians(60))
                 .addTemporalMarker(() -> {
                     Controls.DropRight = true;
                     Controls.DropLeft = true;
@@ -434,9 +422,9 @@ public class RedClose extends LinearOpMode {
                 .addTemporalMarker(1.4, () -> {
                     ControlHub.setMotorPower(MOTOR_PORTS.M2, 0);
                 })
-                .lineToSplineHeading(new Pose2d(transit_x - 1, transit_y + 48, transit_h))
+                .lineToSplineHeading(new Pose2d(transit_x - 1, transit_y - 48, transit_h))
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(45, 5, DriveConstants.TRACK_WIDTH))
-                .splineToConstantHeading(new Vector2d(transit_x - 1, transit_y + 30), transit_h)
+                .splineToConstantHeading(new Vector2d(transit_x - 1, transit_y - 30), transit_h)
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(65, 5, DriveConstants.TRACK_WIDTH))
                 .splineToConstantHeading(new Vector2d(transit_x - 1, transit_y), transit_h)
                 .UNSTABLE_addTemporalMarkerOffset(-1, () -> {
@@ -445,7 +433,7 @@ public class RedClose extends LinearOpMode {
                     readSensor = true;
                 })
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(40))
-                .splineToSplineHeading(new Pose2d(leftyellow_x-15, leftyellow_y, Math.toRadians(-60)), Math.toRadians(-60))
+                .splineToSplineHeading(new Pose2d(leftyellow_x-15, leftyellow_y, Math.toRadians(60)), Math.toRadians(60))
                 .addTemporalMarker(() -> {
                     Controls.DropRight = true;
                     Controls.DropLeft = true;
@@ -458,17 +446,17 @@ public class RedClose extends LinearOpMode {
                 .setReversed(true)
                 .splineToSplineHeading(new Pose2d(transit_x, transit_y, transit_h), -transit_h)
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(45, 5, DriveConstants.TRACK_WIDTH))
-                .splineToConstantHeading(new Vector2d(transit_x, transit_y + 10), -transit_h)
+                .splineToConstantHeading(new Vector2d(transit_x, transit_y - 10), -transit_h)
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(65, 5, DriveConstants.TRACK_WIDTH))
-                .splineToConstantHeading(new Vector2d(transit_x, transit_y + 48), -transit_h)
-                .splineToSplineHeading(new Pose2d(angledStack_x, angledStack_y, angledStack_h), -angledStack_h - 1.2)
+                .splineToConstantHeading(new Vector2d(transit_x, transit_y - 48), -transit_h)
+                .splineToSplineHeading(new Pose2d(angledStack_x, angledStack_y, angledStack_h), -angledStack_h + 1.2)
                 .UNSTABLE_addTemporalMarkerOffset(-1, () -> {
                     stackPos = 4;
                     intake.servo.setAngle(Intake.stackPositions[4]);
                     ControlHub.setMotorPower(MOTOR_PORTS.M2, 1);
                 })
                 .lineToLinearHeading(new Pose2d(angledStack_x + 12, angledStack_y, angledStack_h))
-                .UNSTABLE_addTemporalMarkerOffset(-0.55, () -> {
+                .UNSTABLE_addTemporalMarkerOffset(-0.7, () -> {
                     stackPos = 0;
                     intake.servo.setAngle(Intake.stackPositions[0]);
                     ControlHub.setMotorPower(MOTOR_PORTS.M2, 1);
@@ -480,16 +468,16 @@ public class RedClose extends LinearOpMode {
                 .build();
 
         toAngledStack = mecanumDrive.trajectorySequenceBuilder(angledToBackDrop.end())
-                .addTemporalMarker(() -> {
-                    Grippers.FORCE = false;
+                .addTemporalMarker(()-> {
+                    Grippers.FORCE = true;
                 })
                 .setReversed(true)
                 .lineToSplineHeading(new Pose2d(transit_x, transit_y, transit_h))
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(45, 5, DriveConstants.TRACK_WIDTH))
-                .splineToConstantHeading(new Vector2d(transit_x, transit_y + 10), -transit_h)
+                .splineToConstantHeading(new Vector2d(transit_x, transit_y - 10), -transit_h)
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(65, 5, DriveConstants.TRACK_WIDTH))
-                .splineToConstantHeading(new Vector2d(transit_x, transit_y + 48), -transit_h)
-                .splineToSplineHeading(new Pose2d(angledStack_x, angledStack_y, angledStack_h), -angledStack_h - 1.2)
+                .splineToConstantHeading(new Vector2d(transit_x, transit_y - 48), -transit_h)
+                .splineToSplineHeading(new Pose2d(angledStack_x, angledStack_y, angledStack_h), -angledStack_h + 1.2)
                 .UNSTABLE_addTemporalMarkerOffset(-1, () -> {
                     stackPos = min(stackPos + 2, 4);
                     intake.servo.setAngle(Intake.stackPositions[stackPos]);
@@ -510,11 +498,11 @@ public class RedClose extends LinearOpMode {
         while(opModeInInit()){
             outTake.update();
             outTake.update_values();
-            if(detector.getLocation() == RedCloseDetectionPipeline.Location.LEFT)
+            if(detector.getLocation() == BlueCloseDetectionPipeline.Location.LEFT)
                 telemetry.addLine("LEFT");
-            else if(detector.getLocation() == RedCloseDetectionPipeline.Location.MIDDLE)
+            else if(detector.getLocation() == BlueCloseDetectionPipeline.Location.MIDDLE)
                 telemetry.addLine("MIDDLE");
-            else if(detector.getLocation() == RedCloseDetectionPipeline.Location.RIGHT)
+            else if(detector.getLocation() == BlueCloseDetectionPipeline.Location.RIGHT)
                 telemetry.addLine("RIGHT");
             telemetry.update();
         }
@@ -524,12 +512,12 @@ public class RedClose extends LinearOpMode {
         }).start();
 
         TIME.reset();
-        if(detector.getLocation() == RedCloseDetectionPipeline.Location.LEFT)
-            mecanumDrive.followTrajectorySequenceAsync(left);
-        else if(detector.getLocation() == RedCloseDetectionPipeline.Location.MIDDLE)
-            mecanumDrive.followTrajectorySequenceAsync(middle);
-        else if(detector.getLocation() == RedCloseDetectionPipeline.Location.RIGHT)
+        if(detector.getLocation() == BlueCloseDetectionPipeline.Location.LEFT)
             mecanumDrive.followTrajectorySequenceAsync(right);
+        else if(detector.getLocation() == BlueCloseDetectionPipeline.Location.MIDDLE)
+            mecanumDrive.followTrajectorySequenceAsync(middle);
+        else if(detector.getLocation() == BlueCloseDetectionPipeline.Location.RIGHT)
+            mecanumDrive.followTrajectorySequenceAsync(left);
         freq.reset();
 
         ElapsedTime imuTime = new ElapsedTime();
@@ -541,7 +529,7 @@ public class RedClose extends LinearOpMode {
             }
 
             if(readSensor){
-                ExpansionHub.ImuYawAngle = 90 + Math.toDegrees(mecanumDrive.getPoseEstimate().getHeading());
+                ExpansionHub.ImuYawAngle = -90 + Math.toDegrees(mecanumDrive.getPoseEstimate().getHeading());
                 if(ExpansionHub.ImuYawAngle > 180) ExpansionHub.ImuYawAngle -= 360;
                 if(ExpansionHub.ImuYawAngle < -180) ExpansionHub.ImuYawAngle += 360;
             }
@@ -572,6 +560,12 @@ public class RedClose extends LinearOpMode {
                 } else if (!mecanumDrive.isBusy()) {
                     mecanumDrive.followTrajectorySequenceAsync(otherAngledIntake);
                 }
+            }
+
+            if(relocalize){
+
+
+                relocalize = false;
             }
 
             mecanumDrive.update();
