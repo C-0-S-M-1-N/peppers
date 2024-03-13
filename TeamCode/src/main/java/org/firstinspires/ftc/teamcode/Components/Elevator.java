@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Components;
 
 import static org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS.M0;
 import static org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS.M1;
+import static org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS.M2;
 import static java.lang.Math.abs;
 import static java.lang.Math.pow;
 
@@ -38,25 +39,27 @@ public class Elevator implements Part {
         NOT_RESET
     }
     public State state;
-    public static PIDFCoefficients velocityPIDF = new PIDFCoefficients();
     public static PIDFCoefficients positionPIDF = new PIDFCoefficients();
-    public double targetPosition = 0, livePosition = 0;
-    public static boolean DEBUG_MODE = false;
+    public double targetPosition = 0, livePosition = 0, position_threshold = 5;
+    private PIDFCoefficients lastPID = new PIDFCoefficients();
+
+    public static boolean RESET = false;
+
     public Elevator(){
         ControlHub.setMotorDirection(M0, DcMotorSimple.Direction.REVERSE);
         ControlHub.setMotorDirection(M1, DcMotorSimple.Direction.REVERSE);
-        velocityPIDF = ControlHub.motor[0].getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
-        positionPIDF = ControlHub.motor[0].getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION);
         for(int i = 0; i < 3; i++){
-            ControlHub.motor[i].setVelocityPIDFCoefficients(velocityPIDF.p, velocityPIDF.i, velocityPIDF.d, velocityPIDF.f);
-            ControlHub.motor[i].setPositionPIDFCoefficients(positionPIDF.p);
-            ControlHub.motor[i].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//            ControlHub.motor[i].setVelocityPIDFCoefficients(velocityPIDF.p, velocityPIDF.i, velocityPIDF.d, velocityPIDF.f);
+//            ControlHub.motor[i].setPositionPIDFCoefficients(positionPIDF.p);
+            if(!RESET) ControlHub.motor[i].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             ControlHub.motor[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             ControlHub.motor[i].setTargetPosition(0);
             ControlHub.motor[i].setMode(DcMotor.RunMode.RUN_TO_POSITION);
             ControlHub.motor[i].setPower(1);
-
         }
+        positionPIDF = ControlHub.motor[0].getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+        lastPID = positionPIDF;
+        RESET = true;
     }
 
     public void setInstantPosition(double p) {
@@ -67,7 +70,7 @@ public class Elevator implements Part {
     }
 
     public boolean reatchedTargetPosition(){
-        return Math.abs(livePosition - targetPosition) <= 2;
+        return Math.abs(livePosition - targetPosition) <= position_threshold;
     }
 
     public double getLivePosition(){
@@ -77,15 +80,16 @@ public class Elevator implements Part {
 
     @Override
     public void update() {
-        if(DEBUG_MODE){
+        if(lastPID != positionPIDF){
             for(int i = 0; i < 3; i++){
-                ControlHub.motor[i].setVelocityPIDFCoefficients(velocityPIDF.p, velocityPIDF.i, velocityPIDF.d, velocityPIDF.f);
-                ControlHub.motor[i].setPositionPIDFCoefficients(positionPIDF.p);
+                ControlHub.motor[i].setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, positionPIDF);
             }
+
+            lastPID = positionPIDF;
         }
-        ControlHub.motor[1].setTargetPosition((int) targetPosition);
-        ControlHub.motor[2].setTargetPosition((int)(targetPosition - error1));
-        ControlHub.motor[0].setTargetPosition((int) (targetPosition - error2));
+        ControlHub.setMotorTargetPosition(M1, (int) targetPosition);
+        ControlHub.setMotorTargetPosition(M2, (int)(targetPosition - error1));
+        ControlHub.setMotorTargetPosition(M0, (int) (targetPosition - error2));
     }
     @Override
     public void runTelemetry(){

@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.Auto;
 import static org.firstinspires.ftc.teamcode.Parts.OutTake.State.step;
 import static org.firstinspires.ftc.teamcode.utils.RedFarDetectionPipeline.Location.LEFT;
 import static org.firstinspires.ftc.teamcode.utils.RedFarDetectionPipeline.Location.MIDDLE;
-import static java.lang.Math.E;
 import static java.lang.Math.min;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -11,35 +10,23 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.checkerframework.checker.units.qual.C;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import org.firstinspires.ftc.teamcode.Components.Controls;
-import org.firstinspires.ftc.teamcode.Components.Elevator;
-import org.firstinspires.ftc.teamcode.Components.Hang;
-import org.firstinspires.ftc.teamcode.Components.OutTakeExtension;
 import org.firstinspires.ftc.teamcode.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDriveCancelable;
-import org.firstinspires.ftc.teamcode.internals.AprilTagDetectionPipeline;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
-import org.firstinspires.ftc.teamcode.internals.Hubs;
 import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
-import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.utils.AutoServo;
 import org.firstinspires.ftc.teamcode.utils.RedFarDetectionPipeline;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -101,7 +88,6 @@ public class RedFar extends LinearOpMode {
         ControlHub.telemetry = telemetry;
         ExpansionHub eh = new ExpansionHub(hardwareMap, mecanumDrive.getLocalizer());
         Controls c = new Controls(gamepad1, gamepad2);
-        Hang g = new Hang();
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier
                 ("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());

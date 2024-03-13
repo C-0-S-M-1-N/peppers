@@ -26,7 +26,6 @@ public class Grippers implements Part {
     private BetterColorRangeSensor sensor;
     private AutoServo servo;
     private final ElapsedTime time = new ElapsedTime();
-    public double closed_offset = 0;
 
     public Grippers(AutoServo servo, DigitalChannel sensor){
         this.servo = servo;
@@ -62,13 +61,12 @@ public class Grippers implements Part {
                 servo.setAngle(0);
                 break;
             case CLOSE:
-                servo.setAngle(75 + closed_offset);
+                servo.setAngle(90);
                 break;
         }
         servo.update();
     }
 
-    public static boolean FORCE = false;
     @Override
     public void update(){
         if(manualMode) manualUpdate();
@@ -77,7 +75,7 @@ public class Grippers implements Part {
                 servo.setAngle(0);
                 break;
             case CLOSE:
-                servo.setAngle(84 + closed_offset + (FORCE ? 10 : 0));
+                servo.setAngle(90);
                 break;
         }
     }
@@ -86,20 +84,9 @@ public class Grippers implements Part {
         if(manualMode) return;
         if(OutTake.state == OutTake.State.WAITING_FOR_PIXELS){
             if(sensor.LogicProximityStatus()){
-
-                if(state == State.OPEN) {
-                    state = State.CLOSE;
-                } else if(state == State.CLOSE) {
-                    time.reset();
-                }
-
+                state = State.CLOSE;
             } else {
-                if(state == State.CLOSE && time.seconds() > 0.5) {
-                    state = State.OPEN;
-                    time.reset();
-                } else if(state == State.OPEN) {
-                    time.reset();
-                }
+                state = State.OPEN;
             }
         }
 

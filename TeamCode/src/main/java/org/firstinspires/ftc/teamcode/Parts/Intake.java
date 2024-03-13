@@ -51,7 +51,7 @@ public class Intake implements Part {
 
     public Intake(){
         STATE = STATES.IDLE;
-        ControlHub.setMotorDirection(MOTOR_PORTS.M2, DcMotorSimple.Direction.REVERSE);
+        ControlHub.setMotorDirection(MOTOR_PORTS.M3, DcMotorSimple.Direction.REVERSE);
         servo = new AutoServo(SERVO_PORTS.S4, 0,
                 true, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
         servo.setAngle(50);
@@ -87,15 +87,15 @@ public class Intake implements Part {
 
         switch (STATE){
             case IDLE:
-                ControlHub.setMotorPower(MOTOR_PORTS.M2, 0);
+                ControlHub.setMotorPower(MOTOR_PORTS.M3, 0);
                 servo.setAngle(70);
                 break;
             case FORWARD:
-                ControlHub.setMotorPower(MOTOR_PORTS.M2, 1);
+                ControlHub.setMotorPower(MOTOR_PORTS.M3, 1);
                 servo.setAngle(ground);
                 break;
             case REVERSE:
-                ControlHub.setMotorPower(MOTOR_PORTS.M2, -1);
+                ControlHub.setMotorPower(MOTOR_PORTS.M3, -1);
                 servo.setAngle(70);
                 break;
         }
@@ -130,15 +130,15 @@ public class Intake implements Part {
 
         switch (STATE){
             case IDLE:
-                ControlHub.setMotorPower(MOTOR_PORTS.M2, 0);
+                ControlHub.setMotorPower(MOTOR_PORTS.M3, 0);
                 servo.setAngle(30);
                 break;
             case FORWARD:
-                ControlHub.setMotorPower(MOTOR_PORTS.M2, 1);
+                ControlHub.setMotorPower(MOTOR_PORTS.M3, 1);
                 servo.setAngle(ground);
                 break;
             case REVERSE:
-                ControlHub.setMotorPower(MOTOR_PORTS.M2, -1);
+                ControlHub.setMotorPower(MOTOR_PORTS.M3, -1);
                 servo.setAngle(30);
                 break;
         }

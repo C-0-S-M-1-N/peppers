@@ -10,7 +10,6 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -18,8 +17,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.BlueCloseDetectionPipeline;
 import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Components.Grippers;
-import org.firstinspires.ftc.teamcode.Components.Hang;
-import org.firstinspires.ftc.teamcode.Components.OutTakeExtension;
 import org.firstinspires.ftc.teamcode.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
@@ -83,7 +80,6 @@ public class BlueClose extends LinearOpMode {
         ControlHub.telemetry = telemetry;
         ExpansionHub eh = new ExpansionHub(hardwareMap, mecanumDrive.getLocalizer());
         Controls c = new Controls(gamepad1, gamepad2);
-        Hang g = new Hang();
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier
                 ("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -116,8 +112,6 @@ public class BlueClose extends LinearOpMode {
         OutTake.intermediarPivot = 130;
         ExpansionHub.extension_length = 6900;
         ExpansionHub.ImuYawAngle = 0;
-
-        Grippers.FORCE = true;
 
 
         TrajectorySequence left = mecanumDrive.trajectorySequenceBuilder(new Pose2d())
@@ -468,9 +462,6 @@ public class BlueClose extends LinearOpMode {
                 .build();
 
         toAngledStack = mecanumDrive.trajectorySequenceBuilder(angledToBackDrop.end())
-                .addTemporalMarker(()-> {
-                    Grippers.FORCE = true;
-                })
                 .setReversed(true)
                 .lineToSplineHeading(new Pose2d(transit_x, transit_y, transit_h))
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(45, 5, DriveConstants.TRACK_WIDTH))

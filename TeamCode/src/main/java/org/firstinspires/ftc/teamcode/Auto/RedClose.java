@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
-import static java.lang.Math.E;
 import static java.lang.Math.min;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -8,37 +7,25 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.checkerframework.checker.units.qual.C;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import org.firstinspires.ftc.teamcode.Components.Controls;
-import org.firstinspires.ftc.teamcode.Components.Elevator;
 import org.firstinspires.ftc.teamcode.Components.Grippers;
-import org.firstinspires.ftc.teamcode.Components.Hang;
-import org.firstinspires.ftc.teamcode.Components.OutTakeExtension;
 import org.firstinspires.ftc.teamcode.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDriveCancelable;
-import org.firstinspires.ftc.teamcode.internals.AprilTagDetectionPipeline;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
-import org.firstinspires.ftc.teamcode.internals.Hubs;
 import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
-import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.utils.AutoServo;
-import org.firstinspires.ftc.teamcode.utils.RedCloseDetectionPipeline;
 import org.firstinspires.ftc.teamcode.utils.RedCloseDetectionPipeline;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -98,7 +85,6 @@ public class RedClose extends LinearOpMode {
         ControlHub.telemetry = telemetry;
         ExpansionHub eh = new ExpansionHub(hardwareMap, mecanumDrive.getLocalizer());
         Controls c = new Controls(gamepad1, gamepad2);
-        Hang g = new Hang();
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier
                 ("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -131,9 +117,6 @@ public class RedClose extends LinearOpMode {
         OutTake.intermediarPivot = 130;
         ExpansionHub.extension_length = 6900;
         ExpansionHub.ImuYawAngle = 0;
-
-        Grippers.FORCE = true;
-
 
         TrajectorySequence left = mecanumDrive.trajectorySequenceBuilder(new Pose2d())
                 .addTemporalMarker(() -> {
@@ -480,9 +463,6 @@ public class RedClose extends LinearOpMode {
                 .build();
 
         toAngledStack = mecanumDrive.trajectorySequenceBuilder(angledToBackDrop.end())
-                .addTemporalMarker(() -> {
-                    Grippers.FORCE = false;
-                })
                 .setReversed(true)
                 .lineToSplineHeading(new Pose2d(transit_x, transit_y, transit_h))
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(45, 5, DriveConstants.TRACK_WIDTH))

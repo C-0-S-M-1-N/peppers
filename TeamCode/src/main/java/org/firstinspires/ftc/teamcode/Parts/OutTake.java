@@ -43,7 +43,7 @@ public class OutTake implements Part{
         NULL;
 
 
-        public static final double MAX_EXTEND = 925;
+        public static final double MAX_EXTEND = 1341;
         public static double level = 5, step = MAX_EXTEND/10;
     }
     public static State state = State.WAITING_FOR_PIXELS;
@@ -54,7 +54,7 @@ public class OutTake implements Part{
     public boolean align = false;
     public static double finalArmAngle = 210, finalPivotPivotAngle = 130;
     public static double intermediarPivot = 130;
-    public static double LIFT_ARM = 0.22;
+    public static double LIFT_ARM = 0;
     private ElapsedTime releasingTime = new ElapsedTime();
     private ElapsedTime FUCKING_EXTENSIE = new ElapsedTime();
 
@@ -63,8 +63,6 @@ public class OutTake implements Part{
     public void setElevatorLevel(int level){
         elevator.setTargetPosition(level * State.step);
     }
-
-
 
     public OutTake(HardwareMap hm){
         align = false;
@@ -77,15 +75,15 @@ public class OutTake implements Part{
                 new AutoServo(SERVO_PORTS.S3, 0.08, true, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON));
 
         leftGripper = new Grippers(
-                new AutoServo(SERVO_PORTS.S0, 20.f/180, false, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
+                new AutoServo(SERVO_PORTS.S0, 0.16, false, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
                 hm.get(BetterColorRangeSensor.class, "leftSensor"),
-                60
+                70
         );
 
         rightGripper = new Grippers(
-                new AutoServo(SERVO_PORTS.S2, 28.f/180, true, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
+                new AutoServo(SERVO_PORTS.S2, 0.17, true, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
                 hm.get(BetterColorRangeSensor.class, "rightSensor"),
-                30
+                70
         );
 
 
@@ -94,7 +92,7 @@ public class OutTake implements Part{
 
         elevatorArm.update();
         outTakeExtension.deactivate();
-        elevator.setTargetPosition(-80);
+        elevator.setTargetPosition(0);
         state = State.WAITING_FOR_PIXELS;
 //        elevator.state = Elevator.State.RESET;
     }
@@ -156,7 +154,6 @@ public class OutTake implements Part{
                 if(releasingTime.seconds() > LIFT_ARM){
                     elevatorArm.setArmAngle(finalArmAngle);
                     elevatorArm.setPivotAngle(intermediarPivot);
-                    elevator.setInstantPosition(State.level * State.step);
                     state = State.NULL;
                 }
                 break;
@@ -170,10 +167,11 @@ public class OutTake implements Part{
                     outTakeExtension.update_values();
                     outTakeExtension.update();
                     outTakeExtension.update_values();
-                }
-                if((outTakeExtension.MOTION_PROFILED && outTakeExtension.getLivePosition() < 30 && releasingTime.seconds() > 0.4) || (!outTakeExtension.MOTION_PROFILED && releasingTime.seconds() > 0.6 )) {
-                    state = State.RETRACTING;
-                    align = true;
+
+                    if((outTakeExtension.MOTION_PROFILED && outTakeExtension.getLivePosition() < 30 && releasingTime.seconds() > 0.4) || (!outTakeExtension.MOTION_PROFILED && releasingTime.seconds() > 0.6 )) {
+                        state = State.RETRACTING;
+                        align = true;
+                    }
                 }
                 break;
             case RETRACTING:
@@ -187,7 +185,7 @@ public class OutTake implements Part{
                 }
                 align = false;
 
-                if(elevatorArm.reachedStationary() && elevator.reatchedTargetPosition() && retractTime.seconds() >= 0.1){
+                if(elevatorArm.reachedStationary() && retractTime.seconds() >= 0.1){
                     elevatorArm.setPivotAngle(0);
                     state = State.RETRACTED;
                 }
@@ -196,7 +194,7 @@ public class OutTake implements Part{
             case RETRACTED:
                 if(!set0Pos) {
                     set0Pos = true;
-                    elevator.setTargetPosition(-80);
+                    elevator.setTargetPosition(0);
                 }
                 if(elevator.reatchedTargetPosition()) {
                     state = State.WAITING_FOR_PIXELS;
@@ -204,8 +202,12 @@ public class OutTake implements Part{
                 }
                 break;
             case NULL:
-                if(elevatorArm.getLiveArmAngle() > 160) {
+                if(elevatorArm.getLiveArmAngle() > 160 && !OutTakeExtension.active) {
                     outTakeExtension.activate();
+                    outTakeExtension.update();
+                    outTakeExtension.update_values();
+                    outTakeExtension.update();
+                    outTakeExtension.update_values();
                 }
                 if(elevatorArm.reachedStationary() && onePixel()) {
                     elevatorArm.setPivotAngle(finalPivotPivotAngle);
@@ -215,6 +217,10 @@ public class OutTake implements Part{
                 if(!onePixel() && elevatorArm.reachedStationary()) {
                     state = State.RELEASING;
                     releasingTime.reset();
+                }
+
+                if(outTakeExtension.reachedStationary()) {
+                    elevator.setInstantPosition(State.level * State.step);
                 }
                 break;
         }

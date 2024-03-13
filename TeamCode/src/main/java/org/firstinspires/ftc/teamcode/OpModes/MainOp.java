@@ -9,17 +9,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.apache.commons.math3.analysis.function.Exp;
-import org.checkerframework.checker.units.qual.A;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Components.Controls;
-import org.firstinspires.ftc.teamcode.Components.Elevator;
-import org.firstinspires.ftc.teamcode.Components.Hang;
-import org.firstinspires.ftc.teamcode.Components.OutTakeExtension;
 import org.firstinspires.ftc.teamcode.Parts.Avion;
 import org.firstinspires.ftc.teamcode.Parts.Intake;
-import org.firstinspires.ftc.teamcode.Parts.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDriveCancelable;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
@@ -37,7 +29,6 @@ public class MainOp extends LinearOpMode {
     public static OutTake outTake;
     public static SampleMecanumDriveCancelable drive;
     public static Controls c;
-    public static Hang hang;
     public static Avion avion;
     ElapsedTime time = new ElapsedTime();
 
@@ -54,7 +45,6 @@ public class MainOp extends LinearOpMode {
 
         outTake = new OutTake(hardwareMap);
         intake = new Intake();
-        hang = new Hang();
         avion = new Avion();
 
         OutTake.outTakeExtension.MOTION_PROFILED = true;
@@ -86,7 +76,6 @@ public class MainOp extends LinearOpMode {
 
             outTake.update();
             intake.update();
-            hang.update();
             avion.update();
             drive.update();
             e.update(true);
