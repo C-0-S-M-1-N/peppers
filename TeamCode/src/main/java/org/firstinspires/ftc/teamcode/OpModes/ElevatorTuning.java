@@ -3,8 +3,10 @@ package org.firstinspires.ftc.teamcode.OpModes;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Components.Elevator;
@@ -27,6 +29,7 @@ public class ElevatorTuning extends LinearOpMode {
     public static double pos = 0, maxUp = 925;
     public static double lvl = maxUp / 11;
     public static boolean update = false;
+    public static boolean climb = false;
 
 
     @Override
@@ -35,8 +38,8 @@ public class ElevatorTuning extends LinearOpMode {
         ControlHub ch = new ControlHub(hardwareMap);
         ExpansionHub eh = new ExpansionHub(hardwareMap, new StandardTrackingWheelLocalizer(hardwareMap, new ArrayList<>(), new ArrayList<>()));
         Controls c = new Controls(gamepad1, gamepad2);
-//        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-//        ControlHub.telemetry = telemetry;
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        ControlHub.telemetry = telemetry;
 
         elevator = new Elevator();
         ElevatorArm arm = new ElevatorArm();
@@ -46,6 +49,21 @@ public class ElevatorTuning extends LinearOpMode {
 
         waitForStart();
         while (opModeIsActive() && !isStopRequested()){
+
+            for(LynxModule m : ControlHub.all){
+                m.clearBulkCache();
+            }
+            if(climb){
+                for(int i = 0; i < 3; i++){
+                    ControlHub.motor[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    ControlHub.motor[i].setPower(-1);
+                }
+                if(ControlHub.motor[0].getCurrentPosition() <= 50){
+                    climb = false;
+                }
+                continue;
+            }
+
             if(Controls.ElevatorUp || update){
                 elevator.setTargetPosition(pos*lvl);
                 update = false;
@@ -62,7 +80,11 @@ public class ElevatorTuning extends LinearOpMode {
 
             elevator.runTelemetry();
             c.loop();
+
+            telemetry.update();
         }
+
+
 
 
     }
