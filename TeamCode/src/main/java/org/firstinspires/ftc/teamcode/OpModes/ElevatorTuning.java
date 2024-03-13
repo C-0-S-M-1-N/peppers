@@ -34,10 +34,9 @@ public class ElevatorTuning extends LinearOpMode {
 
         ControlHub ch = new ControlHub(hardwareMap);
         ExpansionHub eh = new ExpansionHub(hardwareMap, new StandardTrackingWheelLocalizer(hardwareMap, new ArrayList<>(), new ArrayList<>()));
-        FtcDashboard a = FtcDashboard.getInstance();
         Controls c = new Controls(gamepad1, gamepad2);
-        telemetry = new MultipleTelemetry(telemetry, a.getTelemetry());
-        ControlHub.telemetry = telemetry;
+//        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+//        ControlHub.telemetry = telemetry;
 
         elevator = new Elevator();
         ElevatorArm arm = new ElevatorArm();
