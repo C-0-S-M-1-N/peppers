@@ -194,7 +194,7 @@ public class OutTake implements Part{
             case RETRACTED:
                 if(!set0Pos) {
                     set0Pos = true;
-                    elevator.setTargetPosition(0);
+                    elevator.setTargetPosition(-20);
                 }
                 if(elevator.reatchedTargetPosition()) {
                     state = State.WAITING_FOR_PIXELS;

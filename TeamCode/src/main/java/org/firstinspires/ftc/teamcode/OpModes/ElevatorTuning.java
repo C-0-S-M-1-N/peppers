@@ -26,7 +26,7 @@ import java.util.ArrayList;
 @Config
 public class ElevatorTuning extends LinearOpMode {
     public static Elevator elevator;
-    public static double pos = 0, maxUp = 925;
+    public static double pos = 0, maxUp = 1365;
     public static double lvl = maxUp / 11;
     public static boolean update = false;
     public static boolean climb = false;
