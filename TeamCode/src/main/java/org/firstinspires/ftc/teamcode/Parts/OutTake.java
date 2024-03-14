@@ -92,7 +92,7 @@ public class OutTake implements Part{
 
         elevatorArm.update();
         outTakeExtension.deactivate();
-        elevator.setTargetPosition(0);
+        elevator.setTargetPosition(-40);
         state = State.WAITING_FOR_PIXELS;
 //        elevator.state = Elevator.State.RESET;
     }
@@ -194,7 +194,7 @@ public class OutTake implements Part{
             case RETRACTED:
                 if(!set0Pos) {
                     set0Pos = true;
-                    elevator.setTargetPosition(-20);
+                    elevator.setTargetPosition(-40);
                 }
                 if(elevator.reatchedTargetPosition()) {
                     state = State.WAITING_FOR_PIXELS;

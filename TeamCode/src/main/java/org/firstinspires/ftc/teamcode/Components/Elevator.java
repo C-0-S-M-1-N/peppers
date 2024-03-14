@@ -70,7 +70,7 @@ public class Elevator implements Part {
     }
 
     public boolean reatchedTargetPosition(){
-        return Math.abs(livePosition - targetPosition) <= position_threshold;
+        return Math.abs(livePosition - targetPosition) <= position_threshold || state == State.RESET;
     }
 
     public double getLivePosition(){
@@ -92,14 +92,14 @@ public class Elevator implements Part {
             }
         }
 
-        if(targetPosition <= 0 && livePosition <= 0 && state != State.RESET){
+        if(targetPosition <= 0 && livePosition <= 4 && state != State.RESET){
             state = State.RESET;
             for(int i = 0; i < 3; i++){
                 ControlHub.motor[i].setMotorDisable();
             }
         }
 
-        if(targetPosition > 0 && state == State.RESET){
+        if((targetPosition > 0 || livePosition > 4) && state == State.RESET){
             state = State.NOT_RESET;
             for(int i = 0; i < 3; i++){
                 ControlHub.motor[i].setMotorEnable();
@@ -111,7 +111,7 @@ public class Elevator implements Part {
         ControlHub.setMotorTargetPosition(M0, (int) (targetPosition - error2));
     }
     @Override
-    public void runTelemetry(){
+    public void runTelemetry() {
         ControlHub.telemetry.addData("targetPosition", targetPosition);
         ControlHub.telemetry.addData("current positoin", livePosition);
     }
