@@ -5,6 +5,7 @@ import static java.lang.Math.max;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -54,11 +55,13 @@ public class OutTake implements Part{
     public boolean align = false;
     public static double finalArmAngle = 210, finalPivotPivotAngle = 130;
     public static double intermediarPivot = 130;
-    public static double LIFT_ARM = 0;
+    public static double LIFT_ARM = 0.1;
+    public boolean MANUAL_EXTENSION = false;
     private ElapsedTime releasingTime = new ElapsedTime();
     private ElapsedTime FUCKING_EXTENSIE = new ElapsedTime();
 
     public boolean ACTIVATE_SENSORS = true;
+    public boolean CLIMBIN = false;
 
     public void setElevatorLevel(int level){
         elevator.setTargetPosition(level * State.step);
@@ -92,36 +95,46 @@ public class OutTake implements Part{
 
         elevatorArm.update();
         outTakeExtension.deactivate();
-        elevator.setTargetPosition(-40);
+        elevator.setTargetPosition(-60);
         state = State.WAITING_FOR_PIXELS;
 //        elevator.state = Elevator.State.RESET;
     }
     private void controls(){
+        if(Controls.Hang) {
+            State.level = 6;
+            CLIMBIN = true;
+            Controls.ExtendElevator = true;
+        }
         if(Controls.ManualMode) Grippers.manualMode = !Grippers.manualMode;
         if(Controls.ExtendElevator && state != State.NULL) state = State.EXTENDING;
-        else if(Controls.RetractElevator) state = State.RELEASING;
+        else if(Controls.RetractElevator) {
+            state = State.RELEASING;
+            CLIMBIN = false;
+        }
         else {
-            if(Controls.ElevatorUp && state == State.NULL) {
+            if(Controls.ElevatorUp && (state == State.NULL)) {
                 State.level++;
                 elevator.setInstantPosition(State.level * State.step);
             } else if(Controls.ElevatorUp) {
                 State.level++;
             }
-            if(Controls.ElevatorDown && state == State.NULL){
+            if(Controls.ElevatorDown && (state == State.NULL)){
                 State.level--;
                 elevator.setInstantPosition(State.level * State.step);
             } else if(Controls.ElevatorDown) {
                 State.level--;
             }
-            if(Controls.DropLeft){
+            if(Controls.DropRight){
                 rightGripper.drop();
                 rightGripper.update_values();
                 rightGripper.update();
+                CLIMBIN = false;
             }
-            if(Controls.DropRight){
+            if(Controls.DropLeft){
                 leftGripper.drop();
                 leftGripper.update_values();
                 leftGripper.update();
+                CLIMBIN = false;
             }
         }
         if(Controls.ResetTourret) ExpansionHub.resetIMU();
@@ -146,7 +159,7 @@ public class OutTake implements Part{
 
                 releasingTime.reset();
 
-                elevator.setTargetPosition(Math.max(State.step * 2, State.level * State.step));
+                elevator.setTargetPosition(Math.max(State.step * 1.5, State.level * State.step));
                 state = State.EXTENDED;
 
                 break;
@@ -194,7 +207,7 @@ public class OutTake implements Part{
             case RETRACTED:
                 if(!set0Pos) {
                     set0Pos = true;
-                    elevator.setTargetPosition(-40);
+                    elevator.setTargetPosition(-60);
                 }
                 if(elevator.reatchedTargetPosition()) {
                     state = State.WAITING_FOR_PIXELS;
@@ -202,7 +215,7 @@ public class OutTake implements Part{
                 }
                 break;
             case NULL:
-                if(elevatorArm.getLiveArmAngle() > 160 && !OutTakeExtension.active) {
+                if(elevatorArm.getLiveArmAngle() > 160 && !OutTakeExtension.active && !MANUAL_EXTENSION) {
                     outTakeExtension.activate();
                     outTakeExtension.update();
                     outTakeExtension.update_values();
@@ -214,12 +227,12 @@ public class OutTake implements Part{
                     align = true;
                 }
 
-                if(!onePixel() && elevatorArm.reachedStationary()) {
+                if(!onePixel() && elevatorArm.reachedStationary() && !CLIMBIN) {
                     state = State.RELEASING;
                     releasingTime.reset();
                 }
 
-                if(outTakeExtension.reachedStationary()) {
+                if(outTakeExtension.reachedStationary() && elevatorArm.reachedStationary()) {
                     elevator.setInstantPosition(State.level * State.step);
                 }
                 break;

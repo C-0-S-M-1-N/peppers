@@ -39,26 +39,19 @@ public class Elevator implements Part {
         NOT_RESET
     }
     public State state;
-    public static PIDFCoefficients positionPIDF = new PIDFCoefficients(7, 0, 0, 0), velocityPIDF = new PIDFCoefficients(5, 5, 0, 0);
     public double targetPosition = 0, livePosition = 0, position_threshold = 5;
-    private PIDFCoefficients lastposPID = new PIDFCoefficients(), lastveloPID = new PIDFCoefficients();
-
     public static boolean RESET = false;
 
     public Elevator(){
         ControlHub.setMotorDirection(M0, DcMotorSimple.Direction.REVERSE);
         ControlHub.setMotorDirection(M1, DcMotorSimple.Direction.REVERSE);
         for(int i = 0; i < 3; i++){
-            ControlHub.motor[i].setVelocityPIDFCoefficients(velocityPIDF.p, velocityPIDF.i, velocityPIDF.d, velocityPIDF.f);
-            ControlHub.motor[i].setPositionPIDFCoefficients(positionPIDF.p);
             if(!RESET) ControlHub.motor[i].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             ControlHub.motor[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            ControlHub.motor[i].setTargetPosition(0);
+            ControlHub.motor[i].setTargetPosition(ControlHub.motor[i].getCurrentPosition());
             ControlHub.motor[i].setMode(DcMotor.RunMode.RUN_TO_POSITION);
             ControlHub.motor[i].setPower(1);
         }
-//        positionPIDF = ControlHub.motor[0].getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION);
-//        veloPIDF = ControlHub.motor[0].getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
         RESET = true;
     }
 
@@ -81,25 +74,14 @@ public class Elevator implements Part {
 
     @Override
     public void update() {
-        if(DEBUG){
-            for(int i = 0; i < 3; i++){
-                ControlHub.motor[i].setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, positionPIDF);
-            }
-        }
-        if(DEBUG){
-            for(int i = 0; i < 3; i++){
-                ControlHub.motor[i].setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, velocityPIDF);
-            }
-        }
-
-        if(targetPosition <= 0 && livePosition <= 4 && state != State.RESET){
+        if(targetPosition <= 0 && livePosition <= 8 && state != State.RESET){
             state = State.RESET;
             for(int i = 0; i < 3; i++){
                 ControlHub.motor[i].setMotorDisable();
             }
         }
 
-        if((targetPosition > 0 || livePosition > 4) && state == State.RESET){
+        if((targetPosition > 0 || livePosition > 8) && state == State.RESET){
             state = State.NOT_RESET;
             for(int i = 0; i < 3; i++){
                 ControlHub.motor[i].setMotorEnable();

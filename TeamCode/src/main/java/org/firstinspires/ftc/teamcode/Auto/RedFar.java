@@ -23,11 +23,14 @@ import org.firstinspires.ftc.teamcode.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDriveCancelable;
+import org.firstinspires.ftc.teamcode.internals.AprilTagDetector;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+import org.firstinspires.ftc.teamcode.utils.AprilTagMath;
 import org.firstinspires.ftc.teamcode.utils.RedFarDetectionPipeline;
+import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -44,7 +47,8 @@ public class RedFar extends LinearOpMode {
         INTAKE,
         NOT_INTAKE,
         GET_IN,
-        GET_OUT
+        GET_OUT,
+        RELOCALIZATION
     }
     enum CASE {
         LEFT,
@@ -61,20 +65,19 @@ public class RedFar extends LinearOpMode {
     private boolean align = true;
 
     public static double
-            stack_x = 50, stack_y = 18.5, stack_h = Math.toRadians(-90),
+            stack_x = 52, stack_y = 18.5, stack_h = Math.toRadians(-90),
             park_x = 49, park_y = -92, park_h = Math.toRadians(-90),
             middlepurple_x = 37, middlepurple_y = 14.5, middlepurple_h = Math.toRadians(-90),
             leftpurple_x = 10.5, leftpurple_y = 7, leftpurple_h = Math.toRadians(0),
             rightpurple_x = 16, rightpurple_y = -3, rightpurple_h = Math.toRadians(300),
-    middleyellow_x = 31.5, middleyellow_y = -87, middleyellow_h = Math.toRadians(-110);
-
-    boolean readSensor = false;
+    middleyellow_x = 32, middleyellow_y = -87, middleyellow_h = Math.toRadians(-110);
 
     private int stackPos = 0;
     private SampleMecanumDriveCancelable mecanumDrive;
     private ElapsedTime TIME = new ElapsedTime();
     private OpenCvCamera camera;
     public double IMU_FREQ = 4;
+    private boolean aprilTagInited = false;
 
     public TrajectorySequence left, middle, right;
     double TRAJ_TIME = 0;
@@ -133,15 +136,6 @@ public class RedFar extends LinearOpMode {
                     OutTake.State.level = 1;
                     Controls.ExtendElevator = true;
                 })
-                .UNSTABLE_addTemporalMarkerOffset(-0.8, () -> {
-                                ExpansionHub.extension_length = 220;
-                                ExpansionHub.ImuYawAngle = 0;
-                                OutTake.outTakeExtension.activate();
-                                OutTake.outTakeExtension.update();
-                                OutTake.outTakeExtension.update_values();
-                                OutTake.outTakeExtension.update();
-                                OutTake.outTakeExtension.update_values();
-                })
                 .UNSTABLE_addTemporalMarkerOffset(-0.2, () -> {
                     OutTake.elevator.setInstantPosition(OutTake.State.level * step - step / 2);
                     OutTake.State.level--;
@@ -162,50 +156,35 @@ public class RedFar extends LinearOpMode {
                 .lineToLinearHeading(new Pose2d(stack_x, stack_y, stack_h))
                 .UNSTABLE_addTemporalMarkerOffset(-0.15, () -> {
                     intake.servo.setAngle(Intake.stackPositions[stackPos]);
-                    ControlHub.setMotorPower(MOTOR_PORTS.M2, 1);
+                    ControlHub.setMotorPower(MOTOR_PORTS.M3, 1);
                     state = State.INTAKE;
                 })
                 .build();
 
         left = mecanumDrive.trajectorySequenceBuilder(new Pose2d())
                 .addTemporalMarker(() -> {
-                    OutTake.State.level = 1;
+                    OutTake.State.level = 0;
                     Controls.ExtendElevator = true;
-                })
-                .addTemporalMarker(0.7, () -> {
                     ExpansionHub.extension_length = 6900;
                     align = false;
                     ExpansionHub.ImuYawAngle = 0;
-                    OutTake.outTakeExtension.activate();
-                    OutTake.outTakeExtension.update();
-                    OutTake.outTakeExtension.update_values();
-                    OutTake.outTakeExtension.update();
-                    OutTake.outTakeExtension.update_values();
                 })
                 .lineToLinearHeading(new Pose2d(leftpurple_x, leftpurple_y, leftpurple_h))
-                .addTemporalMarker(() -> {
-                    OutTake.elevator.setInstantPosition(0);
-                    OutTake.State.level--;
-                    outTake.update_values();
-                    outTake.update();
-                    outTake.update_values();
-                    outTake.update();
-                })
                 .UNSTABLE_addTemporalMarkerOffset(0.1, () -> {
                     Controls.DropLeft = true;
                 })
                 .waitSeconds(0.2)
+                .lineToLinearHeading(new Pose2d(leftpurple_x, -6, leftpurple_h))
+                .lineToLinearHeading(new Pose2d(stack_x - 5, 0, 0))
+                .lineToLinearHeading(new Pose2d(stack_x, stack_y, stack_h))
                 .addTemporalMarker(() -> {
                     align = true;
                     OutTake.finalPivotPivotAngle = 130;
                     OutTake.finalArmAngle = 210;
                 })
-                .lineToLinearHeading(new Pose2d(leftpurple_x, -6, leftpurple_h))
-                .lineToLinearHeading(new Pose2d(stack_x - 5, 0, 0))
-                .lineToLinearHeading(new Pose2d(stack_x, stack_y, stack_h))
                 .UNSTABLE_addTemporalMarkerOffset(-0.15, () -> {
                     intake.servo.setAngle(Intake.stackPositions[stackPos]);
-                    ControlHub.setMotorPower(MOTOR_PORTS.M2, 1);
+                    ControlHub.setMotorPower(MOTOR_PORTS.M3, 1);
                     state = State.INTAKE;
                 })
                 .build();
@@ -248,7 +227,7 @@ public class RedFar extends LinearOpMode {
                 .lineToLinearHeading(new Pose2d(stack_x, stack_y - 3, stack_h))
                 .addTemporalMarker(() -> {
                     intake.servo.setAngle(Intake.stackPositions[stackPos]);
-                    ControlHub.setMotorPower(MOTOR_PORTS.M2, 1);
+                    ControlHub.setMotorPower(MOTOR_PORTS.M3, 1);
                     state = State.INTAKE;
                 })
                 .lineToLinearHeading(new Pose2d(stack_x, stack_y, stack_h))
@@ -257,7 +236,7 @@ public class RedFar extends LinearOpMode {
         TrajectorySequence preload = mecanumDrive.trajectorySequenceBuilder(middle.end())
                 .addTemporalMarker(() -> {
                     intake.servo.setAngle(Intake.stackPositions[stackPos]);
-                    ControlHub.setMotorPower(MOTOR_PORTS.M2, 1);
+                    ControlHub.setMotorPower(MOTOR_PORTS.M3, 1);
                 })
                 .forward(3)
                 .back(3)
@@ -266,7 +245,7 @@ public class RedFar extends LinearOpMode {
                 .addTemporalMarker(() -> {
                     stackPos = min(stackPos + 1, 4);
                     intake.servo.setAngle(0);
-                    ControlHub.setMotorPower(MOTOR_PORTS.M2, -0.8);
+                    ControlHub.setMotorPower(MOTOR_PORTS.M3, -0.8);
                 })
                 .waitSeconds(0.3)
                 .build();
@@ -276,7 +255,7 @@ public class RedFar extends LinearOpMode {
                     if(cycle == 2) stackPos = 4;
                     stackPos = min(stackPos + 1, 4);
                     intake.servo.setAngle(Intake.stackPositions[stackPos]);
-                    ControlHub.setMotorPower(MOTOR_PORTS.M2, 1);
+                    ControlHub.setMotorPower(MOTOR_PORTS.M3, 1);
                 })
                 .forward(3)
                 .back(3)
@@ -285,100 +264,154 @@ public class RedFar extends LinearOpMode {
                 .addTemporalMarker(() -> {
                     stackPos = min(stackPos + 1, 4);
                     intake.servo.setAngle(0);
-                    ControlHub.setMotorPower(MOTOR_PORTS.M2, -0.8);
+                    ControlHub.setMotorPower(MOTOR_PORTS.M3, -0.8);
                 })
                 .waitSeconds(0.3)
                 .build();
 
-        TrajectorySequence yellowMiddle = mecanumDrive.trajectorySequenceBuilder(new Pose2d(stack_x, stack_y, stack_h))
-                .splineToConstantHeading(new Vector2d(stack_x, stack_y - 80), stack_h)
-                .splineToSplineHeading(new Pose2d(middleyellow_x+5, middleyellow_y + 0.4, middleyellow_h), middleyellow_h - 0.5)
-                .UNSTABLE_addTemporalMarkerOffset(0.01, () -> {
-                    Controls.DropLeft = true;
+        TrajectorySequence yellowLeftStart = mecanumDrive.trajectorySequenceBuilder(new Pose2d(stack_x, stack_y, stack_h))
+                .splineToConstantHeading(new Vector2d(stack_x, stack_y - 60), stack_h)
+                .splineToSplineHeading(new Pose2d(middleyellow_x+8, middleyellow_y + 14, middleyellow_h), middleyellow_h - 0.5)
+                .UNSTABLE_addTemporalMarkerOffset(-1.5, () -> {
+                    AprilTagDetector.init(hardwareMap);
                 })
-                .UNSTABLE_addTemporalMarkerOffset(0.2, () -> {
-                    OutTake.outTakeExtension.deactivate();
-                    OutTake.outTakeExtension.update_values();
-                    OutTake.outTakeExtension.update();
-                    OutTake.outTakeExtension.update_values();
-                    OutTake.outTakeExtension.update();
+                .addTemporalMarker(() -> {
+                    state = State.RELOCALIZATION;
+                    OutTake.State.level = 2;
+                    Controls.ExtendElevator = true;
+                    outTake.MANUAL_EXTENSION = true;
                 })
-                .UNSTABLE_addTemporalMarkerOffset(0.4, () -> {
+                .build();
+
+        TrajectorySequence yellowLeftPlace = mecanumDrive.trajectorySequenceBuilder(yellowLeftStart.end())
+                .addTemporalMarker(0.1,  () -> {
                     OutTake.outTakeExtension.activate();
                     OutTake.outTakeExtension.update_values();
                     OutTake.outTakeExtension.update();
+                })
+                .lineToLinearHeading(new Pose2d(middleyellow_x+6, middleyellow_y, middleyellow_h))
+                .UNSTABLE_addTemporalMarkerOffset(0.01, () -> {
+                    Controls.DropRight = true;
+                })
+                .UNSTABLE_addTemporalMarkerOffset(0.1, () -> {
+                    OutTake.elevator.setInstantPosition(OutTake.State.level * step - step / 2);
+                    OutTake.outTakeExtension.deactivate();
+                    OutTake.outTakeExtension.update_values();
+                    OutTake.outTakeExtension.update();
+                })
+                .waitSeconds(0.1)
+                .lineToLinearHeading(new Pose2d(middleyellow_x - 4, middleyellow_y, middleyellow_h))
+                .UNSTABLE_addTemporalMarkerOffset(-0.2, () -> {
+                    OutTake.elevator.setInstantPosition(3 * step);
+                    OutTake.outTakeExtension.activate();
+                    OutTake.outTakeExtension.update_values();
+                    OutTake.outTakeExtension.update();
+                })
+                .addTemporalMarker(() -> {
+                    Controls.DropLeft = true;
+                    outTake.MANUAL_EXTENSION = false;
+                })
+                .waitSeconds(0.1)
+                .setReversed(true)
+                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(60, 5, DriveConstants.TRACK_WIDTH))
+                .lineToSplineHeading(new Pose2d(stack_x-2, stack_y - 80, stack_h))
+                .splineToConstantHeading(new Vector2d(stack_x-2, stack_y - 79.9), -stack_h)
+                .splineToConstantHeading(new Vector2d(stack_x, stack_y - 30), -stack_h)
+                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(40, 2.54, DriveConstants.TRACK_WIDTH))
+                .splineToConstantHeading(new Vector2d(stack_x, stack_y), -stack_h)
+                .UNSTABLE_addTemporalMarkerOffset(-1, () -> {
+                    stackPos = min(stackPos + 1, 4);
+                    intake.servo.setAngle(Intake.stackPositions[stackPos]);
+                    ControlHub.setMotorPower(MOTOR_PORTS.M3, 1);
+                })
+                .addTemporalMarker(() -> {
+                    state = State.INTAKE;
+                })
+                .waitSeconds(0.1)
+                .build();
+
+        TrajectorySequence yellowMiddleStart = mecanumDrive.trajectorySequenceBuilder(new Pose2d(stack_x, stack_y, stack_h))
+                .splineToConstantHeading(new Vector2d(stack_x, stack_y - 60), stack_h)
+                .splineToSplineHeading(new Pose2d(middleyellow_x+2, middleyellow_y + 14, middleyellow_h), middleyellow_h - 0.5)
+                .UNSTABLE_addTemporalMarkerOffset(-1.5, () -> {
+                    AprilTagDetector.init(hardwareMap);
+                })
+                .addTemporalMarker(() -> {
+                    state = State.RELOCALIZATION;
+                    OutTake.State.level = 2;
+                    Controls.ExtendElevator = true;
+                    outTake.MANUAL_EXTENSION = true;
+                })
+                .build();
+
+        TrajectorySequence yellowMiddlePlace = mecanumDrive.trajectorySequenceBuilder(yellowLeftStart.end())
+                .addTemporalMarker(0.1,  () -> {
+                    OutTake.outTakeExtension.activate();
                     OutTake.outTakeExtension.update_values();
                     OutTake.outTakeExtension.update();
                 })
                 .lineToLinearHeading(new Pose2d(middleyellow_x, middleyellow_y, middleyellow_h))
-                .UNSTABLE_addTemporalMarkerOffset(-1.8, () -> {
-                    OutTake.State.level = 2;
-                    ExpansionHub.extension_length = 6900;
-                    Controls.ExtendElevator = true;
-                })
-                .addTemporalMarker(() -> {
-                    Controls.DropRight = true;
-                    OutTake.elevator.setInstantPosition(OutTake.State.level * step - step / 2);
-                })
-                .waitSeconds(0.1)
-                .setReversed(true)
-                .lineToSplineHeading(new Pose2d(stack_x, stack_y - 80, stack_h))
-                .splineToConstantHeading(new Vector2d(stack_x, stack_y - 79.9), -stack_h)
-                .splineToConstantHeading(new Vector2d(stack_x, stack_y), -stack_h)
-                .UNSTABLE_addTemporalMarkerOffset(-1, () -> {
-                    stackPos = min(stackPos + 1, 4);
-                    intake.servo.setAngle(Intake.stackPositions[stackPos]);
-                    ControlHub.setMotorPower(MOTOR_PORTS.M2, 1);
-                    state = State.INTAKE;
-                })
-                .build();
-
-        TrajectorySequence yellowRight = mecanumDrive.trajectorySequenceBuilder(new Pose2d(stack_x, stack_y, stack_h))
-                .splineToConstantHeading(new Vector2d(stack_x, stack_y - 80), stack_h)
-                .splineToSplineHeading(new Pose2d(middleyellow_x-1, middleyellow_y, middleyellow_h), middleyellow_h - 0.5)
                 .UNSTABLE_addTemporalMarkerOffset(0.01, () -> {
-                    Controls.DropLeft = true;
+                    Controls.DropRight = true;
                 })
                 .UNSTABLE_addTemporalMarkerOffset(0.1, () -> {
+                    OutTake.elevator.setInstantPosition(OutTake.State.level * step - step / 2);
                     OutTake.outTakeExtension.deactivate();
                     OutTake.outTakeExtension.update_values();
                     OutTake.outTakeExtension.update();
-                    OutTake.outTakeExtension.update_values();
-                    OutTake.outTakeExtension.update();
                 })
-                .UNSTABLE_addTemporalMarkerOffset(0.3, () -> {
-                    OutTake.outTakeExtension.activate();
-                    OutTake.outTakeExtension.update_values();
-                    OutTake.outTakeExtension.update();
-                    OutTake.outTakeExtension.update_values();
-                    OutTake.outTakeExtension.update();
-                })
+                .waitSeconds(0.1)
                 .lineToLinearHeading(new Pose2d(middleyellow_x - 8, middleyellow_y, middleyellow_h))
-                .UNSTABLE_addTemporalMarkerOffset(-1.8, () -> {
-                    OutTake.State.level = 2;
-                    ExpansionHub.extension_length = 6900;
-                    Controls.ExtendElevator = true;
+                .UNSTABLE_addTemporalMarkerOffset(-0.2, () -> {
+                    OutTake.elevator.setInstantPosition(3 * step);
+                    OutTake.outTakeExtension.activate();
+                    OutTake.outTakeExtension.update_values();
+                    OutTake.outTakeExtension.update();
                 })
                 .addTemporalMarker(() -> {
-                    Controls.DropRight = true;
-                    OutTake.elevator.setInstantPosition(OutTake.State.level * step - step / 2);
+                    Controls.DropLeft = true;
+                    outTake.MANUAL_EXTENSION = false;
                 })
                 .waitSeconds(0.1)
                 .setReversed(true)
-                .lineToSplineHeading(new Pose2d(stack_x, stack_y - 80, stack_h))
-                .splineToConstantHeading(new Vector2d(stack_x, stack_y - 79.9), -stack_h)
+                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(60, 5, DriveConstants.TRACK_WIDTH))
+                .lineToSplineHeading(new Pose2d(stack_x-2, stack_y - 80, stack_h))
+                .splineToConstantHeading(new Vector2d(stack_x-2, stack_y - 79.9), -stack_h)
+                .splineToConstantHeading(new Vector2d(stack_x, stack_y - 30), -stack_h)
+                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(40, 2.54, DriveConstants.TRACK_WIDTH))
                 .splineToConstantHeading(new Vector2d(stack_x, stack_y), -stack_h)
                 .UNSTABLE_addTemporalMarkerOffset(-1, () -> {
                     stackPos = min(stackPos + 1, 4);
                     intake.servo.setAngle(Intake.stackPositions[stackPos]);
-                    ControlHub.setMotorPower(MOTOR_PORTS.M2, 1);
+                    ControlHub.setMotorPower(MOTOR_PORTS.M3, 1);
+                })
+                .addTemporalMarker(() -> {
                     state = State.INTAKE;
+                })
+                .waitSeconds(0.1)
+                .build();
+
+        TrajectorySequence yellowRightStart = mecanumDrive.trajectorySequenceBuilder(new Pose2d(stack_x, stack_y, stack_h))
+                .splineToConstantHeading(new Vector2d(stack_x, stack_y - 60), stack_h)
+                .splineToSplineHeading(new Pose2d(middleyellow_x, middleyellow_y + 14, Math.toRadians(-120)), Math.toRadians(-120) - 0.5)
+                .UNSTABLE_addTemporalMarkerOffset(-1.5, () -> {
+                    AprilTagDetector.init(hardwareMap);
+                })
+                .addTemporalMarker(() -> {
+                    state = State.RELOCALIZATION;
+                    OutTake.State.level = 2;
+                    Controls.ExtendElevator = true;
+                    outTake.MANUAL_EXTENSION = true;
                 })
                 .build();
 
-        TrajectorySequence yellowLeft = mecanumDrive.trajectorySequenceBuilder(new Pose2d(stack_x, stack_y, stack_h))
-                .splineToConstantHeading(new Vector2d(stack_x, stack_y - 80), stack_h)
-                .splineToSplineHeading(new Pose2d(middleyellow_x+6, middleyellow_y, middleyellow_h), middleyellow_h - 0.5)
+        TrajectorySequence yellowRightPlace = mecanumDrive.trajectorySequenceBuilder(yellowLeftStart.end())
+                .addTemporalMarker(0.1,  () -> {
+                    OutTake.outTakeExtension.activate();
+                    OutTake.outTakeExtension.update_values();
+                    OutTake.outTakeExtension.update();
+                })
+                .lineToLinearHeading(new Pose2d(middleyellow_x - 7, middleyellow_y, middleyellow_h))
                 .UNSTABLE_addTemporalMarkerOffset(0.01, () -> {
                     Controls.DropRight = true;
                 })
@@ -387,46 +420,42 @@ public class RedFar extends LinearOpMode {
                     OutTake.outTakeExtension.deactivate();
                     OutTake.outTakeExtension.update_values();
                     OutTake.outTakeExtension.update();
-                    OutTake.outTakeExtension.update_values();
-                    OutTake.outTakeExtension.update();
                 })
-                .UNSTABLE_addTemporalMarkerOffset(0.3, () -> {
+                .waitSeconds(0.1)
+                .lineToLinearHeading(new Pose2d(middleyellow_x + 4, middleyellow_y, middleyellow_h))
+                .UNSTABLE_addTemporalMarkerOffset(-0.2, () -> {
+                    OutTake.elevator.setInstantPosition(3 * step);
                     OutTake.outTakeExtension.activate();
                     OutTake.outTakeExtension.update_values();
                     OutTake.outTakeExtension.update();
-                    OutTake.outTakeExtension.update_values();
-                    OutTake.outTakeExtension.update();
-                })
-                .waitSeconds(0.1)
-                .UNSTABLE_addTemporalMarkerOffset(0.1, () -> {
-                    OutTake.elevator.setInstantPosition(3 * step);
-                })
-                .lineToLinearHeading(new Pose2d(middleyellow_x - 3, middleyellow_y + 0.5, middleyellow_h))
-                .UNSTABLE_addTemporalMarkerOffset(-1.8, () -> {
-                    OutTake.State.level = 2;
-                    ExpansionHub.extension_length = 6900;
-                    Controls.ExtendElevator = true;
                 })
                 .addTemporalMarker(() -> {
                     Controls.DropLeft = true;
+                    outTake.MANUAL_EXTENSION = false;
                 })
                 .waitSeconds(0.1)
                 .setReversed(true)
-                .lineToSplineHeading(new Pose2d(stack_x, stack_y - 80, stack_h))
-                .splineToConstantHeading(new Vector2d(stack_x, stack_y - 79.9), -stack_h)
+                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(60, 5, DriveConstants.TRACK_WIDTH))
+                .lineToSplineHeading(new Pose2d(stack_x-2, stack_y - 80, stack_h))
+                .splineToConstantHeading(new Vector2d(stack_x-2, stack_y - 79.9), -stack_h)
+                .splineToConstantHeading(new Vector2d(stack_x, stack_y - 30), -stack_h)
+                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(40, 2.54, DriveConstants.TRACK_WIDTH))
                 .splineToConstantHeading(new Vector2d(stack_x, stack_y), -stack_h)
                 .UNSTABLE_addTemporalMarkerOffset(-1, () -> {
                     stackPos = min(stackPos + 1, 4);
                     intake.servo.setAngle(Intake.stackPositions[stackPos]);
-                    ControlHub.setMotorPower(MOTOR_PORTS.M2, 1);
+                    ControlHub.setMotorPower(MOTOR_PORTS.M3, 1);
+                })
+                .addTemporalMarker(() -> {
                     state = State.INTAKE;
                 })
+                .waitSeconds(0.1)
                 .build();
 
         TrajectorySequence toBackDrop = mecanumDrive.trajectorySequenceBuilder(new Pose2d(stack_x, stack_y, stack_h))
                 .splineToConstantHeading(new Vector2d(stack_x, stack_y - 80), stack_h)
                 .splineToSplineHeading(new Pose2d(stack_x - 13, middleyellow_y - 1, Math.toRadians(-120)), Math.toRadians(-120))
-                .UNSTABLE_addTemporalMarkerOffset(-1.8, () -> {
+                .UNSTABLE_addTemporalMarkerOffset(-1.5, () -> {
                     OutTake.State.level = 3;
                     ExpansionHub.extension_length = 6900;
                     Controls.ExtendElevator = true;
@@ -444,15 +473,19 @@ public class RedFar extends LinearOpMode {
                 })
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(60, 5, DriveConstants.TRACK_WIDTH))
                 .setReversed(true)
-                .splineToSplineHeading(new Pose2d(stack_x, stack_y - 80, stack_h), -stack_h)
-                .splineToConstantHeading(new Vector2d(stack_x, stack_y - 70), -stack_h)
+                .splineToSplineHeading(new Pose2d(stack_x - 2, stack_y - 80, stack_h), -stack_h)
+                .splineToConstantHeading(new Vector2d(stack_x - 2, stack_y - 79.9), -stack_h)
+                .splineToConstantHeading(new Vector2d(stack_x, stack_y - 30), -stack_h)
                 .splineToConstantHeading(new Vector2d(stack_x, stack_y), -stack_h)
                 .UNSTABLE_addTemporalMarkerOffset(-1, () -> {
                     stackPos = min(stackPos + 1, 4);
                     intake.servo.setAngle(Intake.stackPositions[stackPos]);
-                    ControlHub.setMotorPower(MOTOR_PORTS.M2, 1);
+                    ControlHub.setMotorPower(MOTOR_PORTS.M3, 1);
+                })
+                .addTemporalMarker(() -> {
                     state = State.INTAKE;
-                }).waitSeconds(0.3)
+                })
+                .waitSeconds(0.3)
                 .build();
 
         OutTake.leftGripper.update_values();
@@ -474,6 +507,7 @@ public class RedFar extends LinearOpMode {
         }
 
         new Thread(() -> {
+            camera.stopStreaming();
             camera.closeCameraDevice();
         }).start();
 
@@ -512,17 +546,17 @@ public class RedFar extends LinearOpMode {
                     get_out_timer.reset();
                 } else {
                     intake.servo.setAngle(Intake.stackPositions[stackPos]);
-                    ControlHub.setMotorPower(MOTOR_PORTS.M2, 1);
+                    ControlHub.setMotorPower(MOTOR_PORTS.M3, 1);
                 }
 
             } else if(state == State.GET_OUT) {
                 if(get_out_timer.seconds() > 0.6) {
                     state = State.NOT_INTAKE;
                     intake.servo.setAngle(60);
-                    ControlHub.setMotorPower(MOTOR_PORTS.M2, 0);
+                    ControlHub.setMotorPower(MOTOR_PORTS.M3, 0);
                 } else {
                     intake.servo.setAngle(60);
-                    ControlHub.setMotorPower(MOTOR_PORTS.M2, -1);
+                    ControlHub.setMotorPower(MOTOR_PORTS.M3, -1);
                 }
             }
 
@@ -534,11 +568,11 @@ public class RedFar extends LinearOpMode {
                     mecanumDrive.breakFollowing();
                     if(cycle == 0) {
                         if(detector.getLocation() == LEFT)
-                            mecanumDrive.followTrajectorySequenceAsync(yellowLeft);
+                            mecanumDrive.followTrajectorySequenceAsync(yellowLeftStart);
                         else if(detector.getLocation() == MIDDLE)
-                            mecanumDrive.followTrajectorySequenceAsync(yellowMiddle);
+                            mecanumDrive.followTrajectorySequenceAsync(yellowMiddleStart);
                         else
-                            mecanumDrive.followTrajectorySequenceAsync(yellowRight);
+                            mecanumDrive.followTrajectorySequenceAsync(yellowRightStart);
                     }
                     else
                         mecanumDrive.followTrajectorySequenceAsync(toBackDrop);
@@ -551,6 +585,49 @@ public class RedFar extends LinearOpMode {
                         mecanumDrive.followTrajectorySequenceAsync(intakein);
                 }
 
+            }
+
+            if(state == State.RELOCALIZATION) {
+                if(!aprilTagInited)  {
+                    FtcDashboard.getInstance().startCameraStream(AprilTagDetector.camera, 120);
+                    aprilTagInited = true;
+                }
+
+                Pose2d robotPose = mecanumDrive.getPoseEstimate();
+
+                telemetry.addLine("Robot Pose from odo");
+                telemetry.addData("x:", robotPose.getX());
+                telemetry.addData("y:", robotPose.getY());
+                telemetry.addData("heading:", robotPose.getHeading());
+
+                AprilTagDetection[] detections = AprilTagDetector.getDetections();
+                AprilTagDetection desiredDetection = null;
+                int desiredId = (detector.getLocation() == LEFT ? 4 : (detector.getLocation() == MIDDLE ? 5 : 6));
+
+                for(AprilTagDetection detection : detections)
+                    if(detection.id == desiredId) desiredDetection = detection;
+                if(desiredDetection != null) {
+                    Pose2d aprilPose = AprilTagMath.poseFromTag(robotPose, desiredDetection);
+
+                    telemetry.addLine("Robot Pose from apriltag");
+                    telemetry.addData("x:", aprilPose.getX());
+                    telemetry.addData("y:", aprilPose.getY());
+                    telemetry.addData("heading:", aprilPose.getHeading());
+
+                    new Thread(() -> {
+                        AprilTagDetector.camera.closeCameraDevice();
+                    }).start();
+
+                    mecanumDrive.setPoseEstimate(new Pose2d(aprilPose.getX(), robotPose.getY(), robotPose.getHeading()));
+                    if(detector.getLocation() == LEFT)
+                        mecanumDrive.followTrajectorySequenceAsync(yellowLeftPlace);
+                    else if(detector.getLocation() == MIDDLE)
+                        mecanumDrive.followTrajectorySequenceAsync(yellowMiddlePlace);
+                    else
+                        mecanumDrive.followTrajectorySequenceAsync(yellowRightPlace);
+
+                    state = State.NOT_INTAKE;
+                }
             }
 
             outTake.update();

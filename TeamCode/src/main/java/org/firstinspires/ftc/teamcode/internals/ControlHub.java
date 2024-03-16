@@ -51,11 +51,6 @@ public class ControlHub {
         mct.setAchieveableMaxRPMFraction(1.0);
         motor[3].setMotorType(mct);
 
-        resetEncoder(ENCODER_PORTS.E0);
-        resetEncoder(ENCODER_PORTS.E1);
-        resetEncoder(ENCODER_PORTS.E2);
-        resetEncoder(ENCODER_PORTS.E3);
-
     }
     public static List<LynxModule> all;
 
