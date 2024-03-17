@@ -32,7 +32,7 @@ public class AprilTag extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        AprilTagDetector.init(hardwareMap);
+//        AprilTagDetector.init(hardwareMap);
         localizer = new StandardTrackingWheelLocalizer(hardwareMap, new ArrayList<>(), new ArrayList<>());
 
         waitForStart();

@@ -17,7 +17,7 @@ import org.openftc.apriltag.AprilTagDetection;
 public class AprilTagMath {
     public static double distanceToCenter = 18.6 / 2.54;
     public static double AprilTagToINCHES = 25.4; // assume distance is in meters
-    public static double[] TAG_X_OFFSET = {0, 0, 0, 0, 34.9, 28.9, 24.9};
+    public static double[] TAG_X_OFFSET = {0, 20.9, 26.9, 33.4, 34.9, 28.9, 24.9};
     public static double[] TAG_Y_OFFSET = {0, 0, 0, 0, -43, -43, -43};
 
     public static Pose2d poseFromTag(Pose2d robotPose, AprilTagDetection detection) {

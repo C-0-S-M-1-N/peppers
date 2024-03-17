@@ -34,12 +34,7 @@ public class AprilTagDetector {
 
     public static void init(HardwareMap hardwareMap)
     {
-        int cameraMonitorViewId = hardwareMap.appContext
-                .getResources()
-                .getIdentifier("cameraMonitorViewId",
-                        "id",
-                        hardwareMap.appContext.getPackageName());
-        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), cameraMonitorViewId);
+        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"));
         pipeline = new AprilTagDetectionPipeline(tagSize, fx, fy, cx, cy);
 
         camera.setPipeline(pipeline);

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
+import static java.lang.Math.PI;
+import static java.lang.Math.abs;
 import static java.lang.Math.min;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -39,22 +41,12 @@ public class RedClose extends LinearOpMode {
         OTHER_INTAKE,
         NOT_INTAKE
     }
-    enum CASE {
-        LEFT,
-        MIDDLE,
-        RIGHT
-    }
-
-    private CASE caz = CASE.LEFT;
 
     private State state = State.NOT_INTAKE;
-    private boolean relocalize = false;
 
     public static double middlePurple_x = 21.5, middlePurple_y = -2.5,
             middleYellow_x = 23, middleYellow_y = -31, middleYellow_h = Math.toRadians(-70),
-    stack_x = 23, stack_y = 76.5,
-    prebackdropMiddle_x = 25.24, prebackdropMiddle_y = -6,
-    leftpurple_x = 13.5, leftpurple_y = 9.5, leftpurple_h = 0.44,
+    leftpurple_x = 16, leftpurple_y = 6, leftpurple_h = 0.74,
     leftyellow_x = 29, leftyellow_y = -31, leftyellow_h = Math.toRadians(-70),
             rightpurple_x = 11.6, rightpurple_y = -4, rightpurple_h = 6,
             rightyellow_x = 17, rightyellow_y = -31, rightyellow_h = Math.toRadians(-70),
@@ -62,17 +54,14 @@ public class RedClose extends LinearOpMode {
     angledStack_x = 22.5, angledStack_y = 76.5, angledStack_h = Math.toRadians(-115);
 
     public static Pose2d middlePurple = new Pose2d(middlePurple_x, middlePurple_y, 0),
-    middleYellow = new Pose2d(middleYellow_x, middleYellow_y, middleYellow_h),
-    stack = new Pose2d(stack_x, stack_y, Math.toRadians(-90)),
-    prebackdropMiddle = new Pose2d(prebackdropMiddle_x, prebackdropMiddle_y, Math.toRadians(-89));
-    public DistanceSensor distanceSensor;
+    middleYellow = new Pose2d(middleYellow_x, middleYellow_y, middleYellow_h);
     boolean readSensor = false;
-    private TrajectorySequence takeFromStack, toBackdrop, toAngledStack, otherToAngledStack, park;
+    private TrajectorySequence toAngledStack, otherToAngledStack, park;
 
     private int stackPos = 0;
     private SampleMecanumDriveCancelable mecanumDrive;
     public static int cycle = 0;
-    private ElapsedTime TIME = new ElapsedTime();
+    private final ElapsedTime TIME = new ElapsedTime();
     private OpenCvCamera camera;
     public double IMU_FREQ = 4;
 
@@ -197,11 +186,11 @@ public class RedClose extends LinearOpMode {
                 })
                 .waitSeconds(0.1)
                 .setReversed(true)
-                .splineToSplineHeading(new Pose2d(transit_x + 1, transit_y, transit_h), -transit_h)
+                .splineToSplineHeading(new Pose2d(transit_x, transit_y, transit_h), -transit_h)
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(50, 5, DriveConstants.TRACK_WIDTH))
-                .splineToConstantHeading(new Vector2d(transit_x + 1, transit_y + 10), -transit_h)
+                .splineToConstantHeading(new Vector2d(transit_x, transit_y + 10), -transit_h)
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(65, 5, DriveConstants.TRACK_WIDTH))
-                .splineToConstantHeading(new Vector2d(transit_x + 1, transit_y + 48), -transit_h)
+                .splineToConstantHeading(new Vector2d(transit_x, transit_y + 48), -transit_h)
                 .splineToSplineHeading(new Pose2d(angledStack_x, angledStack_y, angledStack_h), -angledStack_h - 1.2)
                 .UNSTABLE_addTemporalMarkerOffset(-1.2, () -> {
                     intake.servo.setAngle(Intake.stackPositions[stackPos]);
@@ -349,18 +338,18 @@ public class RedClose extends LinearOpMode {
                 .addTemporalMarker(1.4, () -> {
                     ControlHub.setMotorPower(MOTOR_PORTS.M3, 0);
                 })
-                .lineToSplineHeading(new Pose2d(transit_x + 1, transit_y + 48, transit_h))
+                .lineToSplineHeading(new Pose2d(transit_x, transit_y + 48, transit_h))
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(45, 5, DriveConstants.TRACK_WIDTH))
-                .splineToConstantHeading(new Vector2d(transit_x + 1, transit_y + 30), transit_h)
+                .splineToConstantHeading(new Vector2d(transit_x, transit_y + 30), transit_h)
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(65, 5, DriveConstants.TRACK_WIDTH))
-                .splineToConstantHeading(new Vector2d(transit_x + 1, transit_y), transit_h)
+                .splineToConstantHeading(new Vector2d(transit_x, transit_y), transit_h)
                 .UNSTABLE_addTemporalMarkerOffset(-0.85, () -> {
                     OutTake.State.level = cycle + 1;
                     Controls.ExtendElevator = true;
                     readSensor = true;
                 })
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(40))
-                .splineToSplineHeading(new Pose2d(leftyellow_x-14, leftyellow_y - 1, Math.toRadians(-55)), Math.toRadians(-55))
+                .splineToSplineHeading(new Pose2d(leftyellow_x-16, leftyellow_y - 1, Math.toRadians(-55)), Math.toRadians(-55))
                 .addTemporalMarker(() -> {
                     Controls.DropRight = true;
                     Controls.DropLeft = true;
@@ -374,11 +363,11 @@ public class RedClose extends LinearOpMode {
 
         otherToAngledStack  = mecanumDrive.trajectorySequenceBuilder(angledToBackDrop.end())
                 .setReversed(true)
-                .splineToSplineHeading(new Pose2d(transit_x + 1.5, transit_y, transit_h), -transit_h)
+                .splineToSplineHeading(new Pose2d(transit_x, transit_y, transit_h), -transit_h)
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(45, 5, DriveConstants.TRACK_WIDTH))
-                .splineToConstantHeading(new Vector2d(transit_x + 1.5, transit_y + 10), -transit_h)
+                .splineToConstantHeading(new Vector2d(transit_x, transit_y + 10), -transit_h)
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(65, 5, DriveConstants.TRACK_WIDTH))
-                .splineToConstantHeading(new Vector2d(transit_x + 1.5, transit_y + 48), -transit_h)
+                .splineToConstantHeading(new Vector2d(transit_x, transit_y + 48), -transit_h)
                 .splineToSplineHeading(new Pose2d(angledStack_x, angledStack_y, angledStack_h), -angledStack_h - 1.2)
                 .UNSTABLE_addTemporalMarkerOffset(-1, () -> {
                     stackPos = 4;
@@ -399,11 +388,11 @@ public class RedClose extends LinearOpMode {
 
         toAngledStack = mecanumDrive.trajectorySequenceBuilder(angledToBackDrop.end())
                 .setReversed(true)
-                .lineToSplineHeading(new Pose2d(transit_x + 1.5, transit_y, transit_h))
+                .lineToSplineHeading(new Pose2d(transit_x, transit_y, transit_h))
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(45, 5, DriveConstants.TRACK_WIDTH))
-                .splineToConstantHeading(new Vector2d(transit_x + 1.5, transit_y + 10), -transit_h)
+                .splineToConstantHeading(new Vector2d(transit_x, transit_y + 10), -transit_h)
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(65, 5, DriveConstants.TRACK_WIDTH))
-                .splineToConstantHeading(new Vector2d(transit_x + 1.5, transit_y + 48), -transit_h)
+                .splineToConstantHeading(new Vector2d(transit_x, transit_y + 48), -transit_h)
                 .splineToSplineHeading(new Pose2d(angledStack_x, angledStack_y, angledStack_h), -angledStack_h - 1.2)
                 .UNSTABLE_addTemporalMarkerOffset(-1, () -> {
                     stackPos = min(stackPos + 2, 4);
@@ -499,7 +488,12 @@ public class RedClose extends LinearOpMode {
                 imuTime.reset();
                 double imuAngle = ExpansionHub.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
                 Pose2d pose = mecanumDrive.getPoseEstimate();
-                mecanumDrive.setPoseEstimate(new Pose2d(pose.getX(), pose.getY(), imuAngle));
+
+                double diff = pose.getHeading() - imuAngle;
+                while(diff > PI) diff -= 2*PI;
+                while (diff < -PI) diff += 2*PI;
+
+                if(abs(diff) <= Math.toRadians(5)) mecanumDrive.setPoseEstimate(new Pose2d(pose.getX(), pose.getY(), imuAngle));
             }
 
             outTake.update();
@@ -519,7 +513,7 @@ public class RedClose extends LinearOpMode {
             c.loop();
         }
 
-        OutTake.intermediarPivot = 130;
+        OutTake.finalPivotPivotAngle = 130;
         OutTake.finalArmAngle = 210;
     }
     ElapsedTime freq = new ElapsedTime();
