@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Auto;
 
 import static org.firstinspires.ftc.teamcode.BlueFarDetectionPipeline.Location.LEFT;
 import static org.firstinspires.ftc.teamcode.BlueFarDetectionPipeline.Location.MIDDLE;
+import static org.firstinspires.ftc.teamcode.BlueFarDetectionPipeline.Location.RIGHT;
 import static org.firstinspires.ftc.teamcode.Parts.OutTake.State.step;
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
@@ -16,6 +17,7 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -35,13 +37,14 @@ import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvWebcam;
 
 // purple
 // 38, 11, Math.toRadians(270)
 // stack
 // 50, 18, Math.toRadians(270)
 
-@Autonomous(name = "blueFar")
+@Autonomous(name = "blueFar", preselectTeleOp = "pipers \uD83C\uDF36️")
 @Config
 public class BlueFar extends LinearOpMode {
     enum State{
@@ -71,7 +74,7 @@ public class BlueFar extends LinearOpMode {
             middlepurple_x = 36, middlepurple_y = -14.5, middlepurple_h = -Math.toRadians(-90),
             leftpurple_x = 10.5, leftpurple_y = -5, leftpurple_h = -Math.toRadians(0),
             rightpurple_x = 16, rightpurple_y = 3, rightpurple_h = -Math.toRadians(300),
-    middleyellow_x = 32, middleyellow_y = 87, middleyellow_h = -Math.toRadians(-110);
+    middleyellow_x = 32, middleyellow_y = 88.5, middleyellow_h = -Math.toRadians(-110);
 
     private int stackPos = 0;
     private SampleMecanumDriveCancelable mecanumDrive;
@@ -115,8 +118,6 @@ public class BlueFar extends LinearOpMode {
             }
 
         });
-
-        FtcDashboard.getInstance().startCameraStream(AprilTagDetector.camera, 30);
 
         OutTake outTake = new OutTake(hardwareMap);
         Intake intake = new Intake();
@@ -285,12 +286,15 @@ public class BlueFar extends LinearOpMode {
                     OutTake.outTakeExtension.update_values();
                     OutTake.outTakeExtension.update();
                 })
-                .lineToLinearHeading(new Pose2d(middleyellow_x+6, middleyellow_y, middleyellow_h))
+                .lineToLinearHeading(new Pose2d(middleyellow_x+5, middleyellow_y, middleyellow_h))
                 .UNSTABLE_addTemporalMarkerOffset(0.01, () -> {
                     Controls.DropLeft = true;
+                    OutTake.State.level = 1.5;
+                    OutTake.elevator.setInstantPosition(OutTake.State.level * step);
+                    OutTake.elevator.update_values();
+                    OutTake.elevator.update();
                 })
                 .UNSTABLE_addTemporalMarkerOffset(0.1, () -> {
-                    OutTake.elevator.setInstantPosition(OutTake.State.level * step - step / 2);
                     OutTake.outTakeExtension.deactivate();
                     OutTake.outTakeExtension.update_values();
                     OutTake.outTakeExtension.update();
@@ -344,12 +348,15 @@ public class BlueFar extends LinearOpMode {
                     OutTake.outTakeExtension.update_values();
                     OutTake.outTakeExtension.update();
                 })
-                .lineToLinearHeading(new Pose2d(middleyellow_x - 1, middleyellow_y, middleyellow_h))
+                .lineToLinearHeading(new Pose2d(middleyellow_x - 2, middleyellow_y, middleyellow_h))
                 .UNSTABLE_addTemporalMarkerOffset(0.01, () -> {
                     Controls.DropLeft = true;
+                    OutTake.State.level = 1.5;
+                    OutTake.elevator.setInstantPosition(OutTake.State.level * step);
+                    OutTake.elevator.update_values();
+                    OutTake.elevator.update();
                 })
                 .UNSTABLE_addTemporalMarkerOffset(0.05, () -> {
-                    OutTake.elevator.setInstantPosition(OutTake.State.level * step - step / 2);
                     OutTake.outTakeExtension.deactivate();
                     OutTake.outTakeExtension.update_values();
                     OutTake.outTakeExtension.update();
@@ -406,12 +413,15 @@ public class BlueFar extends LinearOpMode {
                     OutTake.outTakeExtension.update_values();
                     OutTake.outTakeExtension.update();
                 })
-                .lineToLinearHeading(new Pose2d(middleyellow_x - 8, middleyellow_y, middleyellow_h))
+                .lineToLinearHeading(new Pose2d(middleyellow_x - 9, middleyellow_y, middleyellow_h))
                 .UNSTABLE_addTemporalMarkerOffset(0.01, () -> {
                     Controls.DropLeft = true;
+                    OutTake.State.level = 1.5;
+                    OutTake.elevator.setInstantPosition(OutTake.State.level * step);
+                    OutTake.elevator.update_values();
+                    OutTake.elevator.update();
                 })
                 .UNSTABLE_addTemporalMarkerOffset(0.1, () -> {
-                    OutTake.elevator.setInstantPosition(OutTake.State.level * step - step / 2);
                     OutTake.outTakeExtension.deactivate();
                     OutTake.outTakeExtension.update_values();
                     OutTake.outTakeExtension.update();
@@ -482,12 +492,6 @@ public class BlueFar extends LinearOpMode {
                 .waitSeconds(0.3)
                 .build();
 
-        OutTake.leftGripper.update_values();
-        OutTake.rightGripper.update_values();
-
-        OutTake.leftGripper.update();
-        OutTake.rightGripper.update();
-
         while(opModeInInit()){
             outTake.update();
             outTake.update_values();
@@ -495,24 +499,32 @@ public class BlueFar extends LinearOpMode {
                 telemetry.addLine("LEFT");
             else if(detector.getLocation() == MIDDLE)
                 telemetry.addLine("MIDDLE");
-            else if(detector.getLocation() == BlueFarDetectionPipeline.Location.RIGHT)
+            else if(detector.getLocation() == RIGHT)
                 telemetry.addLine("RIGHT");
+
+            telemetry.addData("Global Shutter Opened: ", AprilTagDetector.OPENED);
+            telemetry.addData("fps: ", AprilTagDetector.camera.getPipelineTimeMs());
+            // Robot.log.vv("fps: ", Integer.toString(AprilTagDetector.camera.getPipelineTimeMs()));
             telemetry.update();
         }
 
         new Thread(() -> {
-            camera.stopStreaming();
-            camera.closeCameraDevice();
-        }).start();
+            if(AprilTagDetector.camera.getPipelineTimeMs() > 0) {
+                camera.stopStreaming();
+                camera.closeCameraDevice();
+            } else {
+                AprilTagDetector.setCamera((OpenCvWebcam) camera);
+            }
 
-        FtcDashboard.getInstance().startCameraStream(AprilTagDetector.camera, 30);
+            FtcDashboard.getInstance().startCameraStream(AprilTagDetector.camera, 30);
+        }).start();
 
         TIME.reset();
         if(detector.getLocation() == LEFT)
             mecanumDrive.followTrajectorySequenceAsync(right);
         else if(detector.getLocation() == MIDDLE)
             mecanumDrive.followTrajectorySequenceAsync(middle);
-        else if(detector.getLocation() == BlueFarDetectionPipeline.Location.RIGHT)
+        else if(detector.getLocation() == RIGHT)
             mecanumDrive.followTrajectorySequenceAsync(left);
         freq.reset();
 
@@ -588,46 +600,42 @@ public class BlueFar extends LinearOpMode {
             }
 
             if(state == State.RELOCALIZATION) {
-                if(!aprilTagInited)  {
-                    FtcDashboard.getInstance().startCameraStream(AprilTagDetector.camera, 120);
-                    aprilTagInited = true;
-                }
 
-                Pose2d robotPose = mecanumDrive.getPoseEstimate();
+                    Pose2d robotPose = mecanumDrive.getPoseEstimate();
 
-                telemetry.addLine("Robot Pose from odo");
-                telemetry.addData("x:", robotPose.getX());
-                telemetry.addData("y:", robotPose.getY());
-                telemetry.addData("heading:", robotPose.getHeading());
+                    telemetry.addLine("Robot Pose from odo");
+                    telemetry.addData("x:", robotPose.getX());
+                    telemetry.addData("y:", robotPose.getY());
+                    telemetry.addData("heading:", robotPose.getHeading());
 
-                AprilTagDetection[] detections = AprilTagDetector.getDetections();
-                AprilTagDetection desiredDetection = null;
-                int desiredId = (detector.getLocation() == LEFT ? 1 : (detector.getLocation() == MIDDLE ? 2 : 3));
+                    AprilTagDetection[] detections = AprilTagDetector.getDetections();
+                    AprilTagDetection desiredDetection = null;
+                    int desiredId = (detector.getLocation() == LEFT ? 1 : (detector.getLocation() == MIDDLE ? 2 : 3));
 
-                for(AprilTagDetection detection : detections)
-                    if(detection.id == desiredId) desiredDetection = detection;
-                if(desiredDetection != null) {
-                    Pose2d aprilPose = AprilTagMath.poseFromTag(robotPose, desiredDetection);
+                    for (AprilTagDetection detection : detections)
+                        if (detection.id == desiredId) desiredDetection = detection;
+                    if (desiredDetection != null) {
+                        Pose2d aprilPose = AprilTagMath.poseFromTag(robotPose, desiredDetection);
 
-                    telemetry.addLine("Robot Pose from apriltag");
-                    telemetry.addData("x:", aprilPose.getX());
-                    telemetry.addData("y:", aprilPose.getY());
-                    telemetry.addData("heading:", aprilPose.getHeading());
+                        telemetry.addLine("Robot Pose from apriltag");
+                        telemetry.addData("x:", aprilPose.getX());
+                        telemetry.addData("y:", aprilPose.getY());
+                        telemetry.addData("heading:", aprilPose.getHeading());
 
-                    new Thread(() -> {
-                        AprilTagDetector.camera.closeCameraDevice();
-                    }).start();
+                        new Thread(() -> {
+                            AprilTagDetector.camera.closeCameraDevice();
+                        }).start();
 
-                    mecanumDrive.setPoseEstimate(new Pose2d(aprilPose.getX(), robotPose.getY(), robotPose.getHeading()));
-                    if(detector.getLocation() == LEFT)
-                        mecanumDrive.followTrajectorySequenceAsync(yellowRightPlace);
-                    else if(detector.getLocation() == MIDDLE)
-                        mecanumDrive.followTrajectorySequenceAsync(yellowMiddlePlace);
-                    else
-                        mecanumDrive.followTrajectorySequenceAsync(yellowLeftPlace);
+                        if(AprilTagDetector.OPENED) mecanumDrive.setPoseEstimate(new Pose2d(aprilPose.getX(), robotPose.getY(), robotPose.getHeading()));
+                        if (detector.getLocation() == LEFT)
+                            mecanumDrive.followTrajectorySequenceAsync(yellowRightPlace);
+                        else if (detector.getLocation() == MIDDLE)
+                            mecanumDrive.followTrajectorySequenceAsync(yellowMiddlePlace);
+                        else
+                            mecanumDrive.followTrajectorySequenceAsync(yellowLeftPlace);
 
-                    state = State.NOT_INTAKE;
-                }
+                        state = State.NOT_INTAKE;
+                    }
             }
 
             outTake.update();

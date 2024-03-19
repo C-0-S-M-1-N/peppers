@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.internals;
 
+    import com.acmerobotics.dashboard.FtcDashboard;
     import com.acmerobotics.dashboard.config.Config;
     import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -43,36 +44,32 @@ public class AprilTagDetector {
             @Override
             public void onOpened()
             {
-                OPENED = true;
-                camera.startStreaming(1280,720, OpenCvCameraRotation.UPRIGHT);
+                try {
+                    OPENED = true;
+                    camera.startStreaming(1280,720, OpenCvCameraRotation.UPRIGHT);
+                    FtcDashboard.getInstance().startCameraStream(AprilTagDetector.camera, 30);
+                } catch (Exception e) {
+                    OPENED = false;
+                }
+
             }
 
             @Override
             public void onError(int errorCode)
             {
-
+                OPENED = false;
             }
         });
 
         camera.setViewportRenderer(OpenCvCamera.ViewportRenderer.NATIVE_VIEW);
     }
 
-    public static void stop() { camera.closeCameraDevice(); }
-    public static void open() {
-        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
-        {
-            @Override
-            public void onOpened()
-            {
-                camera.startStreaming(1280,720, OpenCvCameraRotation.UPRIGHT);
-            }
+    public static void setCamera(OpenCvWebcam camera)
+    {
+        AprilTagDetector.camera = camera;
+        pipeline = new AprilTagDetectionPipeline(tagSize, 822.317, 822.317, 319.495, 242.502);
 
-            @Override
-            public void onError(int errorCode)
-            {
-
-            }
-        });
+        AprilTagDetector.camera.setPipeline(pipeline);
     }
 
     public static AprilTagDetection[] getDetections()

@@ -36,13 +36,14 @@ import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvWebcam;
 
 // purple
 // 38, 11, Math.toRadians(270)
 // stack
 // 50, 18, Math.toRadians(270)
 
-@Autonomous(name = "redFar")
+@Autonomous(name = "redFar", preselectTeleOp = "pipers \uD83C\uDF36️")
 @Config
 public class RedFar extends LinearOpMode {
     enum State{
@@ -495,15 +496,22 @@ public class RedFar extends LinearOpMode {
                 telemetry.addLine("MIDDLE");
             else if(detector.getLocation() == RedFarDetectionPipeline.Location.RIGHT)
                 telemetry.addLine("RIGHT");
+            telemetry.addData("Global Shutter Opened: ", AprilTagDetector.OPENED);
+            telemetry.addData("fps: ", AprilTagDetector.camera.getPipelineTimeMs());
+            // Robot.log.vv("fps: ", Integer.toString(AprilTagDetector.camera.getPipelineTimeMs()));
             telemetry.update();
         }
 
         new Thread(() -> {
-            camera.stopStreaming();
-            camera.closeCameraDevice();
-        }).start();
+            if(AprilTagDetector.camera.getPipelineTimeMs() > 0) {
+                camera.stopStreaming();
+                camera.closeCameraDevice();
+            } else {
+                AprilTagDetector.setCamera((OpenCvWebcam) camera);
+            }
 
-        FtcDashboard.getInstance().startCameraStream(AprilTagDetector.camera, 30);
+            FtcDashboard.getInstance().startCameraStream(AprilTagDetector.camera, 30);
+        }).start();
 
         TIME.reset();
         if(detector.getLocation() == LEFT)
