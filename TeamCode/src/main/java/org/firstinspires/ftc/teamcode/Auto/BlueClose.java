@@ -33,7 +33,7 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous(name = "blueClose", preselectTeleOp = "pipers \uD83C\uDF36️")
+@Autonomous(name = "blueClose", preselectTeleOp = ".pipers \uD83C\uDF36️")
 @Config
 public class BlueClose extends LinearOpMode {
     enum State{

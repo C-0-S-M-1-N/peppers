@@ -44,10 +44,14 @@ public class ElevatorArm implements Part {
         armProfile.startMotion(currentArmAngle, angle);
         currentArmAngle = angle;
     }
-    public void setPivotAngle(double angle){
+    public void setPivotAngle(double angle, long time){
+        timeForPivot = time;
+        tmpTime_PIV = System.currentTimeMillis();
         pivot.setAngle(angle);
-        pivot.update();
         TMP_pivot.reset();
+    }
+    public void setPivotAngle(double angle){
+        setPivotAngle(angle, 0);
     }
 
     public void setOrientation(double angle){
@@ -80,9 +84,12 @@ public class ElevatorArm implements Part {
     reachedStationary(){
         return armProfile.motionEnded();
     }
-
+    private long timeForPivot = 0, tmpTime_PIV;
     @Override
     public void update(){
+        if(System.currentTimeMillis() - tmpTime_PIV > timeForPivot){
+            pivot.update();
+        }
         virtual1.setAngle(armProfile.getPosition());
         virtual2.setAngle(armProfile.getPosition());
 

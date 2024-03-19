@@ -44,7 +44,7 @@ import org.openftc.easyopencv.OpenCvWebcam;
 // stack
 // 50, 18, Math.toRadians(270)
 
-@Autonomous(name = "blueFar", preselectTeleOp = "pipers \uD83C\uDF36️")
+@Autonomous(name = "blueFar", preselectTeleOp = ".pipers \uD83C\uDF36️")
 @Config
 public class BlueFar extends LinearOpMode {
     enum State{
