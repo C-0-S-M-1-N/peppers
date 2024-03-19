@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import java.util.ArrayList;
 
 
-@TeleOp(name = "pipers \uD83C\uDF36️", group = ".")
+@TeleOp(name = ".pipers \uD83C\uDF36️")
 @Config
 public class MainOp extends LinearOpMode {
 

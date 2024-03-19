@@ -3,24 +3,16 @@ package org.firstinspires.ftc.teamcode.Parts;
 import static java.lang.Math.max;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.hardware.ColorRangeSensor;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.IMU;
-import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Components.Elevator;
 import org.firstinspires.ftc.teamcode.Components.ElevatorArm;
 import org.firstinspires.ftc.teamcode.Components.Grippers;
 import org.firstinspires.ftc.teamcode.Components.OutTakeExtension;
 import org.firstinspires.ftc.teamcode.Part;
-import org.firstinspires.ftc.teamcode.internals.AprilTagDetector;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.Hubs;
@@ -41,8 +33,8 @@ public class OutTake implements Part{
         RELEASING,
         LVL_UP,
         LVL_DOWN,
+        POKE,
         NULL;
-
 
         public static final double MAX_EXTEND = 1341;
         public static double level = 5, step = MAX_EXTEND/10;
@@ -54,7 +46,7 @@ public class OutTake implements Part{
     public static OutTakeExtension outTakeExtension;
     public boolean align = false;
     public static double finalArmAngle = 210, finalPivotPivotAngle = 130;
-    public static double intermediarPivot = 130;
+    public static double intermediarPivot = 130, pokePivotAngle = 190, pokeArmAngle = 240;
     public static double LIFT_ARM = 0.1;
     public boolean MANUAL_EXTENSION = false;
     private ElapsedTime releasingTime = new ElapsedTime();
@@ -138,7 +130,21 @@ public class OutTake implements Part{
             }
         }
         if(Controls.ResetTourret) ExpansionHub.resetIMU();
+        if(state == State.NULL && Controls.PokeMode){
+            isPoking = !isPoking;
+            if(isPoking) {
+                align = false;
+                timeForPoke = System.currentTimeMillis();
+                state = State.POKE;
+            } else {
+                align = true;
+                state = State.EXTENDED;
+            }
+
+        }
     }
+    public long timeForPoke = 0;
+    public boolean isPoking = false;
 
     boolean extending = false, set0Pos = false;
     private ElapsedTime retractTime = new ElapsedTime();
@@ -189,6 +195,7 @@ public class OutTake implements Part{
                 break;
             case RETRACTING:
                 if(align) {
+                    isPoking = false;
                     elevator.setTargetPosition(State.step * 1);
                     outTakeExtension.deactivate();
                     elevatorArm.setOrientation(0);
@@ -215,25 +222,36 @@ public class OutTake implements Part{
                 }
                 break;
             case NULL:
-                if(elevatorArm.getLiveArmAngle() > 160 && !OutTakeExtension.active && !MANUAL_EXTENSION) {
+                if(elevatorArm.getLiveArmAngle() > 160 && !OutTakeExtension.active && !MANUAL_EXTENSION && !isPoking) {
                     outTakeExtension.activate();
                     outTakeExtension.update();
                     outTakeExtension.update_values();
                     outTakeExtension.update();
                     outTakeExtension.update_values();
                 }
-                if(elevatorArm.reachedStationary() && onePixel()) {
+                if(elevatorArm.reachedStationary() && onePixel() && !isPoking) {
                     elevatorArm.setPivotAngle(finalPivotPivotAngle);
                     align = true;
                 }
 
-                if(!onePixel() && elevatorArm.reachedStationary() && !CLIMBIN) {
+                if(!onePixel() && elevatorArm.reachedStationary() && !CLIMBIN && !isPoking) {
                     state = State.RELEASING;
                     releasingTime.reset();
                 }
 
                 if(outTakeExtension.reachedStationary() && elevatorArm.reachedStationary()) {
                     elevator.setInstantPosition(State.level * State.step);
+                }
+                break;
+
+            case POKE:
+                align = false;
+                if(System.currentTimeMillis() - timeForPoke > 100){
+                    elevatorArm.setArmAngle(pokeArmAngle);
+                }
+                if(elevatorArm.reachedStationary() && elevatorArm.getLiveArmAngle() > finalArmAngle + 2){
+                    elevatorArm.setPivotAngle(pokePivotAngle);
+                    state = State.NULL;
                 }
                 break;
         }
@@ -247,7 +265,6 @@ public class OutTake implements Part{
         elevator.update();
         elevatorArm.update();
     }
-
     @Override
     public void update_values(){
         elevator.update_values();
