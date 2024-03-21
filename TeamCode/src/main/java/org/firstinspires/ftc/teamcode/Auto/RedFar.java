@@ -537,11 +537,8 @@ public class RedFar extends LinearOpMode {
                 imuTime.reset();
                 double imuAngle = ExpansionHub.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
                 Pose2d pose = mecanumDrive.getPoseEstimate();
-                double diff = pose.getHeading() - imuAngle;
-                while(diff > PI) diff -= 2*PI;
-                while (diff < -PI) diff += 2*PI;
 
-                if(abs(diff) <= Math.toRadians(5)) mecanumDrive.setPoseEstimate(new Pose2d(pose.getX(), pose.getY(), imuAngle));
+                if(imuAngle != 0) mecanumDrive.setPoseEstimate(new Pose2d(pose.getX(), pose.getY(), imuAngle));
             }
 
             if(state == State.GET_IN) {
