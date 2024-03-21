@@ -291,7 +291,7 @@ public class RedClose extends LinearOpMode {
                     readSensor = true;
                 })
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(40))
-                .splineToSplineHeading(new Pose2d(leftyellow_x-14, leftyellow_y - 1, Math.toRadians(-65)), Math.toRadians(-65))
+                .splineToSplineHeading(new Pose2d(leftyellow_x-13, leftyellow_y - 1, Math.toRadians(-65)), Math.toRadians(-65))
                 .addTemporalMarker(() -> {
                     Controls.DropRight = true;
                     Controls.DropLeft = true;
@@ -349,7 +349,7 @@ public class RedClose extends LinearOpMode {
                     readSensor = true;
                 })
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(40))
-                .splineToSplineHeading(new Pose2d(leftyellow_x-16, leftyellow_y - 1, Math.toRadians(-55)), Math.toRadians(-55))
+                .splineToSplineHeading(new Pose2d(leftyellow_x-15, leftyellow_y - 1, Math.toRadians(-55)), Math.toRadians(-55))
                 .addTemporalMarker(() -> {
                     Controls.DropRight = true;
                     Controls.DropLeft = true;
@@ -489,11 +489,7 @@ public class RedClose extends LinearOpMode {
                 double imuAngle = ExpansionHub.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
                 Pose2d pose = mecanumDrive.getPoseEstimate();
 
-                double diff = pose.getHeading() - imuAngle;
-                while(diff > PI) diff -= 2*PI;
-                while (diff < -PI) diff += 2*PI;
-
-                if(abs(diff) <= Math.toRadians(5)) mecanumDrive.setPoseEstimate(new Pose2d(pose.getX(), pose.getY(), imuAngle));
+                if(imuAngle != 0) mecanumDrive.setPoseEstimate(new Pose2d(pose.getX(), pose.getY(), imuAngle));
             }
 
             outTake.update();

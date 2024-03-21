@@ -115,7 +115,7 @@ public class ExpansionHub {
             double imuAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
             ImuYawAngle = Math.toDegrees(imuAngle) - beforeReset;
-            localizer.setPoseEstimate(new Pose2d(0, 0, imuAngle));
+            if(imuAngle != 0) localizer.setPoseEstimate(new Pose2d(0, 0, imuAngle));
         } else {
 //            ImuYawAngle = localizer.getPoseEstimate().getHeading() * 180 / PI;
             ImuYawAngle = Math.toDegrees(localizer.getPoseEstimate().getHeading()) - beforeReset;

@@ -273,7 +273,7 @@ public class BlueFar extends LinearOpMode {
                 .splineToConstantHeading(new Vector2d(stack_x, stack_y + 60), stack_h)
                 .splineToSplineHeading(new Pose2d(middleyellow_x+8, middleyellow_y - 14, middleyellow_h), middleyellow_h + 0.5)
                 .UNSTABLE_addTemporalMarkerOffset(-0.3, () -> {
-                    OutTake.State.level = 2;
+                    OutTake.State.level = 1.7;
                     Controls.ExtendElevator = true;
                     outTake.MANUAL_EXTENSION = true;
                 })
@@ -286,11 +286,9 @@ public class BlueFar extends LinearOpMode {
                     OutTake.outTakeExtension.update_values();
                     OutTake.outTakeExtension.update();
                 })
-                .lineToLinearHeading(new Pose2d(middleyellow_x+5, middleyellow_y, middleyellow_h))
+                .lineToLinearHeading(new Pose2d(middleyellow_x+8, middleyellow_y - 1, middleyellow_h))
                 .UNSTABLE_addTemporalMarkerOffset(0.01, () -> {
                     Controls.DropLeft = true;
-                    OutTake.State.level = 1.5;
-                    OutTake.elevator.setInstantPosition(OutTake.State.level * step);
                     OutTake.elevator.update_values();
                     OutTake.elevator.update();
                 })
@@ -309,6 +307,7 @@ public class BlueFar extends LinearOpMode {
                     OutTake.outTakeExtension.update_values();
                     OutTake.outTakeExtension.update();
                 })
+                .waitSeconds(0.15)
                 .addTemporalMarker(() -> {
                     Controls.DropRight = true;
                     outTake.MANUAL_EXTENSION = false;
@@ -480,7 +479,7 @@ public class BlueFar extends LinearOpMode {
                 .splineToSplineHeading(new Pose2d(stack_x - 2, stack_y + 80, stack_h), -stack_h)
                 .splineToConstantHeading(new Vector2d(stack_x - 2, stack_y + 79.9), -stack_h)
                 .splineToConstantHeading(new Vector2d(stack_x, stack_y + 30), -stack_h)
-                .splineToConstantHeading(new Vector2d(stack_x, stack_y), -stack_h)
+                .splineToConstantHeading(new Vector2d(stack_x-2, stack_y), -stack_h)
                 .UNSTABLE_addTemporalMarkerOffset(-1, () -> {
                     stackPos = min(stackPos + 1, 4);
                     intake.servo.setAngle(Intake.stackPositions[stackPos]);
@@ -543,11 +542,8 @@ public class BlueFar extends LinearOpMode {
                 imuTime.reset();
                 double imuAngle = ExpansionHub.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
                 Pose2d pose = mecanumDrive.getPoseEstimate();
-                double diff = pose.getHeading() - imuAngle;
-                while(diff > PI) diff -= 2*PI;
-                while (diff < -PI) diff += 2*PI;
 
-                if(abs(diff) <= Math.toRadians(5)) mecanumDrive.setPoseEstimate(new Pose2d(pose.getX(), pose.getY(), imuAngle));
+                if(imuAngle != 0) mecanumDrive.setPoseEstimate(new Pose2d(pose.getX(), pose.getY(), imuAngle));
             }
 
             if(state == State.GET_IN) {

@@ -54,7 +54,7 @@ public class BlueClose extends LinearOpMode {
 
     public static double middlePurple_x = 21.5, middlePurple_y = 2.5,
             middleYellow_x = 23, middleYellow_y = 31, middleYellow_h = -Math.toRadians(-70),
-            leftpurple_x = 16, leftpurple_y = -6, leftpurple_h = -0.74,
+            leftpurple_x = 16, leftpurple_y = -4, leftpurple_h = -0.74,
             leftyellow_x = 29, leftyellow_y = 31, leftyellow_h = -Math.toRadians(-70),
             rightpurple_x = 11.6, rightpurple_y = 4, rightpurple_h = -6,
             rightyellow_x = 17, rightyellow_y = 31, rightyellow_h = -Math.toRadians(-70),
@@ -518,11 +518,8 @@ public class BlueClose extends LinearOpMode {
                 imuTime.reset();
                 double imuAngle = ExpansionHub.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
                 Pose2d pose = mecanumDrive.getPoseEstimate();
-                double diff = pose.getHeading() - imuAngle;
-                while(diff > PI) diff -= 2*PI;
-                while (diff < -PI) diff += 2*PI;
 
-                if(abs(diff) <= Math.toRadians(5)) mecanumDrive.setPoseEstimate(new Pose2d(pose.getX(), pose.getY(), imuAngle));
+                if(imuAngle != 0) mecanumDrive.setPoseEstimate(new Pose2d(pose.getX(), pose.getY(), imuAngle)); // imu is not DCed
             }
 
             outTake.update();
