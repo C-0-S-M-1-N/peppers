@@ -39,7 +39,7 @@ public class MainOp extends LinearOpMode {
         ExpansionHub e = new ExpansionHub(hardwareMap, new StandardTrackingWheelLocalizer(hardwareMap, new ArrayList<>(), new ArrayList<>()));
         Controls ctr = new Controls(gamepad1, gamepad2);
 
-        telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(), telemetry);
+//        telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(), telemetry);
         ControlHub.telemetry = telemetry;
         gamepad1.setLedColor(1.0, 1.0, 1.0, (int) 1e10);
 
@@ -53,9 +53,8 @@ public class MainOp extends LinearOpMode {
         waitForStart();
         time.reset();
         while(opModeIsActive() && !isStopRequested()){
-            for(LynxModule m : ControlHub.all){
-                m.clearBulkCache();
-            }
+            ControlHub.ControlHubModule.clearBulkCache();
+            ExpansionHub.ExpansionHubModule.clearBulkCache();
 
             for(int i = 0; i < 4; i++){
                 ControlHub.encoder[i].read = false;
@@ -83,8 +82,8 @@ public class MainOp extends LinearOpMode {
             outTake.update_values();
             intake.update_values();
 
-            outTake.runTelemetry();
-            intake.runTelemetry();
+//            outTake.runTelemetry();
+//            intake.runTelemetry();
 
             ctr.loop();
             telemetry.addData("Hz", 1/time.seconds());

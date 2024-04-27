@@ -49,10 +49,9 @@ public class ElevatorTuning extends LinearOpMode {
 
         waitForStart();
         while (opModeIsActive() && !isStopRequested()){
+            ControlHub.ControlHubModule.clearBulkCache();
+            ExpansionHub.ExpansionHubModule.clearBulkCache();
 
-            for(LynxModule m : ControlHub.all){
-                m.clearBulkCache();
-            }
             if(climb){
                 for(int i = 0; i < 3; i++){
                     ControlHub.motor[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
-import static java.lang.Math.PI;
 import static java.lang.Math.abs;
 import static java.lang.Math.min;
 
@@ -12,15 +11,13 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-import org.firstinspires.ftc.teamcode.BlueCloseDetectionPipeline;
+import org.firstinspires.ftc.teamcode.detectionPipelines.BlueCloseDetectionPipeline;
 import org.firstinspires.ftc.teamcode.Components.Controls;
-import org.firstinspires.ftc.teamcode.Components.Grippers;
 import org.firstinspires.ftc.teamcode.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
@@ -474,9 +471,8 @@ public class BlueClose extends LinearOpMode {
 
         while (opModeIsActive() && !isStopRequested()){
 
-            for(LynxModule m : ControlHub.all){
-                m.clearBulkCache();
-            }
+            ControlHub.ControlHubModule.clearBulkCache();
+            ExpansionHub.ExpansionHubModule.clearBulkCache();
 
             if(readSensor){
                 ExpansionHub.ImuYawAngle = -90 + Math.toDegrees(mecanumDrive.getPoseEstimate().getHeading());

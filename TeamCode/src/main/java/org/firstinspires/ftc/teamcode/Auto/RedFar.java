@@ -1,9 +1,8 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
 import static org.firstinspires.ftc.teamcode.Parts.OutTake.State.step;
-import static org.firstinspires.ftc.teamcode.utils.RedFarDetectionPipeline.Location.LEFT;
-import static org.firstinspires.ftc.teamcode.utils.RedFarDetectionPipeline.Location.MIDDLE;
-import static java.lang.Math.PI;
+import static org.firstinspires.ftc.teamcode.detectionPipelines.RedFarDetectionPipeline.Location.LEFT;
+import static org.firstinspires.ftc.teamcode.detectionPipelines.RedFarDetectionPipeline.Location.MIDDLE;
 import static java.lang.Math.abs;
 import static java.lang.Math.min;
 
@@ -31,7 +30,7 @@ import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utils.AprilTagMath;
-import org.firstinspires.ftc.teamcode.utils.RedFarDetectionPipeline;
+import org.firstinspires.ftc.teamcode.detectionPipelines.RedFarDetectionPipeline;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -526,9 +525,8 @@ public class RedFar extends LinearOpMode {
 
         while (opModeIsActive() && !isStopRequested()){
 
-            for(LynxModule m : ControlHub.all){
-                m.clearBulkCache();
-            }
+            ControlHub.ControlHubModule.clearBulkCache();
+            ExpansionHub.ExpansionHubModule.clearBulkCache();
 
             mecanumDrive.update();
             if(align) ExpansionHub.ImuYawAngle = 90 + Math.toDegrees(mecanumDrive.getPoseEstimate().getHeading());

@@ -20,6 +20,7 @@ plugins {
 apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
 
+
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
 
@@ -27,6 +28,7 @@ android {
         jniLibs.useLegacyPackaging true
     }
 }
+
 
 repositories {
     maven { url = 'https://jitpack.io' }

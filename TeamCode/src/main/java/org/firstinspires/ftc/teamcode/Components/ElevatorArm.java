@@ -15,9 +15,6 @@ import org.firstinspires.ftc.teamcode.utils.AutoServo;
 public class ElevatorArm implements Part {
 
     private AutoServo virtual1, virtual2, pivot, turret;
-    private ElapsedTime TMP_arm = new ElapsedTime(),
-                        TMP_pivot = new ElapsedTime(),
-                        TMP_turret = new ElapsedTime();
     private MotionProfile armProfile = new MotionProfile(4000, 2000);
     private double currentArmAngle = 0, defaultTouretDegrees = 193, imuResetedAngle = 0;
     public ElevatorArm(){
@@ -39,16 +36,15 @@ public class ElevatorArm implements Part {
         turret.update();
     }
     public void setArmAngle(double angle){
-        TMP_arm.reset();
 
         armProfile.startMotion(currentArmAngle, angle);
         currentArmAngle = angle;
     }
+    private long timePivot = 0, timeElapsed = 0;
     public void setPivotAngle(double angle, long time){
-        timeForPivot = time;
-        tmpTime_PIV = System.currentTimeMillis();
+        timePivot = time;
+        timeElapsed = System.currentTimeMillis();
         pivot.setAngle(angle);
-        TMP_pivot.reset();
     }
     public void setPivotAngle(double angle){
         setPivotAngle(angle, 0);
@@ -61,7 +57,6 @@ public class ElevatorArm implements Part {
         if(Math.abs(angle) > 90) angle = 90 * Math.signum(angle);
 
         turret.setAngle(angle + defaultTouretDegrees);
-        TMP_turret.reset();
     }
     public double getArmAngle(){
         return currentArmAngle;
@@ -70,26 +65,13 @@ public class ElevatorArm implements Part {
         return armProfile.getPosition();
     }
 
-    public boolean reachedTargetArmPosition(){
-        return TMP_arm.seconds() >= 1;
-    }
-    public boolean reachedTargetPivotPosition(){
-        return TMP_pivot.seconds() >= 0.5;
-    }
-    public boolean reachedTargetTourretPosition(){
-        return TMP_turret.seconds() >= 0.2;
-    }
-
-    public boolean
-    reachedStationary(){
+    public boolean reachedStationary(){
         return armProfile.motionEnded();
     }
-    private long timeForPivot = 0, tmpTime_PIV;
     @Override
     public void update(){
-        if(System.currentTimeMillis() - tmpTime_PIV > timeForPivot){
+        if(System.currentTimeMillis() - timeElapsed >= timePivot)
             pivot.update();
-        }
         virtual1.setAngle(armProfile.getPosition());
         virtual2.setAngle(armProfile.getPosition());
 

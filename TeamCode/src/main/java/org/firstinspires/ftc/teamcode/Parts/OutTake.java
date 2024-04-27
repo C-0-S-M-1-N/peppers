@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Parts;
 
-import static java.lang.Math.max;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -17,7 +16,6 @@ import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.Hubs;
 import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
-import org.firstinspires.ftc.teamcode.trajectorysequence.sequencesegment.WaitSegment;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
 import org.firstinspires.ftc.teamcode.utils.BetterColorRangeSensor;
 
@@ -69,16 +67,16 @@ public class OutTake implements Part{
         elevatorArm = new ElevatorArm();
         outTakeExtension = new OutTakeExtension(
                 hm.get(DistanceSensor.class, "sensor"),
-                new AutoServo(SERVO_PORTS.S3, 0.08, true, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON));
+                new AutoServo(SERVO_PORTS.S4, 0.084, true, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON));
 
         leftGripper = new Grippers(
-                new AutoServo(SERVO_PORTS.S0, 0.16, false, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
+                new AutoServo(SERVO_PORTS.S0, 0.27, false, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
                 hm.get(BetterColorRangeSensor.class, "leftSensor"),
                 70
         );
 
         rightGripper = new Grippers(
-                new AutoServo(SERVO_PORTS.S2, 0.17, true, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
+                new AutoServo(SERVO_PORTS.S2, 0.16, true, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
                 hm.get(BetterColorRangeSensor.class, "rightSensor"),
                 70
         );
@@ -338,3 +336,49 @@ public class OutTake implements Part{
         return rightGripper.state == Grippers.State.CLOSE || leftGripper.state == Grippers.State.CLOSE;
     }
 }
+
+/*
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.Components.Elevator;
+import org.firstinspires.ftc.teamcode.Components.ElevatorArm;
+import org.firstinspires.ftc.teamcode.Components.Grippers;
+import org.firstinspires.ftc.teamcode.Components.OutTakeExtension;
+import org.firstinspires.ftc.teamcode.Part;
+
+public class OutTake implements Part {
+    public enum State{
+        WAIT_PIXELS,
+        ;
+        public static int elevatorLevel = 5, stepLevel = 110;
+    }
+
+    public Elevator elevator;
+    public ElevatorArm elevatorArm;
+    public Grippers leftGripper, rightGripper;
+
+    @Override
+    public void update() throws InterruptedException {
+
+    }
+
+    @Override
+    public void update_values() {
+
+    }
+
+    @Override public void runTelemetry(){
+
+    }
+    public static boolean fullPixel(){
+        return true;
+    }
+    public static boolean onePixel(){
+        return true;
+    }
+}
+
+ */
+
+
+

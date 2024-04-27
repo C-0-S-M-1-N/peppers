@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.utils.Mutex;
 import java.util.List;
 
 public class ControlHub {
+    public static boolean disableDevice = false;
     public static Telemetry telemetry;
 
     public static DcMotorEx[] motor = new DcMotorEx[4];
@@ -30,10 +31,8 @@ public class ControlHub {
     private static final double[] motor_target_cache = new double[4];
 
     public static double voltage;
-    public static final double compensation = 12;
+    public static double compensation = 12;
     public static IMU imu;
-    public static DistanceSensor sensor;
-
     private static void setMotorsToMax(){
         MotorConfigurationType mct = motor[0].getMotorType().clone();
         mct.setAchieveableMaxRPMFraction(1.0);
@@ -52,7 +51,7 @@ public class ControlHub {
         motor[3].setMotorType(mct);
 
     }
-    public static List<LynxModule> all;
+    public static LynxModule ControlHubModule;
 
     public ControlHub(HardwareMap hm){
         motor[0] = hm.get(DcMotorEx.class, "cM0");
@@ -76,22 +75,16 @@ public class ControlHub {
 
         voltage = hm.voltageSensor.iterator().next().getVoltage();
 
-        all = hm.getAll(LynxModule.class);
+        ControlHubModule = hm.getAll(LynxModule.class).get(0);
 
-        for(LynxModule m : all){
-            m.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
-        }
+        ControlHubModule.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
 
         setMotorsToMax();
+        compensation = voltage;
 
     }
-    private static double angle, dist;
-
-    public static double getSensorValue(){
-        return dist;
-    }
-
     public static double getEncoderPosition(ENCODER_PORTS encoder_port){
+        if(disableDevice) return 0;
         switch(encoder_port){
             case E0:
                 return encoder[0].getPosition();
@@ -105,6 +98,7 @@ public class ControlHub {
         return 0;
     }
     public static double getMotorVelocity(ENCODER_PORTS encoder){
+        if(disableDevice) return 0;
         switch (encoder){
             case E0:
                 return motor[0].getVelocity();
@@ -118,6 +112,7 @@ public class ControlHub {
         return 0;
     }
     public static void setServoPosition(SERVO_PORTS port, double position){
+        if(disableDevice) return;
         switch (port) {
             case S0:
                 if(servo_cache[0] != position) {
@@ -158,6 +153,7 @@ public class ControlHub {
         }
     }
     public static double getCurrentFromMotor(MOTOR_PORTS port, CurrentUnit unit){
+        if(disableDevice) return 0;
         switch (port){
             case M0:
                 return motor[0].getCurrent(unit);
@@ -171,6 +167,7 @@ public class ControlHub {
         return 0;
     }
     public static void setServoDirection(SERVO_PORTS port, Servo.Direction dir) {
+        if(disableDevice) return;
         switch (port) {
             case S0:
                 servo[0].setDirection(dir);
@@ -193,6 +190,7 @@ public class ControlHub {
         }
     }
     public static void setMotorDirection(MOTOR_PORTS port, DcMotorSimple.Direction dir){
+        if(disableDevice) return;
         switch (port){
             case M0:
                 motor[0].setDirection(dir);
@@ -209,6 +207,7 @@ public class ControlHub {
         }
     }
     public static void setMotorTargetPosition(MOTOR_PORTS port, int position){
+        if(disableDevice) return;
         switch (port){
             case M0:
                 if(motor_target_cache[0] != position){
@@ -237,34 +236,36 @@ public class ControlHub {
         }
     }
     public static void setMotorPower(MOTOR_PORTS port, double power){
+        if(disableDevice) return;
         switch (port){
             case M0:
                 if(motor_cache[0] != power){
-                    motor[0].setPower(power);
+                    motor[0].setPower(power * compensation / voltage);
                     motor_cache[0] = power;
                 }
                 break;
             case M1:
                 if(motor_cache[1] != power){
-                    motor[1].setPower(power);
+                    motor[1].setPower(power * compensation / voltage);
                     motor_cache[1] = power;
                 }
                 break;
             case M2:
                 if(motor_cache[2] != power){
-                    motor[2].setPower(power);
+                    motor[2].setPower(power * compensation / voltage);
                     motor_cache[2] = power;
                 }
                 break;
             case M3:
                 if(motor_cache[3] != power){
-                    motor[3].setPower(power);
+                    motor[3].setPower(power * compensation / voltage);
                     motor_cache[3] = power;
                 }
                 break;
         }
     }
     public static void setEncoderDirection(ENCODER_PORTS port, Encoder.Direction dir){
+        if(disableDevice) return;
         switch (port){
             case E0:
                 encoder[0].setDirection(dir);
@@ -281,6 +282,7 @@ public class ControlHub {
         }
     }
     public static void resetEncoder(ENCODER_PORTS port){
+        if(disableDevice) return;
         switch (port){
             case E0:
                 encoder[0].reset();
@@ -298,6 +300,7 @@ public class ControlHub {
     }
 
     public static void teleMotorCurrents(Telemetry telemetry) {
+        if(disableDevice) return;
 
         telemetry.addData("EM0:", getCurrentFromMotor(MOTOR_PORTS.M0, CurrentUnit.AMPS));
         telemetry.addData("EM1:", getCurrentFromMotor(MOTOR_PORTS.M1, CurrentUnit.AMPS));

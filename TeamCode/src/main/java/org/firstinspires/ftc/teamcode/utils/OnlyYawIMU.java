@@ -7,6 +7,9 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynchDevice;
 import com.qualcomm.robotcore.util.TypeConversion;
 
 public class OnlyYawIMU extends I2cDeviceSynchDevice<I2cDeviceSynch> {
+    public void setYawnEstimate(double estimate){
+
+    }
     public class YawParameters{
         private byte[] initParam;
 

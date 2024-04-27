@@ -1,10 +1,9 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
-import static org.firstinspires.ftc.teamcode.BlueFarDetectionPipeline.Location.LEFT;
-import static org.firstinspires.ftc.teamcode.BlueFarDetectionPipeline.Location.MIDDLE;
-import static org.firstinspires.ftc.teamcode.BlueFarDetectionPipeline.Location.RIGHT;
+import static org.firstinspires.ftc.teamcode.detectionPipelines.BlueFarDetectionPipeline.Location.LEFT;
+import static org.firstinspires.ftc.teamcode.detectionPipelines.BlueFarDetectionPipeline.Location.MIDDLE;
+import static org.firstinspires.ftc.teamcode.detectionPipelines.BlueFarDetectionPipeline.Location.RIGHT;
 import static org.firstinspires.ftc.teamcode.Parts.OutTake.State.step;
-import static java.lang.Math.PI;
 import static java.lang.Math.abs;
 import static java.lang.Math.min;
 
@@ -17,11 +16,10 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.BlueFarDetectionPipeline;
+import org.firstinspires.ftc.teamcode.detectionPipelines.BlueFarDetectionPipeline;
 import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Parts.OutTake;
@@ -531,9 +529,8 @@ public class BlueFar extends LinearOpMode {
 
         while (opModeIsActive() && !isStopRequested()){
 
-            for(LynxModule m : ControlHub.all){
-                m.clearBulkCache();
-            }
+            ExpansionHub.ExpansionHubModule.clearBulkCache();
+            ControlHub.ControlHubModule.clearBulkCache();
 
             mecanumDrive.update();
             if(align) ExpansionHub.ImuYawAngle = -90 + Math.toDegrees(mecanumDrive.getPoseEstimate().getHeading());

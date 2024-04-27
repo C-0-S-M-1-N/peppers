@@ -104,12 +104,14 @@ public class Grippers implements Part {
     public void runTelemetry(){ }
 
     public void runTelemetry(String s){
-        ControlHub.telemetry.addLine("\n----");
-        ControlHub.telemetry.addLine(s);
 
-        ControlHub.telemetry.addData("\tState", state.toString());
-        ControlHub.telemetry.addData("sensor reading", sensor.getProximityDistance());
-        ControlHub.telemetry.addLine("----");
+        ControlHub.telemetry
+                .addLine()
+                .addData("name", s)
+                .addData("State", state.toString())
+                .addData("readings", sensor.getProximityDistance())
+                ;
+
     }
 
 }

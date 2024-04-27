@@ -35,7 +35,7 @@ public class Intake implements Part {
     }
     public STATES STATE;
     public static double maxTrashHold = 1200;
-    public static double ground = 120;
+    public static double ground = 125;
     private double usedCurrent = 0;
     public AutoServo servo;
 
@@ -52,7 +52,7 @@ public class Intake implements Part {
     public Intake(){
         STATE = STATES.IDLE;
         ControlHub.setMotorDirection(MOTOR_PORTS.M3, DcMotorSimple.Direction.REVERSE);
-        servo = new AutoServo(SERVO_PORTS.S4, 0,
+        servo = new AutoServo(SERVO_PORTS.S3, 0,
                 true, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
         servo.setAngle(50);
         servo.update();
