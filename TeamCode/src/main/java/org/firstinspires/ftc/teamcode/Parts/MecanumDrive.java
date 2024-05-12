@@ -82,7 +82,7 @@ public class MecanumDrive {
         telemetry.addData("Front Right Motor: ", MFRPower);
         telemetry.addData("Back Left Motor: ", MBLPower);
         telemetry.addData("Back Right Motor: ", MBRPower);
-
+        telemetry.update();
         SetPower(MFLPower, MFRPower, MBLPower, MBRPower);
 
     }
