@@ -7,6 +7,8 @@ import org.firstinspires.ftc.teamcode.Parts.Avion;
 import org.firstinspires.ftc.teamcode.utils.AutoGamepad;
 import org.firstinspires.ftc.teamcode.utils.RumbleEffects;
 
+import java.util.Set;
+
 @Config
 public class Controls {
     public static boolean updateDetected;
@@ -14,7 +16,7 @@ public class Controls {
             ExtendElevator, RetractElevator, ElevatorUp,  ElevatorDown,
             DropLeft, DropRight, Hang, Avion, ResetTourret,
             DownElevator,
-            ResetElevator, ManualMode, PokeMode;
+            ResetElevator, ManualMode, PokeMode, SetOuttakeToPurplePlacing, rotateLeft, rotateRight;
     public static double HangLevel = 0;
     private static AutoGamepad gamepad1;
     private static AutoGamepad gamepad2;
@@ -47,6 +49,9 @@ public class Controls {
         DownElevator    = false;
         ManualMode      = false;
         PokeMode        = false;
+        SetOuttakeToPurplePlacing = false;
+        rotateLeft      = false;
+        rotateRight     = false;
     }
 
     public void loop(){
@@ -58,6 +63,8 @@ public class Controls {
         if(gamepad2.wasPressed.dpad_right)  ElevatorUp      = true;
         if(gamepad2.wasPressed.dpad_left)   ElevatorDown    = true;
         if(gamepad2.wasPressed.a) Hang = true;
+        if(gamepad2.wasPressed.left_bumper) rotateLeft = true;
+        if(gamepad2.wasPressed.right_bumper) rotateRight = true;
 
         if(gamepad2.right_trigger >= 0.7)     Intake          = true;
         if(gamepad2.left_trigger >= 0.7)      RevIntake       = true;

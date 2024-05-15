@@ -43,7 +43,8 @@ public class Elevator implements Part {
     public static boolean RESET = false;
 
     public Elevator(){
-        ControlHub.setMotorDirection(M0, DcMotorSimple.Direction.REVERSE);
+        ControlHub.setMotorDirection(M0, DcMotorSimple.Direction.REVERSE)
+;
         ControlHub.setMotorDirection(M1, DcMotorSimple.Direction.REVERSE);
         for(int i = 0; i < 3; i++){
             if(!RESET) ControlHub.motor[i].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -95,7 +96,9 @@ public class Elevator implements Part {
     @Override
     public void runTelemetry() {
         ControlHub.telemetry.addData("targetPosition", targetPosition);
-        ControlHub.telemetry.addData("current positoin", livePosition);
+        ControlHub.telemetry.addData("e0", ControlHub.motor[0].getCurrentPosition());
+        ControlHub.telemetry.addData("e1", ControlHub.motor[1].getCurrentPosition());
+        ControlHub.telemetry.addData("e2", ControlHub.motor[2].getCurrentPosition());
     }
     private double error1 = 0, error2 = 0;
     @Override

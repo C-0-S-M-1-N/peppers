@@ -35,33 +35,18 @@ public class ElevatorTuning extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        ControlHub ch = new ControlHub(hardwareMap);
         ExpansionHub eh = new ExpansionHub(hardwareMap, new StandardTrackingWheelLocalizer(hardwareMap, new ArrayList<>(), new ArrayList<>()));
         Controls c = new Controls(gamepad1, gamepad2);
+        ControlHub ch = new ControlHub(hardwareMap);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         ControlHub.telemetry = telemetry;
 
         elevator = new Elevator();
-        ElevatorArm arm = new ElevatorArm();
-        arm.setArmAngle(0);
-        arm.setOrientation(0);
-        arm.setPivotAngle(0);
 
         waitForStart();
         while (opModeIsActive() && !isStopRequested()){
             ControlHub.ControlHubModule.clearBulkCache();
             ExpansionHub.ExpansionHubModule.clearBulkCache();
-
-            if(climb){
-                for(int i = 0; i < 3; i++){
-                    ControlHub.motor[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    ControlHub.motor[i].setPower(-1);
-                }
-                if(ControlHub.motor[0].getCurrentPosition() <= 50){
-                    climb = false;
-                }
-                continue;
-            }
 
             if(Controls.ElevatorUp || update){
                 elevator.setTargetPosition(pos*lvl);
@@ -71,11 +56,9 @@ public class ElevatorTuning extends LinearOpMode {
                 elevator.setTargetPosition(pos * lvl);
                 update = false;
             }
-            elevator.update();
-            arm.update();
+//            elevator.update();
 
             elevator.update_values();
-            arm.update_values();
 
             elevator.runTelemetry();
             c.loop();

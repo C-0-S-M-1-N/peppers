@@ -15,6 +15,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.utils.BetterColorRangeSensor;
 import org.firstinspires.ftc.teamcode.utils.Mutex;
 
 import java.util.List;
@@ -33,6 +34,7 @@ public class ControlHub {
     public static double voltage;
     public static double compensation = 12;
     public static IMU imu;
+    public static BetterColorRangeSensor left, right;
     private static void setMotorsToMax(){
         MotorConfigurationType mct = motor[0].getMotorType().clone();
         mct.setAchieveableMaxRPMFraction(1.0);
@@ -58,6 +60,9 @@ public class ControlHub {
         motor[1] = hm.get(DcMotorEx.class, "cM1");
         motor[2] = hm.get(DcMotorEx.class, "cM2");
         motor[3] = hm.get(DcMotorEx.class, "cM3");
+
+        left = hm.get(BetterColorRangeSensor.class, "leftSensor");
+        right = hm.get(BetterColorRangeSensor.class, "rightSensor");
 
         for(int i = 0; i < 4; i++){
             motor[i].setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

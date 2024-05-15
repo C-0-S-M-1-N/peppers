@@ -14,25 +14,21 @@ import org.firstinspires.ftc.teamcode.utils.AutoServo;
 @Config
 public class ElevatorArm implements Part {
 
-    private AutoServo virtual1, virtual2, pivot, turret;
+    private AutoServo virtual1, turret, rotation;
     private MotionProfile armProfile = new MotionProfile(4000, 2000);
-    private double currentArmAngle = 0, defaultTouretDegrees = 193, imuResetedAngle = 0;
+    private double currentArmAngle = 0, defaultTouretDegrees = 175, imuResetedAngle = 0;
     public ElevatorArm(){
-        virtual1 = new AutoServo(SERVO_PORTS.S0, 10.f/355, false, Hubs.EXPANSION_HUB, AutoServo.TYPE.AXON);
-        virtual2 = new AutoServo(SERVO_PORTS.S2, 10.f/355, true, Hubs.EXPANSION_HUB, AutoServo.TYPE.AXON);
+        virtual1 = new AutoServo(SERVO_PORTS.S4, 82.f/355.f, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
+        rotation = new AutoServo(SERVO_PORTS.S1,  180.f/355.f,false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
 
-        pivot = new AutoServo(SERVO_PORTS.S5, 15.f/355, true, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
-
-        turret = new AutoServo(SERVO_PORTS.S1, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
+        turret = new AutoServo(SERVO_PORTS.S5, 0, false, Hubs.EXPANSION_HUB, AutoServo.TYPE.AXON);
 
         turret.setAngle(defaultTouretDegrees);
-        virtual1.setAngle(0);
-        virtual2.setAngle(0);
-        pivot.setAngle(0);
+        virtual1.setAngle(185);
+        rotation.setAngle(0);
 
         virtual1.update();
-        virtual2.update();
-        pivot.update();
+        rotation.update();
         turret.update();
     }
     public void setArmAngle(double angle){
@@ -44,7 +40,6 @@ public class ElevatorArm implements Part {
     public void setPivotAngle(double angle, long time){
         timePivot = time;
         timeElapsed = System.currentTimeMillis();
-        pivot.setAngle(angle);
     }
     public void setPivotAngle(double angle){
         setPivotAngle(angle, 0);
@@ -54,10 +49,14 @@ public class ElevatorArm implements Part {
         while(angle > 180) angle -= 360;
         while(angle < -180) angle += 360;
 
-        if(Math.abs(angle) > 90) angle = 90 * Math.signum(angle);
+        if(Math.abs(angle) > 30) angle = 30 * Math.signum(angle);
 
         turret.setAngle(angle + defaultTouretDegrees);
     }
+    public void setPixelRotation(double angle){
+        rotation.setAngle(angle);
+    }
+    public double getPixelRotation(){ return rotation.getAngle(); }
     public double getArmAngle(){
         return currentArmAngle;
     }
@@ -70,23 +69,20 @@ public class ElevatorArm implements Part {
     }
     @Override
     public void update(){
-        if(System.currentTimeMillis() - timeElapsed >= timePivot)
-            pivot.update();
         virtual1.setAngle(armProfile.getPosition());
-        virtual2.setAngle(armProfile.getPosition());
+        rotation.update();
 
     }
     @Override
     public void update_values(){
         armProfile.update();
         virtual1.update();
-        virtual2.update();
-        pivot.update();
         turret.update();
     }
     @Override
     public void runTelemetry(){
-
+        ControlHub.telemetry.addData("arm angle", getArmAngle());
+        ControlHub.telemetry.addData("turret angle", turret.getAngle());
     }
 
 }

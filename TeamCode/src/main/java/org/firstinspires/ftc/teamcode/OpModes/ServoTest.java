@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.checkerframework.checker.units.qual.C;
 import org.firstinspires.ftc.teamcode.Components.Grippers;
+import org.firstinspires.ftc.teamcode.Parts.MotionProfile;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
@@ -36,7 +37,8 @@ public class ServoTest extends LinearOpMode {
         waitForStart();
 
         while(opModeIsActive() && !isStopRequested()){
-            if(Chub){
+
+            if (Chub) {
                 ControlHub.setServoDirection(port, dir);
                 ControlHub.setServoPosition(port, Isangle ? angle / maxAngle : position);
             } else {

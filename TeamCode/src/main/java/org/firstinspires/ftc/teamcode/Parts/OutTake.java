@@ -32,8 +32,9 @@ public class OutTake implements Part{
         RELEASING,
         MOVE_POKE,
         POKE,
-        LVL_UP,
-        LVL_DOWN,
+        PURPLE_STATE_1,
+        PURPLE_STATE_2,
+        WAIT_FOR_RECOVERY,
         NULL;
 
         public static final double MAX_EXTEND = 1341;
@@ -45,7 +46,7 @@ public class OutTake implements Part{
     public static Grippers leftGripper, rightGripper;
     public static OutTakeExtension outTakeExtension;
     public boolean align = false;
-    public static double finalArmAngle = 210, finalPivotPivotAngle = 130;
+    public static double finalArmAngle = 210, finalPivotPivotAngle = 130, purpleArmAngle = 230, purplePivotAngle = 195;
     public static double intermediarPivot = 130, pokePivotAngle = 230, pokeArmAngle = 200;
     public static double LIFT_ARM = 0.1;
     public boolean MANUAL_EXTENSION = false;
@@ -92,7 +93,10 @@ public class OutTake implements Part{
 //        elevator.state = Elevator.State.RESET;
     }
     private void controls(){
-        if(Controls.Hang) {
+        if(Controls.SetOuttakeToPurplePlacing){
+            state = State.PURPLE_STATE_1;
+        }
+        if(Controls.Hang){
             State.level = 6;
             CLIMBIN = true;
             Controls.ExtendElevator = true;
@@ -151,8 +155,12 @@ public class OutTake implements Part{
     }
     public boolean isPoking = false;
 
-    boolean extending = false, set0Pos = false;
+    private boolean extending = false, set0Pos = false;
+
     private ElapsedTime retractTime = new ElapsedTime();
+    public void setToTablePlacement(){
+        state = State.EXTENDING;
+    }
 
     @Override
     public void update(){
@@ -280,6 +288,27 @@ public class OutTake implements Part{
                     elevator.setInstantPosition(State.level * State.step);
                 }
                 break;
+            case PURPLE_STATE_1:
+                elevator.setTargetPosition(0.7 * State.step);
+                state = State.PURPLE_STATE_2;
+                elevator.position_threshold = 100;
+                break;
+            case PURPLE_STATE_2:
+                if(elevator.reatchedTargetPosition() && elevatorArm.getArmAngle() == 0) {
+                    elevatorArm.setArmAngle(purpleArmAngle);
+                    elevatorArm.setPivotAngle(intermediarPivot);
+                    outTakeExtension.activate();
+                    purpleTime.reset();
+                    elevator.position_threshold = 5;
+                }
+                if(elevatorArm.reachedStationary() && elevatorArm.getArmAngle() != 0){
+                    elevatorArm.setPivotAngle(purplePivotAngle);
+                    elevator.setTargetPosition(10);
+                    state = State.WAIT_FOR_RECOVERY;
+                }
+                break;
+            case WAIT_FOR_RECOVERY:
+                break;
         }
         if(align && elevatorArm.getLiveArmAngle() > 160){
             elevatorArm.setOrientation(-ExpansionHub.ImuYawAngle);
@@ -291,6 +320,7 @@ public class OutTake implements Part{
         elevator.update();
         elevatorArm.update();
     }
+    private ElapsedTime purpleTime = new ElapsedTime();
     @Override
     public void update_values(){
         elevator.update_values();
@@ -324,6 +354,7 @@ public class OutTake implements Part{
         rightGripper.runTelemetry("RIGHT CLAW");
         outTakeExtension.runTelemetry();
         ControlHub.telemetry.addData("Outtake state", state.toString());
+        ControlHub.telemetry.addData("alignment", align);
 
 
     }
@@ -336,49 +367,3 @@ public class OutTake implements Part{
         return rightGripper.state == Grippers.State.CLOSE || leftGripper.state == Grippers.State.CLOSE;
     }
 }
-
-/*
-import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.teamcode.Components.Elevator;
-import org.firstinspires.ftc.teamcode.Components.ElevatorArm;
-import org.firstinspires.ftc.teamcode.Components.Grippers;
-import org.firstinspires.ftc.teamcode.Components.OutTakeExtension;
-import org.firstinspires.ftc.teamcode.Part;
-
-public class OutTake implements Part {
-    public enum State{
-        WAIT_PIXELS,
-        ;
-        public static int elevatorLevel = 5, stepLevel = 110;
-    }
-
-    public Elevator elevator;
-    public ElevatorArm elevatorArm;
-    public Grippers leftGripper, rightGripper;
-
-    @Override
-    public void update() throws InterruptedException {
-
-    }
-
-    @Override
-    public void update_values() {
-
-    }
-
-    @Override public void runTelemetry(){
-
-    }
-    public static boolean fullPixel(){
-        return true;
-    }
-    public static boolean onePixel(){
-        return true;
-    }
-}
-
- */
-
-
-

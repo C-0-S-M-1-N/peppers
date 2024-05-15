@@ -42,11 +42,17 @@ public class Intake implements Part {
     NanoClock clock;
     private double grippersHaveTime = 0;
     private boolean grippersHave = false;
-    public static double[] stackPositions = {90, 97, 105, 110, 120};
+    public static double[] stackPositions = {95, 103, 110, 115, 125};
+    private int lvl = 0;
 
     public void setPixelStackPosition(int level){
         if(level > 4) level = 4;
+        if(lvl < 0) lvl = 0;
+        lvl = level;
         ground = stackPositions[level];
+    }
+    public int getPixelStackPosition(){
+        return lvl;
     }
 
     public Intake(){

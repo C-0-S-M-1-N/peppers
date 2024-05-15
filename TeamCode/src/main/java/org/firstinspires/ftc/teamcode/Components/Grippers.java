@@ -45,6 +45,19 @@ public class Grippers implements Part {
         update();
         update_values();
     }
+    public Grippers(AutoServo servo, BetterColorRangeSensor sensor, int treshHold, double open, double close){
+        opend = open;
+        closed = close;
+        sensor.setThresHold(treshHold);
+        this.servo = servo;
+        this.sensor = sensor;
+        state = State.OPEN;
+        manualMode = false;
+        servo.setAngle(opend);
+        servo.update();
+        update();
+        update_values();
+    }
     public void open() {
         if(manualMode){
             state = State.OPEN;
@@ -55,13 +68,14 @@ public class Grippers implements Part {
             state = State.CLOSE;
         }
     }
+    public double closed = 0, opend = 0;
     private void manualUpdate(){
         switch (state){
             case OPEN:
-                servo.setAngle(0);
+                servo.setAngle(opend);
                 break;
             case CLOSE:
-                servo.setAngle(90);
+                servo.setAngle(closed);
                 break;
         }
         servo.update();
@@ -72,13 +86,23 @@ public class Grippers implements Part {
         if(manualMode) manualUpdate();
         switch (state){
             case OPEN:
-                servo.setAngle(0);
+                servo.setAngle(opend);
                 break;
             case CLOSE:
-                servo.setAngle(90);
+                servo.setAngle(closed);
                 break;
         }
     }
+    public void update_values(boolean updateBasedOnSensors){
+        if(manualMode) return;
+        if(updateBasedOnSensors){
+            if(sensor.LogicProximityStatus()) state = State.CLOSE;
+            else state = State.OPEN;
+        }
+        update();
+        servo.update();
+    }
+
     @Override
     public void update_values(){
         if(manualMode) return;

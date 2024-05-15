@@ -63,7 +63,7 @@ public class ExpansionHub {
     public static double ImuYawAngle = 0, extension_length = 0;
     private Localizer localizer = null;
     public static LynxModule ExpansionHubModule;
-    public static double IMU_FREQ = 1; // in Hz
+    public static double IMU_FREQ = 0.5; // in Hz
 
     public ExpansionHub(HardwareMap hm, Localizer localizer){
         this.localizer = localizer;
@@ -96,7 +96,7 @@ public class ExpansionHub {
         imu.resetYaw();
 
         sensor = hm.get(DistanceSensor.class, "sensor");
-        beforeReset = 0;
+        beforeReset = -90;
         compensation = voltage;
 
         ExpansionHubModule = hm.getAll(LynxModule.class).get(1);
@@ -105,7 +105,7 @@ public class ExpansionHub {
 
     }
 
-    private static double beforeReset = 0;
+    private static double beforeReset = -90;
     public static void resetIMU(){
         beforeReset += ImuYawAngle;
     }
@@ -113,10 +113,10 @@ public class ExpansionHub {
     ElapsedTime imuTime = new ElapsedTime();
 
 
-    @Deprecated
     public void update(boolean update_localizer){
         extension_length = 690;
-        localizer.update();
+        if(update_localizer)
+            localizer.update();
 
         if(imuTime.seconds() > 1.0 / IMU_FREQ) {
             imuTime.reset();
