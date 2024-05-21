@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.utils.LowPassFilter;
 
 @Config
 public class Grippers implements Part {
-    public static boolean manualMode;
+    public static boolean manualMode = false;
     public enum State{
         OPEN,
         CLOSE
@@ -59,14 +59,10 @@ public class Grippers implements Part {
         update_values();
     }
     public void open() {
-        if(manualMode){
-            state = State.OPEN;
-        }
+        state = State.OPEN;
     }
     public void close(){
-        if(manualMode){
-            state = State.CLOSE;
-        }
+        state = State.CLOSE;
     }
     public double closed = 0, opend = 0;
     private void manualUpdate(){
@@ -92,6 +88,7 @@ public class Grippers implements Part {
                 servo.setAngle(closed);
                 break;
         }
+        servo.update();
     }
     public void update_values(boolean updateBasedOnSensors){
         if(manualMode) return;
@@ -99,8 +96,6 @@ public class Grippers implements Part {
             if(sensor.LogicProximityStatus()) state = State.CLOSE;
             else state = State.OPEN;
         }
-        update();
-        servo.update();
     }
 
     @Override
@@ -129,12 +124,10 @@ public class Grippers implements Part {
 
     public void runTelemetry(String s){
 
-        ControlHub.telemetry
-                .addLine()
-                .addData("name", s)
-                .addData("State", state.toString())
-                .addData("readings", sensor.getProximityDistance())
-                ;
+        ControlHub.telemetry.addLine();
+        ControlHub.telemetry.addData("name", s);
+        ControlHub.telemetry.addData("State", state.toString());
+        ControlHub.telemetry.addData("readings", sensor.getProximityDistance());
 
     }
 

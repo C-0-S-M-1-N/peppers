@@ -42,6 +42,7 @@ public class ElevatorTuning extends LinearOpMode {
         ControlHub.telemetry = telemetry;
 
         elevator = new Elevator();
+        for(int i = 0; i < 3; i++) ControlHub.motor[i].setMotorDisable();
 
         waitForStart();
         while (opModeIsActive() && !isStopRequested()){
@@ -57,6 +58,7 @@ public class ElevatorTuning extends LinearOpMode {
                 update = false;
             }
 //            elevator.update();
+
 
             elevator.update_values();
 

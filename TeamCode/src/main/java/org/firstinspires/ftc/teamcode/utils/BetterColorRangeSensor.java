@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import com.qualcomm.hardware.broadcom.BroadcomColorSensor;
 import com.qualcomm.hardware.lynx.LynxI2cDeviceSynch;
+import com.qualcomm.hardware.rev.RevColorSensorV3;
+import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchDevice;
@@ -102,7 +105,7 @@ public class BetterColorRangeSensor extends I2cDeviceSynchDevice<I2cDeviceSynch>
 
     @Override
     protected boolean doInitialize() {
-        deviceClient.write8(0x01, 0b01110111);
+        deviceClient.write8(0x1, 0b01110111);
         deviceClient.write8(0x2, 16);
         deviceClient.write8(0x3, 0b00011100);
         deviceClient.write8(0x19, 0x11);

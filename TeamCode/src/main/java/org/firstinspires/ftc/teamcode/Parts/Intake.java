@@ -35,14 +35,14 @@ public class Intake implements Part {
     }
     public STATES STATE;
     public static double maxTrashHold = 1200;
-    public static double ground = 125;
+    public static double ground = 235;
     private double usedCurrent = 0;
     public AutoServo servo;
 
     NanoClock clock;
     private double grippersHaveTime = 0;
     private boolean grippersHave = false;
-    public static double[] stackPositions = {95, 103, 110, 115, 125};
+    public static double[] stackPositions = {95, 103, 110, 115, 150};
     private int lvl = 0;
 
     public void setPixelStackPosition(int level){
@@ -58,9 +58,9 @@ public class Intake implements Part {
     public Intake(){
         STATE = STATES.IDLE;
         ControlHub.setMotorDirection(MOTOR_PORTS.M3, DcMotorSimple.Direction.REVERSE);
-        servo = new AutoServo(SERVO_PORTS.S3, 0,
+        servo = new AutoServo(SERVO_PORTS.S2, 0,
                 true, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
-        servo.setAngle(50);
+        servo.setAngle(150);
         servo.update();
         clock = NanoClock.system();
         setPixelStackPosition(4);
@@ -83,26 +83,18 @@ public class Intake implements Part {
 
         close = manualTimer.seconds() >= 0.3;
 
-        if(close){
-            OutTake.leftGripper.close();
-            OutTake.rightGripper.close();
-        } else {
-            OutTake.rightGripper.open();
-            OutTake.leftGripper.open();
-        }
-
         switch (STATE){
             case IDLE:
                 ControlHub.setMotorPower(MOTOR_PORTS.M3, 0);
-                servo.setAngle(70);
+                servo.setAngle(150);
                 break;
             case FORWARD:
                 ControlHub.setMotorPower(MOTOR_PORTS.M3, 1);
-                servo.setAngle(ground);
+                servo.setAngle(235);
                 break;
             case REVERSE:
                 ControlHub.setMotorPower(MOTOR_PORTS.M3, -1);
-                servo.setAngle(70);
+                servo.setAngle(150);
                 break;
         }
 
@@ -115,7 +107,7 @@ public class Intake implements Part {
         if(Disabled) return;
         if(Grippers.manualMode) manualUpdate();
 
-        if(!OutTake.fullPixel()) {
+        if(!OutTakeMTI.isFullOfPixels()) {
             grippersHaveTime = 0;
             grippersHave = false;
         } else if(grippersHaveTime == 0) {
@@ -123,10 +115,8 @@ public class Intake implements Part {
         } else if(clock.seconds() - grippersHaveTime > 0) {
             grippersHave = true;
         }
-        if(usedCurrent > maxTrashHold){
-//            STATE = STATES.REVERSE;
-        }
-        if(Controls.Intake && !grippersHave){
+
+        if(Controls.Intake){
             STATE = STATES.FORWARD;
         }
         if(Controls.RevIntake || (grippersHave && Controls.Intake)){
@@ -137,15 +127,15 @@ public class Intake implements Part {
         switch (STATE){
             case IDLE:
                 ControlHub.setMotorPower(MOTOR_PORTS.M3, 0);
-                servo.setAngle(30);
+                servo.setAngle(150);
                 break;
             case FORWARD:
                 ControlHub.setMotorPower(MOTOR_PORTS.M3, 1);
-                servo.setAngle(ground);
+                servo.setAngle(235);
                 break;
             case REVERSE:
                 ControlHub.setMotorPower(MOTOR_PORTS.M3, -1);
-                servo.setAngle(30);
+                servo.setAngle(150);
                 break;
         }
         servo.update();

@@ -34,7 +34,7 @@ public class PIDController {
 
         double ret = r;
 
-        if(r > maxActuatorOutput && error * r > 0){ // Integral Clamping for anti-windup
+        if(Math.abs(r) > maxActuatorOutput && error * r > 0){ // Integral Clamping for anti-windup
             ret = maxActuatorOutput;
         }
 //        if(Math.abs(error) <= 80){

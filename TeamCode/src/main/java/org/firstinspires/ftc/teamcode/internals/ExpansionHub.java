@@ -61,7 +61,7 @@ public class ExpansionHub {
 
     }
     public static double ImuYawAngle = 0, extension_length = 0;
-    private Localizer localizer = null;
+    public Localizer localizer = null;
     public static LynxModule ExpansionHubModule;
     public static double IMU_FREQ = 0.5; // in Hz
 
@@ -96,7 +96,7 @@ public class ExpansionHub {
         imu.resetYaw();
 
         sensor = hm.get(DistanceSensor.class, "sensor");
-        beforeReset = -90;
+        beforeReset = 0;
         compensation = voltage;
 
         ExpansionHubModule = hm.getAll(LynxModule.class).get(1);
@@ -105,7 +105,7 @@ public class ExpansionHub {
 
     }
 
-    private static double beforeReset = -90;
+    private static double beforeReset = 0;
     public static void resetIMU(){
         beforeReset += ImuYawAngle;
     }
@@ -114,9 +114,11 @@ public class ExpansionHub {
 
 
     public void update(boolean update_localizer){
-        extension_length = 690;
         if(update_localizer)
             localizer.update();
+
+//        double imuAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+//        if(imuAngle != 0) ImuYawAngle = imuAngle - beforeReset;
 
         if(imuTime.seconds() > 1.0 / IMU_FREQ) {
             imuTime.reset();
@@ -131,8 +133,8 @@ public class ExpansionHub {
     }
 
     public void teleAngle(Telemetry telemetry) {
-        telemetry.addData("Imu angle: ", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
-        telemetry.addData("Turret non normalized angle: ", Math.toDegrees(imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)) - beforeReset);
+        telemetry.addData("Imu angle: ", ImuYawAngle);
+        telemetry.addData("Turret non normalized angle: ", ImuYawAngle - beforeReset);
     }
 
     public static double getEncoderPosition(ENCODER_PORTS encoder_port){
