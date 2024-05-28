@@ -47,7 +47,7 @@ public class OutTakeMTI {
     public static int MAX_LVL = 11;
     public static double safeToExtendOuttake = STEP * 2.5;
     public static double armAnglePlaceingBackboard = 85, armAnglePlacingPurple = 0,
-                        armAngleIntake = 27, armAngleRetracting = 15, intakeRotation = -2, tourretOffset = 2;
+                        armAngleIntake = 28, armAngleRetracting = 15, intakeRotation = -3, tourretOffset = -2;
     public static Elevator elevator = null;
     public static ElevatorArm arm = null;
     public static OutTakeExtensionModule extension = null;
@@ -195,7 +195,6 @@ public class OutTakeMTI {
     public static boolean driverUpdated = true;
     private ElapsedTime time1 = new ElapsedTime();
     public void setToNormalPlacingFromPurplePixelPlacing(){
-        arm.rotationIndex = 0;
         arm.setPixelRotation(ElevatorArm.rotationAngles[arm.rotationIndex]);
         waitForTimer = false;
         setToPurplePlace = false;

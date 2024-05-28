@@ -140,7 +140,6 @@ public class Intake implements Part {
                 servo.setAngle(stackPositions[lvl]);
                 break;
             case REVERSE:
-                power = forceOut ? -1 : 1;
                 ControlHub.setMotorPower(MOTOR_PORTS.M3, reversePower);
                 servo.setAngle(Up);
                 break;

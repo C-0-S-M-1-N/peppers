@@ -32,8 +32,8 @@ public class DigitalTest extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive() && !isStopRequested()){
-            telemetry.addData("right value", sensorR.getProximityDistance());
-            telemetry.addData("left value",  sensorL.getProximityDistance());
+            telemetry.addData("right value", sensorR.getDistance(BetterColorRangeSensor.Unit.MM));
+            telemetry.addData("left value",  sensorL.getDistance(BetterColorRangeSensor.Unit.MM));
 
             telemetry.update();
         }
