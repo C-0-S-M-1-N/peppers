@@ -7,21 +7,17 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.apache.commons.math3.analysis.function.Exp;
 import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Parts.OutTakeMTI;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDriveCancelable;
-import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
-import org.firstinspires.ftc.teamcode.utils.AutoServo;
-
-import java.util.ArrayList;
 
 @TeleOp(name = ".pipers \uD83C\uDF36")
 @Config
-public class TeleTalk extends LinearOpMode {
+public class MainOpMTI extends LinearOpMode {
+    long lastTime = 0;
     SampleMecanumDriveCancelable mecanumDrive;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -38,11 +34,15 @@ public class TeleTalk extends LinearOpMode {
         boolean boost = true;
 
         waitForStart();
+        lastTime = System.currentTimeMillis();
 
         while (opModeIsActive()){
             ControlHub.ControlHubModule.clearBulkCache();
             ExpansionHub.ExpansionHubModule.clearBulkCache();
-            if(Controls.ResetTourret) ExpansionHub.resetIMU();
+            if(Controls.ResetTourret) {
+                ExpansionHub.resetIMU();
+                Controls.ResetTourretAck = true;
+            }
 
             e.update(false);
 
@@ -54,6 +54,9 @@ public class TeleTalk extends LinearOpMode {
            (gamepad1.left_trigger - gamepad1.right_trigger) * (boost ? 1.0 : 0.3)
             ));
 
+            ControlHub.telemetry.addData("freq", 1000.f/(System.currentTimeMillis() - lastTime));
+            lastTime = System.currentTimeMillis();
+
             out.update();
             intake.update();
             intake.update_values();
@@ -61,6 +64,8 @@ public class TeleTalk extends LinearOpMode {
             e.teleAngle(ControlHub.telemetry);
 
             cn.loop();
+            ControlHub.telemetry.addData("robot tilt", ExpansionHub.tiltAngle);
+            ControlHub.telemetry.addData("MAX_LVL", OutTakeMTI.MAX_LVL);
             ControlHub.telemetry.update();
         }
 

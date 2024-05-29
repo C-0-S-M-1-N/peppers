@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Auto;
+package org.firstinspires.ftc.teamcode.Auto.oldAuto;
 
 import static org.firstinspires.ftc.teamcode.detectionPipelines.BlueFarDetectionPipeline.Location.LEFT;
 import static org.firstinspires.ftc.teamcode.detectionPipelines.BlueFarDetectionPipeline.Location.MIDDLE;

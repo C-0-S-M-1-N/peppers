@@ -93,6 +93,7 @@ public class Elevator implements Part {
         ControlHub.setMotorTargetPosition(M2, (int)(targetPosition - error1));
         ControlHub.setMotorTargetPosition(M0, (int) (targetPosition - error2));
     }
+    public double getVelocity(){ return velocity; }
     @Override
     public void runTelemetry() {
         ControlHub.telemetry.addData("targetPosition", targetPosition);
@@ -100,11 +101,12 @@ public class Elevator implements Part {
         ControlHub.telemetry.addData("e1", ControlHub.motor[1].getCurrentPosition());
         ControlHub.telemetry.addData("e2", ControlHub.motor[2].getCurrentPosition());
     }
-    private double error1 = 0, error2 = 0;
+    private double error1 = 0, error2 = 0, velocity;
     @Override
     public void update_values(){
         livePosition = ControlHub.motor[1].getCurrentPosition();
         error1 = livePosition - ControlHub.motor[2].getCurrentPosition();
         error2 = livePosition - ControlHub.motor[0].getCurrentPosition();
+        velocity = ControlHub.motor[0].getVelocity();
     }
 }

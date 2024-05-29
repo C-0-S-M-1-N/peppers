@@ -20,6 +20,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.utils.Mutex;
 
 @Config
@@ -63,7 +64,8 @@ public class ExpansionHub {
     public static double ImuYawAngle = 0, extension_length = 0;
     public Localizer localizer = null;
     public static LynxModule ExpansionHubModule;
-    public static double IMU_FREQ = 0.5; // in Hz
+    public static double IMU_FREQ = 0.5, TILT_FREQ = 10; // in Hz
+    public static YawPitchRollAngles angles;
 
     public ExpansionHub(HardwareMap hm, Localizer localizer){
         this.localizer = localizer;
@@ -111,7 +113,8 @@ public class ExpansionHub {
     }
 
     ElapsedTime imuTime = new ElapsedTime();
-
+    ElapsedTime tiltTime = new ElapsedTime();
+    public static double tiltAngle = 0;
 
     public void update(boolean update_localizer){
         if(update_localizer)
@@ -119,6 +122,11 @@ public class ExpansionHub {
 
 //        double imuAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
 //        if(imuAngle != 0) ImuYawAngle = imuAngle - beforeReset;
+        /*if(tiltTime.seconds() > 1.f / TILT_FREQ){
+            angles = imu.getRobotYawPitchRollAngles();
+            tiltTime.reset();
+            tiltAngle = -angles.getPitch(AngleUnit.DEGREES);
+        }*/
 
         if(imuTime.seconds() > 1.0 / IMU_FREQ) {
             imuTime.reset();

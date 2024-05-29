@@ -18,7 +18,7 @@ public class ElevatorArm implements Part {
     private MotionProfile armProfile = new MotionProfile(4000, 2000);
     public static double currentArmAngle = 0, defaultTouretDegrees = 173, imuResetedAngle = 0;
     public ElevatorArm(){
-        virtual1 = new AutoServo(SERVO_PORTS.S4, 82.f/355.f, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
+        virtual1 = new AutoServo(SERVO_PORTS.S3, 82.f/355.f, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
         virtual1.setAngle(0);
         virtual1.update();
 
@@ -32,7 +32,7 @@ public class ElevatorArm implements Part {
         rotationIndex = 2;
 
     }
-    public static final double rotationAngles[] = {-90, -60, 0, 60, 90};
+    public static final double rotationAngles[] = {-90, -60, 0, 60, 94};
     public int rotationIndex;
     public enum Direction{
         LEFT,
@@ -75,7 +75,7 @@ public class ElevatorArm implements Part {
     }
     public double getPixelRotation(){ return rotation.getAngle(); }
     public double getArmAngle(){
-        return currentArmAngle;
+        return virtual1.getAngle();
     }
     public double getLiveArmAngle(){
         return armProfile.getPosition();
