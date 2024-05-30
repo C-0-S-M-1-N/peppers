@@ -18,11 +18,11 @@ public class ElevatorArm implements Part {
     private MotionProfile armProfile = new MotionProfile(4000, 2000);
     public static double currentArmAngle = 0, defaultTouretDegrees = 173, imuResetedAngle = 0;
     public ElevatorArm(){
-        virtual1 = new AutoServo(SERVO_PORTS.S3, 82.f/355.f, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
+        virtual1 = new AutoServo(SERVO_PORTS.S5, 82.f/355.f, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
         virtual1.setAngle(0);
         virtual1.update();
 
-        rotation = new AutoServo(SERVO_PORTS.S1,  172.f/355.f,false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
+        rotation = new AutoServo(SERVO_PORTS.S0,  172.f/355.f,false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
         rotation.setAngle(0);
         rotation.update();
 

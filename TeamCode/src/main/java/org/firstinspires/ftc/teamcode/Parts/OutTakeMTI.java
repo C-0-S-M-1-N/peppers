@@ -48,16 +48,16 @@ public class OutTakeMTI {
 
     public OutTakeMTI(){
         State.level = 5;
-            extension = new AutoServo(SERVO_PORTS.S4, 0.f, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
+            extension = new AutoServo(SERVO_PORTS.S1, 0.f, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
             extension.setAngle(Retracted);
 
             elevator = new Elevator();
             arm = new ElevatorArm();
             state = State.WAIT_FOR_PIXELS;
-            left = new Grippers(new AutoServo(SERVO_PORTS.S5, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
-                    ControlHub.left, 15, 55.f, 125.f);
-            right = new Grippers(new AutoServo(SERVO_PORTS.S0, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
-                    ControlHub.right, 15, 177.f, 102.f);
+            left = new Grippers(new AutoServo(SERVO_PORTS.S2, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
+                    ControlHub.left, 15, 250.f, 250.f);
+            right = new Grippers(new AutoServo(SERVO_PORTS.S3, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
+                    ControlHub.right, 15, 177.f, 177.f);
 
         align = false;
         arm.setArmAngle(armAngleIntake);
@@ -70,6 +70,7 @@ public class OutTakeMTI {
         elevator.update_values();
         left.update();
         right.update();
+        driverUpdated = false;
     }
     public static boolean align = false, waitForTimer = false;
     ElapsedTime armAndExtendTime = new ElapsedTime(), startRetraction = new ElapsedTime();
@@ -204,10 +205,10 @@ public class OutTakeMTI {
                         waitForTimer = true;
                         armAndExtendTime.reset();
                     }
-                } else if(armAndExtendTime.seconds() >= 0.1 * slowmo && arm.getArmAngle() == armAngleRetracting){
+                } else if(armAndExtendTime.seconds() >= 0.85 * slowmo && arm.getArmAngle() == armAngleRetracting){
                     state = State.RETRACTED;
                     elevator.setTargetPosition(-60);
-                } else if(armAndExtendTime.seconds() >= 0.55 * slowmo && arm.getArmAngle() != armAngleRetracting){
+                } else if(armAndExtendTime.seconds() >= 0.7 * slowmo && arm.getArmAngle() != armAngleRetracting){
                     arm.setArmAngle(armAngleRetracting);
                     arm.setPixelRotation(intakeRotation);
                 }

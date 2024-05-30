@@ -43,9 +43,8 @@ public class Elevator implements Part {
     public static boolean RESET = false;
 
     public Elevator(){
-        ControlHub.setMotorDirection(M0, DcMotorSimple.Direction.REVERSE)
-;
         ControlHub.setMotorDirection(M1, DcMotorSimple.Direction.REVERSE);
+        ControlHub.setMotorDirection(M2, DcMotorSimple.Direction.REVERSE);
         for(int i = 0; i < 3; i++){
             if(!RESET) ControlHub.motor[i].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             ControlHub.motor[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);

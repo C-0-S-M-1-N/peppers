@@ -59,7 +59,7 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kV;
  */
 @Config
 public class SampleMecanumDriveCancelable extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(9,0.5, 0.2);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(7,0.2, 1.3);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(6, 0.5, 0.7);
 
     public static double LATERAL_MULTIPLIER = 1.8;
@@ -102,8 +102,8 @@ public class SampleMecanumDriveCancelable extends MecanumDrive {
 
 
         leftFront = hardwareMap.get(DcMotorEx.class, "eM2");
-        leftRear = hardwareMap.get(DcMotorEx.class, "eM3"); // 1
-        rightRear = hardwareMap.get(DcMotorEx.class, "eM0");
+        leftRear = hardwareMap.get(DcMotorEx.class, "eM0"); // 1
+        rightRear = hardwareMap.get(DcMotorEx.class, "eM3");
         rightFront = hardwareMap.get(DcMotorEx.class, "eM1"); // 2
 
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);

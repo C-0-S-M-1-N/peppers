@@ -36,7 +36,6 @@ public class ExpansionHub {
     public static double voltage;
     public static double compensation;
     public static IMU imu;
-    public static DistanceSensor sensor;
 
     private static void setMotorsToMax(){
         MotorConfigurationType mct = motor[0].getMotorType().clone();
@@ -97,7 +96,6 @@ public class ExpansionHub {
         ));
         imu.resetYaw();
 
-        sensor = hm.get(DistanceSensor.class, "sensor");
         beforeReset = 0;
         compensation = voltage;
 

@@ -58,7 +58,7 @@ public class Intake implements Part {
     public Intake(){
         STATE = STATES.IDLE;
         ControlHub.setMotorDirection(MOTOR_PORTS.M3, DcMotorSimple.Direction.REVERSE);
-        servo = new AutoServo(SERVO_PORTS.S2, 0,
+        servo = new AutoServo(SERVO_PORTS.S4, 0,
                 true, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
         servo.setAngle(150);
         servo.update();
