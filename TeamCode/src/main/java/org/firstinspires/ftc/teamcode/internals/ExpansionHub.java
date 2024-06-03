@@ -66,6 +66,10 @@ public class ExpansionHub {
     public static double IMU_FREQ = 0.5, TILT_FREQ = 10; // in Hz
     public static YawPitchRollAngles angles;
 
+    public static void setInitialBackdropAngleRelativeToBot(double angle){
+        beforeReset += angle;
+    }
+
     public ExpansionHub(HardwareMap hm, Localizer localizer){
         this.localizer = localizer;
 
@@ -115,6 +119,10 @@ public class ExpansionHub {
     public static double tiltAngle = 0;
 
     public void update(boolean update_localizer){
+        update(update_localizer, 0, 0);
+    }
+
+    public void update(boolean update_localizer, double posX, double posY){
         if(update_localizer)
             localizer.update();
 
@@ -131,7 +139,7 @@ public class ExpansionHub {
             double imuAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
             ImuYawAngle = Math.toDegrees(imuAngle) - beforeReset;
-            if(imuAngle != 0) localizer.setPoseEstimate(new Pose2d(0, 0, imuAngle));
+            if(imuAngle != 0) localizer.setPoseEstimate(new Pose2d(posX, posY, imuAngle));
         } else {
 //            ImuYawAngle = localizer.getPoseEstimate().getHeading() * 180 / PI;
             ImuYawAngle = Math.toDegrees(localizer.getPoseEstimate().getHeading()) - beforeReset;

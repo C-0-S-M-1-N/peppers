@@ -29,11 +29,10 @@ public class RedClose extends LinearOpMode {
     MiddleYellow = new Pose2d(30, -24, -Math.PI / 2.f);
 
     public static Pose2d
-    UnderTruss = new Pose2d(0, 0, 0),
-    TrussToStack   = new Pose2d(0, 0, 0),
-    Stack      = new Pose2d(0, 0, 0),
-    BackBoardToTruss = new Pose2d(0, 0, 0),
-    Backdrop         = new Pose2d(0, 0, 0);
+    TrussToStack   = new Pose2d(6, 51, -Math.PI/2.f),
+    Stack      = new Pose2d(25, 78, Math.toRadians(250)),
+    BackBoardToTruss = new Pose2d(4.5, -1, -Math.PI/2.f),
+    Backdrop         = new Pose2d(12, -28, Math.toRadians(302));
     int pixelsInStack = 5;
     int queue = 0;
 
@@ -49,6 +48,7 @@ public class RedClose extends LinearOpMode {
         ExpansionHub e = new ExpansionHub(hardwareMap, drive.getLocalizer());
         Controls cn = new Controls(gamepad1, gamepad2);
         ControlHub.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        ExpansionHub.setInitialBackdropAngleRelativeToBot(-90);
 
         outTake = new OutTakeMTI();
         intake = new Intake();
@@ -67,6 +67,7 @@ public class RedClose extends LinearOpMode {
                 .addTemporalMarker(() -> {
                     OutTakeMTI.State.level = 1;
                     OutTakeMTI.elevator.setTargetPosition(2 * OutTakeMTI.STEP);
+                    OutTakeMTI.align = true;
                     outTake.setToNormalPlacingFromPurplePixelPlacing();
                 })
                 .lineToLinearHeading(MiddleYellow)
@@ -83,11 +84,11 @@ public class RedClose extends LinearOpMode {
                     Controls.RetractElevatorAck = false;
                     isInPreloadPhase = false;
                 })
+                .waitSeconds(0.8)
                 .lineToLinearHeading(BackBoardToTruss)
                 .build();
 
         TrajectorySequence goToStack = drive.trajectorySequenceBuilder(BackBoardToTruss)
-                .lineToLinearHeading(UnderTruss)
                 .lineToLinearHeading(TrussToStack)
                 .lineToLinearHeading(Stack)
                 .build();
@@ -106,8 +107,12 @@ public class RedClose extends LinearOpMode {
                 .build();
         TrajectorySequence goToBackDrop = drive.trajectorySequenceBuilder(takePixels.end())
                 .lineToLinearHeading(TrussToStack)
-                .lineToLinearHeading(UnderTruss)
                 .addTemporalMarker(() -> {
+                    intakeActive = 0;
+                })
+                .lineToLinearHeading(BackBoardToTruss)
+                .addTemporalMarker(() -> {
+                    OutTakeMTI.State.level = 3;
                     Controls.ExtendElevator = true;
                     Controls.ExtendElevatorAck = false;
                 })
@@ -127,17 +132,19 @@ public class RedClose extends LinearOpMode {
             outTake.update();
         }
 
-//        waitForStart(); // TODO: add save&load servo position data reading
         int order = 0;
+
         while(opModeIsActive()){
             ControlHub.ControlHubModule.clearBulkCache();
             ExpansionHub.ExpansionHubModule.clearBulkCache();
+            e.update(false, drive.getLocalizer().getPoseEstimate().getX(), drive.getLocalizer().getPoseEstimate().getY());
             if(order == 1 && OutTakeMTI.isFullOfPixels()){
                 drive.breakFollowing();
                 order ++;
             }
             Controls.Intake = false;
             Controls.RevIntake = false;
+
             if(intakeActive == 1){
                 Controls.Intake = true;
             }
@@ -153,6 +160,7 @@ public class RedClose extends LinearOpMode {
                         break;
                     case 1:
                         drive.followTrajectorySequenceAsync(takePixels);
+                        order ++; // TODO: delete this line dupa ce face ipate clestii sa mearga
                         break;
                     case 2:
                         drive.followTrajectorySequenceAsync(goToBackDrop);
@@ -167,9 +175,7 @@ public class RedClose extends LinearOpMode {
             drive.update();
             outTake.update();
             cn.loop();
+            ControlHub.telemetry.update();
         }
-
-
-
     }
 }

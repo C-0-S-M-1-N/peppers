@@ -38,7 +38,7 @@ public class OutTakeMTI {
     public static int MAX_LVL = 11;
     public static double safeToExtendOuttake = STEP * 2.5;
     public static double armAnglePlaceingBackboard = 180 - 82, armAnglePlacingPurple = 0,
-                        armAngleIntake = 50, armAngleRetracting = 30, Retracted = 46, Extended = 173, intakeRotation = -5;
+                        armAngleIntake = 20, armAngleRetracting = 30, Retracted = 10, Extended = 120, intakeRotation = -4;
     public static Elevator elevator = null;
     public static ElevatorArm arm = null;
     public static AutoServo extension = null;
@@ -54,10 +54,10 @@ public class OutTakeMTI {
             elevator = new Elevator();
             arm = new ElevatorArm();
             state = State.WAIT_FOR_PIXELS;
-            left = new Grippers(new AutoServo(SERVO_PORTS.S2, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
-                    ControlHub.left, 15, 250.f, 250.f);
-            right = new Grippers(new AutoServo(SERVO_PORTS.S3, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
-                    ControlHub.right, 15, 177.f, 177.f);
+            left = new Grippers(new AutoServo(SERVO_PORTS.S3, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
+                    ControlHub.right, 20, 90.f, 155.f);
+            right = new Grippers(new AutoServo(SERVO_PORTS.S2, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
+                    ControlHub.left, 20, 80.f, 10.f);
 
         align = false;
         arm.setArmAngle(armAngleIntake);
@@ -156,6 +156,7 @@ public class OutTakeMTI {
         }
         return false;
     }
+    public static double extendingAngle = 100;
 
     public void update(){
         controls();
@@ -170,7 +171,7 @@ public class OutTakeMTI {
             case EXTENDING:
                 if(elevator.targetPosition != Math.max(safeToExtendOuttake + 10, State.level * STEP))
                     elevator.setTargetPosition(Math.max(safeToExtendOuttake + 10, State.level * STEP));
-                arm.setPixelRotation(95);
+                arm.setPixelRotation(extendingAngle);
                 if(time1.seconds() >= 0.1) {
                     arm.setArmAngle(armAnglePlacingPurple); // to be parralel with ground
                     state = State.EXTENDED;
@@ -199,7 +200,7 @@ public class OutTakeMTI {
                 if(!waitForTimer) {
                     align = false;
                     arm.setArmAngle(armAnglePlacingPurple);
-                    arm.setPixelRotation(94);
+                    arm.setPixelRotation(extendingAngle);
                     if(startRetraction.seconds() >= 0.2 * slowmo && elevator.getLivePosition() >= safeToExtendOuttake - 20) {
                         extension.setAngle(Retracted);
                         waitForTimer = true;
@@ -221,19 +222,21 @@ public class OutTakeMTI {
             case PLACING_PIXELS:
                 arm.setPixelRotation(ElevatorArm.rotationAngles[arm.rotationIndex]);
                 arm.setArmAngle(armAnglePlaceingBackboard);
-                align = true;
+                if(time1.seconds() >= 0.1) {
+                    align = true;
+                }
                 if(left.state == Grippers.State.OPEN && right.state == Grippers.State.OPEN && driverUpdated){
                     if(!dropTime){
                         droping.reset();
                         dropTime = true;
                     } else if(droping.seconds() >= 0.2 * slowmo) {
+                        dropTime = false;
                         state = State.RETRACTING;
                         waitForTimer = false;
                         startRetraction.reset();
                         elevator.setTargetPosition(safeToExtendOuttake);
                     }
                 }
-                // update dropping
                 break;
             case HANG:
                 State.level = 5;
@@ -250,7 +253,7 @@ public class OutTakeMTI {
                 break;
             case PLACE_PURPLE_1:
                 elevator.setTargetPosition(STEP * 5);
-                arm.setPixelRotation(95);
+                arm.setPixelRotation(100);
                 arm.setArmAngle(armAnglePlacingPurple); // to be parralel with ground
                 state = State.PLACE_PURPLE_2;
                 waitForTimer = false;
@@ -267,7 +270,6 @@ public class OutTakeMTI {
                     extension.setAngle(Extended + 0.1);
                 }
                 break;
-
         }
         if(align)
             arm.setOrientation(ExpansionHub.ImuYawAngle);
