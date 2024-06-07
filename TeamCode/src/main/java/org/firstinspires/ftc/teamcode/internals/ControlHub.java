@@ -65,6 +65,9 @@ public class ControlHub {
         left = hm.get(BetterColorRangeSensor.class, "leftSensor");
         right = hm.get(BetterColorRangeSensor.class, "rightSensor");
 
+        left.addLowPassFilter(0.1);
+        right.addLowPassFilter(0.1);
+
         for(int i = 0; i < 4; i++){
             motor[i].setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             motor_cache[i] = 69;

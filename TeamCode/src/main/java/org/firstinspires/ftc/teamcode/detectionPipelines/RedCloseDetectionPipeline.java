@@ -68,15 +68,15 @@ public class RedCloseDetectionPipeline extends OpenCvPipeline {
 
         if(tseRight) {
             location = Location.RIGHT;
-            telemetry.addData("pixel_location: ", "middle");
+            telemetry.addData("pixel_location", "middle");
         }
         else if(tseMiddle){
             location = Location.MIDDLE;
-            telemetry.addData("pixel_location: ", "left");
+            telemetry.addData("pixel_location", "left");
         }
         else{
             location = Location.LEFT;
-            telemetry.addData("pixel_location: ", "right");
+            telemetry.addData("pixel_location", "right");
         }
         telemetry.update();
         Imgproc.cvtColor(mat,mat,Imgproc.COLOR_GRAY2RGB);

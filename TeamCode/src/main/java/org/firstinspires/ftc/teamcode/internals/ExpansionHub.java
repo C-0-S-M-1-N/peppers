@@ -116,7 +116,7 @@ public class ExpansionHub {
 
     ElapsedTime imuTime = new ElapsedTime();
     ElapsedTime tiltTime = new ElapsedTime();
-    public static double tiltAngle = 0;
+    public static double tiltAngle = 0, yawnAngle = 0;
 
     public void update(boolean update_localizer){
         update(update_localizer, 0, 0);
@@ -136,7 +136,8 @@ public class ExpansionHub {
 
         if(imuTime.seconds() > 1.0 / IMU_FREQ) {
             imuTime.reset();
-            double imuAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            yawnAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            double imuAngle = yawnAngle;
 
             ImuYawAngle = Math.toDegrees(imuAngle) - beforeReset;
             if(imuAngle != 0) localizer.setPoseEstimate(new Pose2d(posX, posY, imuAngle));

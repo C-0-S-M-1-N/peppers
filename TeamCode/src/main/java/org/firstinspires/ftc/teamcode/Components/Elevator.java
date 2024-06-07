@@ -59,7 +59,8 @@ public class Elevator implements Part {
         setTargetPosition(p);
     }
     public void setTargetPosition(double p){
-        targetPosition = p;
+        if(targetPosition != p)
+            targetPosition = p;
     }
 
     public boolean reatchedTargetPosition(){
@@ -74,14 +75,14 @@ public class Elevator implements Part {
 
     @Override
     public void update() {
-        if(targetPosition <= 0 && livePosition <= 8 && state != State.RESET){
+        if(targetPosition <= 0 && livePosition <= 5 && state != State.RESET){
             state = State.RESET;
             for(int i = 0; i < 3; i++){
                 ControlHub.motor[i].setMotorDisable();
             }
         }
 
-        if((targetPosition > 0 || livePosition > 8) && state == State.RESET){
+        if((targetPosition > 0 || livePosition > 5) && state == State.RESET){
             state = State.NOT_RESET;
             for(int i = 0; i < 3; i++){
                 ControlHub.motor[i].setMotorEnable();
