@@ -72,22 +72,42 @@ public class Elevator implements Part {
     }
 
     public static boolean DEBUG = false;
+    public static boolean disableMotors = false;
+
+    private void disable(){
+        if(!isEnabledCache) return;
+        for(int i = 0; i < 3; i++){
+            ControlHub.motor[i].setMotorDisable();
+        }
+        isEnabledCache = false;
+    }
+    private boolean isEnabledCache = false;
+    private void enable(){
+        if(isEnabledCache) return;
+        for(int i = 0; i < 3; i++){
+            ControlHub.motor[i].setMotorEnable();
+        }
+        isEnabledCache = true;
+    }
 
     @Override
     public void update() {
-        if(targetPosition <= 0 && livePosition <= 5 && state != State.RESET){
+        disableMotors = targetPosition <= 0 && getVelocity() <= 10 && livePosition <= 10;
+        /*if(targetPosition <= 0 && livePosition <= 8 && state != State.RESET){
             state = State.RESET;
             for(int i = 0; i < 3; i++){
                 ControlHub.motor[i].setMotorDisable();
             }
         }
 
-        if((targetPosition > 0 || livePosition > 5) && state == State.RESET){
+        if((targetPosition > 0 || livePosition > 8) && state == State.RESET){
             state = State.NOT_RESET;
             for(int i = 0; i < 3; i++){
                 ControlHub.motor[i].setMotorEnable();
             }
-        }
+        }*/
+        if(disableMotors) disable();
+        else enable();
 
         ControlHub.setMotorTargetPosition(M1, (int) targetPosition);
         ControlHub.setMotorTargetPosition(M2, (int)(targetPosition - error1));

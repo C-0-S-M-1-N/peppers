@@ -66,6 +66,7 @@ public class MainOpMTI extends LinearOpMode {
             cn.loop();
             ControlHub.telemetry.addData("robot tilt", ExpansionHub.tiltAngle);
             ControlHub.telemetry.addData("MAX_LVL", OutTakeMTI.MAX_LVL);
+            ControlHub.telemetry.addData("servo angle", OutTakeMTI.extension.getExtensionAngle());
             ControlHub.telemetry.update();
         }
 

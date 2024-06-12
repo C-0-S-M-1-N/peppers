@@ -44,7 +44,7 @@ public class Intake implements Part {
     private boolean grippersHave = false;
     public static double[] stackPositions = {230, 220, 210, 200, 190};
     public static double Up = 150;
-    private int lvl = 0;
+    public static int lvl = 0;
     public static int TEST_POSITION = 0;
 
     public void setPixelStackPosition(int level){
@@ -105,6 +105,7 @@ public class Intake implements Part {
         servo.update();
 
     }
+    public static boolean forceOut = false;
     @Override
     public void update(){
         if(Disabled) return;
@@ -122,8 +123,11 @@ public class Intake implements Part {
         if(Controls.Intake){
             STATE = STATES.FORWARD;
         }
+        int power = -1;
         if(Controls.RevIntake || (grippersHave && Controls.Intake)){
             STATE = STATES.REVERSE;
+            if(grippersHave && Controls.Intake) power = 1;
+            else power = -1;
         }
         if(!Controls.RevIntake && !Controls.Intake) STATE = STATES.IDLE;
 
@@ -137,6 +141,7 @@ public class Intake implements Part {
                 servo.setAngle(stackPositions[lvl]);
                 break;
             case REVERSE:
+                power = forceOut ? -1 : 1;
                 ControlHub.setMotorPower(MOTOR_PORTS.M3, -1);
                 servo.setAngle(Up);
                 break;

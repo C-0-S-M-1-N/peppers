@@ -47,7 +47,7 @@ public class DriveConstants {
      */
     public static double WHEEL_RADIUS = 1.8898; // in
     public static double GEAR_RATIO = 23.f/21; // output (wheel) speed / input (motor) speed
-    public static double TRACK_WIDTH = 10.71; // in
+    public static double TRACK_WIDTH = 11.89; // in
 
     /*
      * These are the feedforward parameters used to model the drive motor behavior. If you are using
@@ -99,9 +99,9 @@ public class DriveConstants {
      * https://github.com/acmerobotics/road-runner-quickstart/issues/91
 
      */
-    public static double MAX_VEL = 65;
+    public static double MAX_VEL = 70;
     public static double MAX_ACCEL = 55;
-    public static double MAX_ANG_VEL = Math.toRadians(180);
+    public static double MAX_ANG_VEL = 5;
     public static double MAX_ANG_ACCEL = 5;
 
 

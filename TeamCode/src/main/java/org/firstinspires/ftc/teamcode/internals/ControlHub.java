@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.internals;
 
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -19,6 +20,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.utils.BetterColorRangeSensor;
 import org.firstinspires.ftc.teamcode.utils.Mutex;
 
+import java.security.cert.Extension;
 import java.util.List;
 
 public class ControlHub {
@@ -55,18 +57,20 @@ public class ControlHub {
 
     }
     public static LynxModule ControlHubModule;
+    public static AnalogInput ExtensionEncoder;
 
     public ControlHub(HardwareMap hm){
         motor[0] = hm.get(DcMotorEx.class, "cM0");
         motor[1] = hm.get(DcMotorEx.class, "cM1");
         motor[2] = hm.get(DcMotorEx.class, "cM2");
         motor[3] = hm.get(DcMotorEx.class, "cM3");
+        ExtensionEncoder = hm.get(AnalogInput.class, "cA0");
 
         left = hm.get(BetterColorRangeSensor.class, "leftSensor");
         right = hm.get(BetterColorRangeSensor.class, "rightSensor");
 
-        left.addLowPassFilter(0.1);
-        right.addLowPassFilter(0.1);
+        left.addLowPassFilter(1);
+        right.addLowPassFilter(1);
 
         for(int i = 0; i < 4; i++){
             motor[i].setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

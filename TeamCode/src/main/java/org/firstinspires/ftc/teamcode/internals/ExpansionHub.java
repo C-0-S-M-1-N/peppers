@@ -109,7 +109,7 @@ public class ExpansionHub {
 
     }
 
-    private static double beforeReset = 0;
+    public static double beforeReset = 0;
     public static void resetIMU(){
         beforeReset += ImuYawAngle;
     }
