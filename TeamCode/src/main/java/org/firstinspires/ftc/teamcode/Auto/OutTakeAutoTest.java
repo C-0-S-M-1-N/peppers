@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
-@Autonomous(name = "OutTakeAutoTest")
+@Autonomous(name = "OutTakeAutoTest", group = "test")
 public class OutTakeAutoTest extends LinearOpMode {
     public SampleMecanumDriveCancelable drive;
     @Override

@@ -12,15 +12,16 @@ import org.firstinspires.ftc.teamcode.utils.AutoServo;
 public class OutTakeExtensionModule {
     private AutoServo servo1, servo2;
 
-    public static double retractS1 = 50, retractS2 = 0,
-                         extendS1 = 207, extendS2 = 0;
+    public static double retractS1 = 30, retractS2 = 30,
+                         extendS1 = 220, extendS2 = 220;
     public OutTakeExtensionModule(){
         servo1 = new AutoServo(SERVO_PORTS.S1, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
-        servo2 = new AutoServo(SERVO_PORTS.S4, 0, true, Hubs.EXPANSION_HUB, AutoServo.TYPE.AXON);
+        servo2 = new AutoServo(SERVO_PORTS.S4, 0, false, Hubs.EXPANSION_HUB, AutoServo.TYPE.AXON);
+        retract();
     }
 
     public void update(){
-        servo1.update();
+        servo1.update(); servo2.update();
     }
 
     public void extend(){

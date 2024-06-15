@@ -43,7 +43,7 @@ public class TestMotors extends LinearOpMode {
                 ExpansionHub.setMotorDirection(port, dir);
                 ExpansionHub.setMotorPower(port, power);
             }
-            telemetry.addData("power consumption", ControlHub.getCurrentFromMotor(port, CurrentUnit.MILLIAMPS));
+            telemetry.addData("power consumption", hub == Hubs.CONTROL_HUB ? ControlHub.getCurrentFromMotor(port, CurrentUnit.MILLIAMPS) : ExpansionHub.getCurrentFromMotor(port, CurrentUnit.MILLIAMPS));
             telemetry.update();
         }
     }

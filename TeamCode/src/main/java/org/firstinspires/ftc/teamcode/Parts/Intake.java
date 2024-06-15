@@ -106,6 +106,7 @@ public class Intake implements Part {
 
     }
     public static boolean forceOut = false;
+    public static double reversePower = -1;
     @Override
     public void update(){
         if(Disabled) return;
@@ -124,10 +125,8 @@ public class Intake implements Part {
             STATE = STATES.FORWARD;
         }
         int power = -1;
-        if(Controls.RevIntake || (grippersHave && Controls.Intake)){
+        if(Controls.RevIntake){
             STATE = STATES.REVERSE;
-            if(grippersHave && Controls.Intake) power = 1;
-            else power = -1;
         }
         if(!Controls.RevIntake && !Controls.Intake) STATE = STATES.IDLE;
 
@@ -142,7 +141,7 @@ public class Intake implements Part {
                 break;
             case REVERSE:
                 power = forceOut ? -1 : 1;
-                ControlHub.setMotorPower(MOTOR_PORTS.M3, -1);
+                ControlHub.setMotorPower(MOTOR_PORTS.M3, reversePower);
                 servo.setAngle(Up);
                 break;
         }

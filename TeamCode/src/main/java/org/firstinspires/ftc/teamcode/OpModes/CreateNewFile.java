@@ -7,6 +7,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Parts.OutTakeMTI;
@@ -19,22 +20,20 @@ import java.io.IOException;
 public class CreateNewFile extends LinearOpMode {
     Telemetry tele;
     public static File file;
-    public void createFile(){
+    public static void createFile(){
         if(!file.exists()){
-            tele.addLine("Creating File . . .");
             try {
                 file.createNewFile();
             } catch (IOException e) {
-                tele.addLine("Can't create file to cache position");
+                RobotLog.e("File not found");
             }
         }
     }
-    public void resetFile(){
+    public static void resetFile(){
         if(file.exists()){
             file.delete();
-        } else {
-            tele.addLine("File appears to not exist, try creating it first");
         }
+        createFile();
     }
 
     @Override

@@ -53,6 +53,7 @@ public class Elevator implements Part {
             ControlHub.motor[i].setPower(1);
         }
         RESET = true;
+        isEnabledCache = true;
     }
 
     public void setInstantPosition(double p) {
@@ -64,7 +65,7 @@ public class Elevator implements Part {
     }
 
     public boolean reatchedTargetPosition(){
-        return Math.abs(livePosition - targetPosition) <= position_threshold || state == State.RESET;
+        return Math.abs(livePosition - targetPosition) <= position_threshold || disableMotors;
     }
 
     public double getLivePosition(){
@@ -92,7 +93,7 @@ public class Elevator implements Part {
 
     @Override
     public void update() {
-        disableMotors = targetPosition <= 0 && getVelocity() <= 10 && livePosition <= 10;
+        disableMotors = targetPosition <= 0 && getVelocity() <= 50 && livePosition <= 10;
         /*if(targetPosition <= 0 && livePosition <= 8 && state != State.RESET){
             state = State.RESET;
             for(int i = 0; i < 3; i++){
@@ -120,6 +121,7 @@ public class Elevator implements Part {
         ControlHub.telemetry.addData("e0", ControlHub.motor[0].getCurrentPosition());
         ControlHub.telemetry.addData("e1", ControlHub.motor[1].getCurrentPosition());
         ControlHub.telemetry.addData("e2", ControlHub.motor[2].getCurrentPosition());
+        ControlHub.telemetry.addData("velocity", getVelocity());
     }
     private double error1 = 0, error2 = 0, velocity;
     @Override

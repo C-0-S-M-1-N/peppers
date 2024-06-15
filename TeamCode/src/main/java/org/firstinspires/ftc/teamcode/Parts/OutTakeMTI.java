@@ -38,7 +38,7 @@ public class OutTakeMTI {
         PLACE_PURPLE_2,
         RESET_OUTTAKE,
         HANG;
-        public static int level = 5;
+        public static double level = 5;
     }
 
     public static State state = null;
@@ -47,7 +47,7 @@ public class OutTakeMTI {
     public static int MAX_LVL = 11;
     public static double safeToExtendOuttake = STEP * 2.5;
     public static double armAnglePlaceingBackboard = 85, armAnglePlacingPurple = 0,
-                        armAngleIntake = 30, armAngleRetracting = 15, intakeRotation = -2, tourretOffset = 2;
+                        armAngleIntake = 27, armAngleRetracting = 15, intakeRotation = -2, tourretOffset = 2;
     public static Elevator elevator = null;
     public static ElevatorArm arm = null;
     public static OutTakeExtensionModule extension = null;
@@ -98,9 +98,9 @@ public class OutTakeMTI {
         arm = new ElevatorArm();
         state = readStateFromFile();
         left = new Grippers(new AutoServo(SERVO_PORTS.S3, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
-                    ControlHub.left, 20, 172.f, 60.f);
+                    ControlHub.left, 580, 172.f, 60.f);
         right = new Grippers(new AutoServo(SERVO_PORTS.S2, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
-                    ControlHub.right, 16, 172.f, 270.f);
+                    ControlHub.right, 420, 172.f, 270.f);
         align = false;
         arm.setArmAngle(armAngleIntake);
         arm.setPixelRotation(0);
@@ -122,13 +122,15 @@ public class OutTakeMTI {
         }).start();
     }
     public static boolean align = false, waitForTimer = false;
+    public boolean setToPurplePlace = false;
     ElapsedTime armAndExtendTime = new ElapsedTime(), startRetraction = new ElapsedTime();
     public void setToPurplePlacing(){
         State.level = 0;
-        changeStateTo(State.PLACE_PURPLE_1);
+        setToPurplePlace = true;
+        changeStateTo(State.EXTENDING);
     }
     public static boolean hasAPixel(){
-        return left.state == Grippers.State.CLOSE || right.state == Grippers.State.CLOSE;
+        return left.hasAPixel() || right.hasAPixel();
     }
     private void controls(){
         if(Controls.Hang) {
@@ -193,21 +195,31 @@ public class OutTakeMTI {
     public static boolean driverUpdated = true;
     private ElapsedTime time1 = new ElapsedTime();
     public void setToNormalPlacingFromPurplePixelPlacing(){
-        arm.setPixelRotation(pixelsAngle);
-        changeStateTo(State.PLACING_PIXELS);
+        arm.rotationIndex = 0;
+        arm.setPixelRotation(ElevatorArm.rotationAngles[arm.rotationIndex]);
+        waitForTimer = false;
+        setToPurplePlace = false;
+        align = true;
     }
-    public static double extendingAngle = 100;
+    public static double extendingAngle = -100;
 
     public void update(){
         controls();
         switch (state){
             case WAIT_FOR_PIXELS:
-                right.update_values(true);
-                left.update_values(true);
+//                right.update_values(true);
+//                left.update_values(true);
                 arm.setPixelRotation(intakeRotation);
                 arm.setArmAngle(armAngleIntake);
                 arm.setOrientation(tourretOffset);
                 extension.retract();
+                if(Controls.Intake){
+                    right.open();
+                    left.open();
+                } else {
+                    right.close();
+                    left.close();
+                }
                 // sensors responsive
                 break;
             case EXTENDING:
@@ -222,13 +234,13 @@ public class OutTakeMTI {
                 }
                 break;
             case EXTENDED:
-                if(elevator.getLivePosition() >= safeToExtendOuttake && !waitForTimer && time1.seconds() >= 0.1 * slowmo){
+                if(elevator.getLivePosition() >= safeToExtendOuttake && !waitForTimer && time1.seconds() >= 0.23 * slowmo){
                     extension.extend();
                     armAndExtendTime.reset();
                     waitForTimer = true;
                     time1.reset();
                 }
-                if(waitForTimer && extension.isExtended() && time1.seconds() >= 0.3){
+                if(waitForTimer && extension.isExtended() && time1.seconds() >= 0.35){
                     waitForTimer = false;
                     arm.setPixelRotation(pixelsAngle);
                     elevator.setTargetPosition(STEP * State.level);
@@ -244,12 +256,12 @@ public class OutTakeMTI {
                     arm.setOrientation(0);
                     arm.setArmAngle(armAnglePlacingPurple);
                     arm.setPixelRotation(extendingAngle);
-                    if(time1.seconds() >= 0.1 * slowmo) {
+                    if(time1.seconds() >= 0.08 * slowmo) {
                         waitForTimer = true;
                         armAndExtendTime.reset();
                         extension.retract();
                     }
-                } else if(/*extension.isRetracted() &&*/ armAndExtendTime.seconds() >= 0.3 * slowmo && !retractBoolean){
+                } else if(/*extension.isRetracted() &&*/ armAndExtendTime.seconds() >= 0.45 * slowmo && !retractBoolean){
                     time1.reset();
                     arm.setPixelRotation(intakeRotation);
                     arm.update();
@@ -257,7 +269,6 @@ public class OutTakeMTI {
                 }
                 if(time1.seconds() >= 0.1 * slowmo && retractBoolean){
                     arm.setArmAngle(armAngleRetracting);
-                    arm.setPixelRotation(intakeRotation);
                     arm.update();
                     retractBoolean = false;
                     changeStateTo(State.RETRACTED);
@@ -265,17 +276,22 @@ public class OutTakeMTI {
                 }
                 break;
             case RETRACTED:
-                arm.setPixelRotation(intakeRotation);
                 if(elevator.reatchedTargetPosition()){
                     changeStateTo(State.WAIT_FOR_PIXELS);
                     arm.setPixelRotation(intakeRotation);
                 }
                 break;
             case PLACING_PIXELS:
-                arm.setPixelRotation(ElevatorArm.rotationAngles[arm.rotationIndex]);
-                arm.setArmAngle(armAnglePlaceingBackboard);
-                if(time1.seconds() >= 0.1) {
-                    align = true;
+                if(!setToPurplePlace) {
+                    arm.setPixelRotation(ElevatorArm.rotationAngles[arm.rotationIndex]);
+                    arm.setArmAngle(armAnglePlaceingBackboard);
+                    if(time1.seconds() >= 0.1) {
+                        align = true;
+                    }
+                } else {
+                    arm.setArmAngle(armAnglePlacingPurple);
+                    arm.setArmAngle(0);
+                    align = false;
                 }
                 if(left.state == Grippers.State.OPEN && right.state == Grippers.State.OPEN && driverUpdated){
                     if(!dropTime){
@@ -311,14 +327,14 @@ public class OutTakeMTI {
                 time1.reset();
                 break;
             case PLACE_PURPLE_2:
-                if(elevator.getLivePosition() >= safeToExtendOuttake && extension.isRetracted()){
+                if(elevator.getLivePosition() >= safeToExtendOuttake + 100 && time1.seconds() >= 0.6 && !waitForTimer){
                     elevator.setTargetPosition(safeToExtendOuttake);
                     extension.extend();
                     time1.reset();
-                } else if(extension.isExtended() && time1.seconds() >= 0.2){
+                    waitForTimer = true;
+                } else if(time1.seconds() >= 0.5){
                     arm.setPixelRotation(0);
                     elevator.setTargetPosition(-60);
-                    extension.extend();
                 }
                 break;
         }
@@ -358,6 +374,6 @@ public class OutTakeMTI {
     private ElapsedTime droping = new ElapsedTime();
     private boolean dropTime = false;
     public static boolean isFullOfPixels(){
-        return left.state == Grippers.State.CLOSE && right.state == Grippers.State.CLOSE;
+        return left.hasAPixel() && right.hasAPixel();
     }
 }

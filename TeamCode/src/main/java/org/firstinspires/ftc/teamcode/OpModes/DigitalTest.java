@@ -26,8 +26,8 @@ public class DigitalTest extends LinearOpMode {
 
         telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(), telemetry);
 
-        BetterColorRangeSensor sensorR = hardwareMap.get(BetterColorRangeSensor.class, "rightSensor");
         BetterColorRangeSensor sensorL = hardwareMap.get(BetterColorRangeSensor.class, "leftSensor");
+        BetterColorRangeSensor sensorR = hardwareMap.get(BetterColorRangeSensor.class, "rightSensor");
 
         waitForStart();
 

@@ -97,6 +97,9 @@ public class Grippers implements Part {
             else state = State.OPEN;
         }
     }
+    public boolean hasAPixel(){
+        return sensor.LogicProximityStatus();
+    }
 
     @Override
     public void update_values(){

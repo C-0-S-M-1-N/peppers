@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.utils.UltraSonicSensor;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-@TeleOp(name = "Relocalization Test")
+@TeleOp(name = "Relocalization Test", group = "test")
 @Config
 public class RelocalizationTest extends LinearOpMode {
     SampleMecanumDriveCancelable drive;

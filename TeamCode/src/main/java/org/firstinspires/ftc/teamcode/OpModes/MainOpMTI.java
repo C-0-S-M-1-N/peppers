@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Parts.OutTakeMTI;
@@ -18,6 +19,7 @@ import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 @Config
 public class MainOpMTI extends LinearOpMode {
     long lastTime = 0;
+    public static boolean MEASURE_CHASSIS_POWER_COSUMPTION = false;
     SampleMecanumDriveCancelable mecanumDrive;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -67,6 +69,15 @@ public class MainOpMTI extends LinearOpMode {
             ControlHub.telemetry.addData("robot tilt", ExpansionHub.tiltAngle);
             ControlHub.telemetry.addData("MAX_LVL", OutTakeMTI.MAX_LVL);
             ControlHub.telemetry.addData("servo angle", OutTakeMTI.extension.getExtensionAngle());
+
+            if(MEASURE_CHASSIS_POWER_COSUMPTION){
+                double power = 0;
+                for(int i = 0; i < 3; i++) {
+                    power += ControlHub.motor[i].getCurrent(CurrentUnit.MILLIAMPS);
+                    ControlHub.telemetry.addData("motor" + i, ControlHub.motor[i].getCurrent(CurrentUnit.MILLIAMPS));
+                }
+            }
+
             ControlHub.telemetry.update();
         }
 

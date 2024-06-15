@@ -16,7 +16,7 @@ public class ElevatorArm implements Part {
 
     private AutoServo virtual1, turret, rotation;
     private MotionProfile armProfile = new MotionProfile(4000, 2000);
-    public static double currentArmAngle = 0, defaultTouretDegrees = 189, imuResetedAngle = 0;
+    public static double currentArmAngle = 0, defaultTouretDegrees = 209, imuResetedAngle = 0;
     public ElevatorArm(){
         virtual1 = new AutoServo(SERVO_PORTS.S5, 75.f/355.f, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
         virtual1.setAngle(0);
