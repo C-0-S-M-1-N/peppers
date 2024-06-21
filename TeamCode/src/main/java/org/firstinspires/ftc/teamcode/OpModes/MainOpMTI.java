@@ -6,7 +6,9 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Parts.Intake;
@@ -21,6 +23,32 @@ public class MainOpMTI extends LinearOpMode {
     long lastTime = 0;
     public static boolean MEASURE_CHASSIS_POWER_COSUMPTION = false;
     SampleMecanumDriveCancelable mecanumDrive;
+    public enum GamePadAxiesCompensation{
+        G1LX(0.01),
+        G1LY(0.01),
+        G1RX(0.01),
+        G1RY(0.01),
+        G1LT(0),
+        G1RT(0),
+
+        G2LX(0.01),
+        G2LY(0.01),
+        G2RX(0.01),
+        G2RY(0.01),
+        G2LT(0),
+        G2RT(0),
+        ;
+        GamePadAxiesCompensation(double treshHold){
+            TH = treshHold;
+        }
+        public double TH;
+    }
+
+
+    public static double DeadZoneFilter(double rawValue, GamePadAxiesCompensation AXIES){
+        return Math.abs(rawValue) < AXIES.TH ? 0 : rawValue;
+    }
+
     @Override
     public void runOpMode() throws InterruptedException {
         mecanumDrive = new SampleMecanumDriveCancelable(hardwareMap);
@@ -31,11 +59,16 @@ public class MainOpMTI extends LinearOpMode {
 
         OutTakeMTI out = new OutTakeMTI();
         Intake intake = new Intake();
-        out.update();
+        for(int i = 0; i < 3; i++){
+            ControlHub.motor[i].setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        }
 
         boolean boost = true;
-
-        waitForStart();
+        boolean DownIntake = false, UpIntake = false, stackMode = false;
+        int StackPos = 1, savedStackPos = 0;
+        while(opModeInInit()){
+            out.update();
+        }
         lastTime = System.currentTimeMillis();
 
         while (opModeIsActive()){
@@ -45,15 +78,46 @@ public class MainOpMTI extends LinearOpMode {
                 ExpansionHub.resetIMU();
                 Controls.ResetTourretAck = true;
             }
+            if(stackMode) {
+                if (gamepad2.right_stick_y <= -0.7) {
+                    if (!DownIntake) {
+                        StackPos++;
+                        if (StackPos > 5) StackPos = 5;
+                        intake.setPixelStackPosition(StackPos);
+                    }
+                    DownIntake = true;
+                } else DownIntake = false;
+                if (gamepad2.right_stick_y >= 0.7) {
+                    if (!UpIntake) {
+                        StackPos--;
+                        if (StackPos < 1) StackPos = 1;
+                        intake.setPixelStackPosition(StackPos);
+                    }
+                    UpIntake = true;
+                } else UpIntake = false;
+            }
+            if(Controls.StackMode){
+                Controls.StackModeAck = true;
+                stackMode = !stackMode;
+                if(!stackMode){
+                    intake.setPixelStackPosition(1);
+                    StackPos = 5;
+                } else {
+                    intake.setPixelStackPosition(StackPos);
+                }
+            }
 
             e.update(false);
+            if(Controls.IntakeLvlUp){
+                ControlHub.telemetry.addLine("sjhjsdh");
+            }
 
             boost = !gamepad1.a;
 
             mecanumDrive.setWeightedDrivePower(  new Pose2d(
                 -gamepad1.left_stick_y * (boost ? 1.0 : 0.3),
                 -gamepad1.left_stick_x * (boost ? 1.0 : 0.3),
-           (gamepad1.left_trigger - gamepad1.right_trigger) * (boost ? 1.0 : 0.3)
+                (gamepad1.left_trigger - gamepad1.right_trigger) * (boost ? 1.0 : 0.3)
             ));
 
             ControlHub.telemetry.addData("freq", 1000.f/(System.currentTimeMillis() - lastTime));
@@ -67,8 +131,7 @@ public class MainOpMTI extends LinearOpMode {
 
             cn.loop();
             ControlHub.telemetry.addData("robot tilt", ExpansionHub.tiltAngle);
-            ControlHub.telemetry.addData("MAX_LVL", OutTakeMTI.MAX_LVL);
-            ControlHub.telemetry.addData("servo angle", OutTakeMTI.extension.getExtensionAngle());
+            ControlHub.telemetry.addData("stack pos", StackPos);
 
             if(MEASURE_CHASSIS_POWER_COSUMPTION){
                 double power = 0;

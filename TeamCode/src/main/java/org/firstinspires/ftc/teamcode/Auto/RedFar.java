@@ -32,17 +32,17 @@ import java.io.IOException;
 
 @Autonomous(name = "RedFar", group = "auto")
 @Config
-public class BlueFar extends LinearOpMode {
+public class RedFar extends LinearOpMode {
     public static Pose2d
-            MiddlePurple = new Pose2d(48, -10.5, -Math.toRadians(227)),
-            MiddleYellow = new Pose2d(37.5, 85.3, -Math.toRadians(243)),
+    MiddlePurple = new Pose2d(48, 10.5, Math.toRadians(227)),
+    MiddleYellow = new Pose2d(37.5, -85.3, Math.toRadians(243)),
 
 
-    Stack = new Pose2d(51, -18.5, -Math.toRadians(270)),
-            Backdrop = new Pose2d(45.5, 85.7, -Math.toRadians(243)),
-            Stack2 = new Pose2d(51, -18.5, -Math.toRadians(270)),
-            StackGate = new Pose2d(52, 4, Math.PI/2),
-            BackdropGate = new Pose2d(52, 65, Math.PI/2);
+    Stack = new Pose2d(51, 18.5, Math.toRadians(270)),
+    Backdrop = new Pose2d(45.5, -85.7, Math.toRadians(243)),
+    Stack2 = new Pose2d(51, 18.5, Math.toRadians(270)),
+    StackGate = new Pose2d(52, -4, -Math.PI/2),
+    BackdropGate = new Pose2d(52, -65, -Math.PI/2);
 
     SampleMecanumDriveCancelable drive;
     OutTakeMTI outtake;
@@ -68,7 +68,7 @@ public class BlueFar extends LinearOpMode {
         ExpansionHub eh = new ExpansionHub(hardwareMap, drive.getLocalizer());
         Controls cn = new Controls(gamepad1, gamepad2);
         ControlHub.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        ExpansionHub.setInitialBackdropAngleRelativeToBot(90);
+        ExpansionHub.setInitialBackdropAngleRelativeToBot(-90);
 
 //        AprilTagDetector.init(hardwareMap);
 //        FtcDashboard.getInstance().startCameraStream(AprilTagDetector.camera, 120);
@@ -81,7 +81,7 @@ public class BlueFar extends LinearOpMode {
                     isInPreload = true;
                     outtake.setToPurplePlacing();
                     OutTakeMTI.arm.rotationIndex = 0;
-                    desiredID = 2;
+                    desiredID = 5;
                 })
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(55, 3, DriveConstants.TRACK_WIDTH))
                 .lineToLinearHeading(MiddlePurple)
@@ -125,15 +125,15 @@ public class BlueFar extends LinearOpMode {
 
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(45, 5, DriveConstants.TRACK_WIDTH))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
-                .splineToSplineHeading(new Pose2d(BackdropGate.getX(), BackdropGate.getY(), BackdropGate.getHeading()), -Math.toRadians(90))
+                .splineToSplineHeading(new Pose2d(BackdropGate.getX(), BackdropGate.getY(), BackdropGate.getHeading()), Math.toRadians(90))
 
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(65, 5, DriveConstants.TRACK_WIDTH))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
-                .splineToSplineHeading(StackGate, -Math.toRadians(90))
+                .splineToSplineHeading(StackGate, Math.toRadians(90))
 
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(50, 5, DriveConstants.TRACK_WIDTH))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(45))
-                .splineToSplineHeading(Stack2, -Math.toRadians(90))
+                .splineToSplineHeading(Stack2, Math.toRadians(90))
                 .addTemporalMarker(() -> {
                     intakeActive = 1;
                     intake.setPixelStackPosition(pixelsInStack);
@@ -154,7 +154,7 @@ public class BlueFar extends LinearOpMode {
                 })
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(65, 5, DriveConstants.TRACK_WIDTH))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
-                .splineToSplineHeading(new Pose2d(BackdropGate.getX(), BackdropGate.getY(), BackdropGate.getHeading()), Math.toRadians(90))
+                .splineToSplineHeading(new Pose2d(BackdropGate.getX(), BackdropGate.getY(), BackdropGate.getHeading()), Math.toRadians(-90))
 
                 .UNSTABLE_addTemporalMarkerOffset(-0.6, () -> {
                     OutTakeMTI.State.level = 5.8;
@@ -162,9 +162,9 @@ public class BlueFar extends LinearOpMode {
                     Controls.ExtendElevatorAck = false;
                 })
 
-                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(60, 5, DriveConstants.TRACK_WIDTH))
+                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(60, 3.1415, DriveConstants.TRACK_WIDTH))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
-                .splineToSplineHeading(Backdrop, Math.toRadians(110))
+                .splineToSplineHeading(Backdrop, Math.toRadians(-110))
                 .waitSeconds(0.1)
                 .addTemporalMarker(() -> {
                     Controls.DropLeft = true;
@@ -181,15 +181,15 @@ public class BlueFar extends LinearOpMode {
                 })
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(60, 4, DriveConstants.TRACK_WIDTH))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
-                .splineToLinearHeading(StackGate, Math.toRadians(90))
+                .splineToLinearHeading(StackGate, Math.toRadians(-90))
                 .addTemporalMarker(() -> {
                     intakeActive = 0;
-                    OutTakeMTI.arm.rotationIndex = 0;
+                    OutTakeMTI.arm.rotationIndex = 4;
                 })
 
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(60, 5, DriveConstants.TRACK_WIDTH))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(60))
-                .splineToSplineHeading(new Pose2d(BackdropGate.getX(), BackdropGate.getY(), BackdropGate.getHeading()), Math.toRadians(90))
+                .splineToSplineHeading(new Pose2d(BackdropGate.getX(), BackdropGate.getY(), BackdropGate.getHeading()), Math.toRadians(-90))
 
                 .UNSTABLE_addDisplacementMarkerOffset(-0.5, () -> {
                     OutTakeMTI.State.level = 4;
@@ -202,17 +202,17 @@ public class BlueFar extends LinearOpMode {
 
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(55, 3.1415, DriveConstants.TRACK_WIDTH))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
-                .splineToSplineHeading(MiddleYellow, Math.toRadians(160))
+                .splineToSplineHeading(MiddleYellow, Math.toRadians(-160))
                 .waitSeconds(0.1)
                 .addTemporalMarker(() -> {
-                    Controls.DropLeft = true;
-                    Controls.DropLeftAck = false;
+                    Controls.DropRightAck = false;
+                    Controls.DropRight = true;
                     isInPreload = false;
                 })
                 .lineToLinearHeading(Backdrop)
                 .addTemporalMarker(() -> {
-                    Controls.DropRightAck = false;
-                    Controls.DropRight = true;
+                    Controls.DropLeft = true;
+                    Controls.DropLeftAck = false;
                 })
                 .waitSeconds(0.1)
                 .build();

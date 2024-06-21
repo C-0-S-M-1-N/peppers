@@ -16,17 +16,19 @@ public class Controls {
             ExtendElevator, RetractElevator, ElevatorUp,  ElevatorDown,
             DropLeft, DropRight, Hang, Avion, ResetTourret,
             DownElevator,
-            ResetElevator, ManualMode, PokeMode, SetOuttakeToPurplePlacing, rotateLeft, rotateRight;
+            ResetElevator, ManualMode, PokeMode, SetOuttakeToPurplePlacing, rotateLeft, rotateRight,
+            IntakeLvlUp, IntakeLvlDown, StackMode, Mirror;
 
     public static boolean IntakeAck, RevIntakeAck,
             ExtendElevatorAck, RetractElevatorAck, ElevatorUpAck,  ElevatorDownAck,
             DropLeftAck, DropRightAck, HangAck, AvionAck, ResetTourretAck,
             DownElevatorAck,
-            ResetElevatorAck, ManualModeAck, PokeModeAck, SetOuttakeToPurplePlacingAck, rotateLeftAck, rotateRightAck;
+            ResetElevatorAck, ManualModeAck, PokeModeAck, SetOuttakeToPurplePlacingAck, rotateLeftAck, rotateRightAck,
+            IntakeLvlUpAck, IntakeLvlDownAck, StackModeAck;
 
     public static double HangLevel = 0;
-    private static AutoGamepad gamepad1;
-    private static AutoGamepad gamepad2;
+    public static AutoGamepad gamepad1;
+    public static AutoGamepad gamepad2;
     private final RumbleEffects effects;
 
        public static boolean LeftLost, LeftGot,
@@ -107,6 +109,18 @@ public class Controls {
             rotateRight = false;
             rotateRightAck = false;
         }
+        if(IntakeLvlUpAck){
+            IntakeLvlUp = false;
+            IntakeLvlUpAck = false;
+        }
+        if(IntakeLvlDownAck){
+            IntakeLvlDown = false;
+            IntakeLvlDownAck = false;
+        }
+        if(StackModeAck){
+            StackMode = false;
+            StackModeAck = false;
+        }
     }
 
     public void loop(){
@@ -134,11 +148,14 @@ public class Controls {
             Hang = true;
             HangAck = false;
         }
-        else if(gamepad2.wasPressed.left_bumper) {
+        else if(gamepad2.wasPressed.left_bumper || gamepad1.wasPressed.square) {
             rotateLeft = true;
             rotateLeftAck = false;
         }
-        else if(gamepad2.wasPressed.right_bumper) rotateRight = true;
+        else if(gamepad2.wasPressed.right_bumper || gamepad1.wasPressed.circle){
+            rotateRight = true;
+            rotateRightAck = false;
+        }
 
         else if(gamepad2.right_trigger >= 0.7) {
             Intake = true;
@@ -177,9 +194,12 @@ public class Controls {
             ManualMode = true;
             ManualModeAck = false;
         }
-        if(gamepad1.wasPressed.circle) {
-            PokeMode = true;
-            PokeModeAck = false;
+        if(gamepad2.wasPressed.circle) {
+            Mirror = true;
+        }
+        if(gamepad2.wasPressed.right_stick_button){
+            StackMode = true;
+            StackModeAck = false;
         }
 
         updateDetected = ExtendElevator || RetractElevator || ElevatorUp || ElevatorDown || Intake
@@ -187,6 +207,7 @@ public class Controls {
 
         playEffects();
     }
+    private boolean down = false, up = false;
 
     private static void playEffects(){
         if(FullLoad){

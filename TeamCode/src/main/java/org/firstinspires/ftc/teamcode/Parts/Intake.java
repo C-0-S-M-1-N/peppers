@@ -33,7 +33,7 @@ public class Intake implements Part {
         REVERSE,
         FORWARD
     }
-    public STATES STATE;
+    public static STATES STATE;
     public static double maxTrashHold = 1200;
     public static double ground = 235;
     private double usedCurrent = 0;
@@ -43,7 +43,7 @@ public class Intake implements Part {
     private double grippersHaveTime = 0;
     private boolean grippersHave = false;
     public static double[] stackPositions = {230, 220, 210, 200, 190};
-    public static double Up = 150;
+    public static double Up = 160;
     public static int lvl = 0;
     public static int TEST_POSITION = 0;
 
@@ -52,7 +52,7 @@ public class Intake implements Part {
         if(level > 4) level = 4;
         if(level < 0) level = 0;
         lvl = level;
-        ground = stackPositions[level];
+//        ground = stackPositions[level];
     }
     public int getPixelStackPosition(){
         return lvl;
@@ -117,17 +117,16 @@ public class Intake implements Part {
             grippersHave = false;
         } else if(grippersHaveTime == 0) {
             grippersHaveTime = clock.seconds();
-        } else if(clock.seconds() - grippersHaveTime > 0) {
+        } else if(clock.seconds() - grippersHaveTime > 0.3) {
             grippersHave = true;
         }
-
-        if(Controls.Intake){
+        if(Controls.RevIntake || (OutTakeMTI.left.hasAPixel() && OutTakeMTI.right.hasAPixel()) && Controls.Intake && grippersHave){
+            STATE = STATES.REVERSE;
+        } else if(Controls.Intake){
             STATE = STATES.FORWARD;
         }
         int power = -1;
-        if(Controls.RevIntake){
-            STATE = STATES.REVERSE;
-        }
+
         if(!Controls.RevIntake && !Controls.Intake) STATE = STATES.IDLE;
 
         switch (STATE){

@@ -22,7 +22,7 @@ public class ElevatorArm implements Part {
         virtual1.setAngle(0);
         virtual1.update();
 
-        rotation = new AutoServo(SERVO_PORTS.S0,  172.f/355.f,false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
+        rotation = new AutoServo(SERVO_PORTS.S0,  164.f/355.f,false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
         rotation.setAngle(0);
         rotation.update();
 
@@ -32,7 +32,7 @@ public class ElevatorArm implements Part {
         rotationIndex = 2;
 
     }
-    public static final double rotationAngles[] = {-90, -60, 0, 60, 94};
+    public static double[] rotationAngles = {-100, -65, 0, 60, 95};
     public int rotationIndex;
     public enum Direction{
         LEFT,

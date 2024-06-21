@@ -43,7 +43,7 @@ public class BlueClose extends LinearOpMode {
             MiddlePurple = new Pose2d(24, 1, 0),
             MiddleYellow = new Pose2d(13.7, 31.5, Math.toRadians(60)),
 
-            LeftPurple = new Pose2d(9.5, 7.3, Math.toRadians(357)),
+            LeftPurple = new Pose2d(10.4, 8.5, Math.toRadians(357)),
             LeftYellow = new Pose2d(13.4, 27.5, Math.toRadians(76)),
 
             RightPurple = new Pose2d(16.5, -5, Math.toRadians(314)),
@@ -52,10 +52,10 @@ public class BlueClose extends LinearOpMode {
 
     public static Pose2d
             TrussToStack     = new Pose2d(4, -45, Math.PI/2.f),
-            Stack            = new Pose2d(23, -76, Math.toRadians(110)),
-            Stack2           = new Pose2d(35, -74.8, Math.toRadians(110)),
+            Stack            = new Pose2d(23, -76.5, Math.toRadians(110)),
+            Stack2           = new Pose2d(34, -75, Math.toRadians(110)),
             BackBoardToTruss = new Pose2d(4, -9, Math.PI/2.f),
-            Backdrop         = new Pose2d(12, 29, Math.toRadians(73)),
+            Backdrop         = new Pose2d(12, 28.5, Math.toRadians(73)),
             TrussToStack_s     = new Pose2d(3, -45, Math.PI/2.f),
             BackBoardToTruss_s = new Pose2d(3, -9, Math.PI/2.f)
 
@@ -409,7 +409,7 @@ public class BlueClose extends LinearOpMode {
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(50, 4.5, DriveConstants.TRACK_WIDTH))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
                 .UNSTABLE_addTemporalMarkerOffset(-0.5, () -> {
-                    OutTakeMTI.State.level = 6;
+                    OutTakeMTI.State.level = 2;
                     Controls.ExtendElevator = true;
                     Controls.ExtendElevatorAck = false;
 //                    distanceSensorMesh = true;
@@ -418,6 +418,9 @@ public class BlueClose extends LinearOpMode {
                     intakeActive = 0;
                 })
                 .splineToSplineHeading(new Pose2d(Backdrop.getX(), Backdrop.getY(), Backdrop.getHeading()), Math.toRadians(55))
+                .UNSTABLE_addDisplacementMarkerOffset(-0.1, () -> {
+                    OutTakeMTI.elevator.setLevel(6);
+                })
                 .waitSeconds(0.05)
                 .addTemporalMarker(() -> {
                     Controls.DropRight = true;
@@ -447,12 +450,15 @@ public class BlueClose extends LinearOpMode {
                     intakeActive = 0;
                 })
                 .UNSTABLE_addTemporalMarkerOffset(-0.5, () -> {
-                    OutTakeMTI.State.level = 5;
+                    OutTakeMTI.State.level = 1;
                     Controls.ExtendElevator = true;
                     Controls.ExtendElevatorAck = false;
 //                    distanceSensorMesh = true;
                 })
                 .splineToSplineHeading(Backdrop, Math.toRadians(55))
+                .UNSTABLE_addTemporalMarkerOffset(-0.1, () -> {
+                    OutTakeMTI.elevator.setLevel(5);
+                })
                 .waitSeconds(0.05)
                 .addTemporalMarker(() -> {
                     Controls.DropRight = true;
@@ -587,7 +593,9 @@ public class BlueClose extends LinearOpMode {
             outTake.update();
             cn.loop();
             ControlHub.telemetry.addData("pixels in stack", pixelsInStack);
+            ControlHub.telemetry.addData("Time Left", 30 - autoTime.seconds());
             ControlHub.telemetry.update();
+            if(30 - autoTime.seconds() <= -0.1) stop();
         }
         OutTakeMTI.timeToDrop = 0.3;
         Intake.reversePower = -1;

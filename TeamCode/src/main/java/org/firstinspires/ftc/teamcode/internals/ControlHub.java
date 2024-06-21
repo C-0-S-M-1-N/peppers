@@ -71,6 +71,7 @@ public class ControlHub {
 
         left.addLowPassFilter(1);
         right.addLowPassFilter(1);
+        setMotorsToMax();
 
         for(int i = 0; i < 4; i++){
             motor[i].setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -92,7 +93,6 @@ public class ControlHub {
 
         ControlHubModule.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
 
-        setMotorsToMax();
         compensation = voltage;
 
     }

@@ -54,9 +54,9 @@ public class RedClose extends LinearOpMode {
     public static Pose2d
             TrussToStack     = new Pose2d(5, 45, -Math.PI/2.f),
             Stack            = new Pose2d(23.5, 75.5, -Math.toRadians(110)),
-            Stack2           = new Pose2d(35, 74.5, -Math.toRadians(110)),
+            Stack2           = new Pose2d(34, 75, -Math.toRadians(110)),
             BackBoardToTruss = new Pose2d(5, 9, -Math.PI/2.f),
-            Backdrop         = new Pose2d(12.2, -27.5, -Math.toRadians(73)),
+            Backdrop         = new Pose2d(12.2, -28, -Math.toRadians(73)),
             TrussToStack_s     = new Pose2d(4, 45, -Math.PI/2.f),
             BackBoardToTruss_s = new Pose2d(4, 9, -Math.PI/2.f)
 
@@ -402,7 +402,7 @@ public class RedClose extends LinearOpMode {
                 .addTemporalMarker(() -> {
                     intakeActive = -1;
                 })
-                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(60, 3.8, DriveConstants.TRACK_WIDTH))
+                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(50, 5, DriveConstants.TRACK_WIDTH))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(55))
                 .splineToSplineHeading(new Pose2d(TrussToStack_s.getX() - 0.7, TrussToStack_s.getY(), TrussToStack.getHeading()), Math.toRadians(-90))
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(60, 4, DriveConstants.TRACK_WIDTH))
@@ -483,13 +483,13 @@ public class RedClose extends LinearOpMode {
         location = detector.getLocation();
 
         switch (location){
-            case LEFT:
+            case RIGHT:
                 drive.followTrajectorySequenceAsync(left);
                 break;
             case MIDDLE:
                 drive.followTrajectorySequenceAsync(middle);
                 break;
-            case RIGHT:
+            case LEFT:
                 drive.followTrajectorySequenceAsync(right);
                 break;
         }
@@ -546,13 +546,13 @@ public class RedClose extends LinearOpMode {
                         if(autoTime.seconds() <= 25) {
                             if (firstPathAfterPreload) {
                                 switch (location){
-                                    case LEFT:
+                                    case RIGHT:
                                         drive.followTrajectorySequenceAsync(goToStackFromPreloadL);
                                         break;
                                     case MIDDLE:
                                         drive.followTrajectorySequenceAsync(goToStackFromPreloadM);
                                         break;
-                                    case RIGHT:
+                                    case LEFT:
                                         drive.followTrajectorySequenceAsync(goToStackFromPreloadR);
                                         break;
                                 }

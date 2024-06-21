@@ -79,7 +79,7 @@ public class BlueCloseDetectionPipeline extends OpenCvPipeline {
             telemetry.addData("pixel_location: ", "right");
         }
         telemetry.update();
-        Imgproc.cvtColor(mat,mat,Imgproc.COLOR_GRAY2RGB);
+        Imgproc.cvtColor(mat, mat, Imgproc.COLOR_GRAY2RGB);
 
         Scalar colorFound = new Scalar(255,0,0);
         Scalar colorNotFound = new Scalar(0,255,0);

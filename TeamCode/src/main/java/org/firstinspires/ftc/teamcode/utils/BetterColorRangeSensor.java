@@ -102,6 +102,7 @@ public class BetterColorRangeSensor extends I2cDeviceSynchDevice<I2cDeviceSynch>
     public void enable(){
         byte notUsedRead = readByte(REGISTERS.MAIN_CTRL);
 
+
         //enable PS
         deviceClient.write8(REGISTERS.MAIN_CTRL.reg, 0x1);
 
