@@ -30,7 +30,7 @@ import org.openftc.easyopencv.OpenCvWebcam;
 import java.io.File;
 import java.io.IOException;
 
-@Autonomous(name = "RedFar", group = "auto")
+@Autonomous(name = "BlueFar", group = "auto")
 @Config
 public class BlueFar extends LinearOpMode {
     public static Pose2d
@@ -39,7 +39,7 @@ public class BlueFar extends LinearOpMode {
 
 
     Stack = new Pose2d(51, -18.5, -Math.toRadians(270)),
-            Backdrop = new Pose2d(45.5, 85.7, -Math.toRadians(243)),
+            Backdrop = new Pose2d(45.5, 86, -Math.toRadians(243)),
             Stack2 = new Pose2d(51, -18.5, -Math.toRadians(270)),
             StackGate = new Pose2d(52, 4, Math.PI/2),
             BackdropGate = new Pose2d(52, 65, Math.PI/2);

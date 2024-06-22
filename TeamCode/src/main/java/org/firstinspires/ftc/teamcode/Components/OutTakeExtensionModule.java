@@ -12,8 +12,8 @@ import org.firstinspires.ftc.teamcode.utils.AutoServo;
 public class OutTakeExtensionModule {
     private AutoServo servo1, servo2;
 
-    public static double retractS1 = 55, retractS2 = 30,
-                         extendS1 = 220, extendS2 = 220;
+    public static double retractS1 = 50, retractS2 = 30,
+                         extendS1 = 215, extendS2 = 220;
     public OutTakeExtensionModule(){
         servo1 = new AutoServo(SERVO_PORTS.S1, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
         servo2 = new AutoServo(SERVO_PORTS.S4, 0, false, Hubs.EXPANSION_HUB, AutoServo.TYPE.AXON);

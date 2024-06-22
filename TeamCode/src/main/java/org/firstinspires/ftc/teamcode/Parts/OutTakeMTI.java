@@ -50,7 +50,7 @@ public class OutTakeMTI {
     public static int MAX_LVL = 11;
     public static double safeToExtendOuttake = STEP * 2.5;
     public static double armAnglePlaceingBackboard = 85, armAnglePlacingPurple = 0,
-                        armAngleIntake = 25, armAngleRetracting = 15, intakeRotation = 0, tourretOffset = -2;
+                        armAngleIntake = 30, armAngleRetracting = 15, intakeRotation = 0, tourretOffset = -2;
     public static Elevator elevator = null;
     public static ElevatorArm arm = null;
     public static OutTakeExtensionModule extension = null;
@@ -101,9 +101,9 @@ public class OutTakeMTI {
         arm = new ElevatorArm();
         state = readStateFromFile();
         left = new Grippers(new AutoServo(SERVO_PORTS.S3, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
-                    ControlHub.left, 530, 40.f, 220.f);
+                    ControlHub.left, 530, 60.f, 255.f);
         right = new Grippers(new AutoServo(SERVO_PORTS.S2, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
-                    ControlHub.right, 200, 280.f, 100.f);
+                    ControlHub.right, 200, 280.f, 95.f);
         if(DISABLE) return;
         align = false;
         arm.setArmAngle(armAngleIntake);
@@ -138,7 +138,7 @@ public class OutTakeMTI {
     }
     public static boolean reverse = false;
     private void controls(){
-        joystickElevatorOffset += (int) (-MainOpMTI.DeadZoneFilter(Controls.gamepad2.right_stick_y, MainOpMTI.GamePadAxiesCompensation.G2RY) * 5);
+        joystickElevatorOffset += (int) (-MainOpMTI.DeadZoneFilter(Controls.gamepad2.right_stick_y, MainOpMTI.GamePadAxiesCompensation.G2RY) * 7);
         if(state == State.PLACING_PIXELS && joystickElevatorOffset != 0){
             updateElevator();
         }
@@ -161,11 +161,11 @@ public class OutTakeMTI {
         }
         if(Controls.rotateRight) {
             Controls.rotateRightAck = true;
-            arm.rotatePixels(ElevatorArm.Direction.RIGHT);
+            arm.rotatePixels(ElevatorArm.Direction.LEFT);
         }
         if(Controls.rotateLeft){
             Controls.rotateLeftAck = true;
-            arm.rotatePixels(ElevatorArm.Direction.LEFT);
+            arm.rotatePixels(ElevatorArm.Direction.RIGHT);
         }
 
         if(Controls.ExtendElevator) {
@@ -194,20 +194,29 @@ public class OutTakeMTI {
         if(Controls.ElevatorUp){
             Controls.ElevatorUpAck = true;
             State.level++;
-            if(State.level > 9) State.level = 9;
+            if(State.level > 8) State.level = 8;
 //            if(state != State.WAIT_FOR_PIXELS) elevator.setTargetPosition(State.level * STEP + joystickElevatorOffset);
-            if(state != State.WAIT_FOR_PIXELS) elevator.setLevel((int) State.level);
+            if(state == State.PLACING_PIXELS) elevator.setLevel((int) State.level);
         }
         else if(Controls.ElevatorDown){
             Controls.ElevatorDownAck = true;
             State.level--;
             if(State.level < 0) State.level = 0;
 //            if(state != State.WAIT_FOR_PIXELS) elevator.setTargetPosition(State.level * STEP + joystickElevatorOffset);
-            if(state != State.WAIT_FOR_PIXELS) elevator.setLevel((int) State.level);
+            if(state == State.PLACING_PIXELS) elevator.setLevel((int) State.level);
         }
     }
     public void updateElevator(){
         if(State.level > MAX_EXTEND) State.level = MAX_EXTEND;
+
+//        while(State.level < 7 && Elevator.PixelLayer[(int) State.level] + joystickElevatorOffset > Elevator.PixelLayer[(int) State.level + 1]){
+//            State.level ++;
+//            joystickElevatorOffset -= Elevator.PixelLayer[(int)State.level] - Elevator.PixelLayer[(int)State.level - 1] ;
+//        }
+//        while(State.level > 1 && Elevator.getPositionByLevel((int) State.level) + joystickElevatorOffset < Elevator.getPositionByLevel((int) State.level)){
+//            State.level --;
+//            joystickElevatorOffset = Elevator.getPositionByLevel((int) State.level + 1) - Elevator.getPositionByLevel((int) State.level) - joystickElevatorOffset;
+//        }
         elevator.setTargetPosition(Elevator.PixelLayer[(int) State.level] + joystickElevatorOffset);
     }
     public static boolean driverUpdated = true;
@@ -244,7 +253,7 @@ public class OutTakeMTI {
             case EXTENDING:
                 if(elevator.targetPosition != Math.max(safeToExtendOuttake + 10, elevator.getPositionByLevel((int) State.level)))
                     elevator.setTargetPosition(Math.max(safeToExtendOuttake + 10, elevator.getPositionByLevel((int) State.level)));
-                if(time1.seconds() >= 0.1) {
+                if(time1.seconds() >= 0.15) {
                     if(arm.rotationIndex <= 2)
                         arm.setPixelRotation(extendingAngle);
                     else arm.setPixelRotation(-extendingAngle);
@@ -282,7 +291,7 @@ public class OutTakeMTI {
                     if(arm.rotationIndex <= 2)
                         arm.setPixelRotation(extendingAngle);
                     else arm.setPixelRotation(-extendingAngle);
-                    if(time1.seconds() >= 0.08 * slowmo) {
+                    if(time1.seconds() >= 0.15 * slowmo) {
                         waitForTimer = true;
                         armAndExtendTime.reset();
                         extension.retract();

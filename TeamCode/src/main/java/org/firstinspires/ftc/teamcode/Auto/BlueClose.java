@@ -52,10 +52,10 @@ public class BlueClose extends LinearOpMode {
 
     public static Pose2d
             TrussToStack     = new Pose2d(4, -45, Math.PI/2.f),
-            Stack            = new Pose2d(23, -76.5, Math.toRadians(110)),
+            Stack            = new Pose2d(24, -76.5, Math.toRadians(110)),
             Stack2           = new Pose2d(34, -75, Math.toRadians(110)),
             BackBoardToTruss = new Pose2d(4, -9, Math.PI/2.f),
-            Backdrop         = new Pose2d(12, 28.5, Math.toRadians(73)),
+            Backdrop         = new Pose2d(12, 29, Math.toRadians(73)),
             TrussToStack_s     = new Pose2d(3, -45, Math.PI/2.f),
             BackBoardToTruss_s = new Pose2d(3, -9, Math.PI/2.f)
 

@@ -33,7 +33,7 @@ public class BlueCloseFar extends LinearOpMode {
 
     public static Pose2d
             MiddlePurple = new Pose2d(22, 1, 0),
-            MiddleYellow = new Pose2d(39, 31.4, -Math.toRadians(234)),
+            MiddleYellow = new Pose2d(40, 31.4, -Math.toRadians(234)),
 
             RightPurple = new Pose2d(13.5, -5.7, Math.toRadians(327)),
             RightYellow = new Pose2d(38, 28.5, Math.toRadians(100)),
@@ -45,7 +45,7 @@ public class BlueCloseFar extends LinearOpMode {
             StackGate = new Pose2d(51, -43, -Math.toRadians(270)),
             Stack = new Pose2d(51, -77, -Math.toRadians(270)),
             Stack2 = new Pose2d(45.5, -76, -Math.toRadians(291)),
-            Backdrop = new Pose2d(45, 29, -Math.toRadians(243));
+            Backdrop = new Pose2d(45, 30, -Math.toRadians(243));
 
     SampleMecanumDriveCancelable drive;
     OutTakeMTI outTake;
@@ -172,11 +172,13 @@ public class BlueCloseFar extends LinearOpMode {
                     isInPreloadPhase = true;
                 })
                 .lineToLinearHeading(MiddlePurple)
+                .waitSeconds(0.001)
                 .addTemporalMarker(() -> {
                     Controls.DropRight = true;
-                    Controls.DropRightAck = true;
+                    Controls.DropRightAck = false;
                 })
-                .UNSTABLE_addTemporalMarkerOffset(0.17, () -> {
+                .waitSeconds(0.1)
+                .addTemporalMarker(() -> {
                     OutTakeMTI.State.level = 1;
                     OutTakeMTI.elevator.setTargetPosition(3.5 * OutTakeMTI.STEP);
                     OutTakeMTI.align = true;
@@ -345,7 +347,7 @@ public class BlueCloseFar extends LinearOpMode {
                     Controls.ExtendElevatorAck = false;
                 })
                 .splineToSplineHeading(new Pose2d(Backdrop.getX(), Backdrop.getY() + 1, Backdrop.getHeading()), Math.toRadians(100))
-                .UNSTABLE_addTemporalMarkerOffset(-0.4, () -> {
+                .UNSTABLE_addTemporalMarkerOffset(-0.3, () -> {
                     if(cycle == 4)
                         OutTakeMTI.elevator.setLevel(5);
                     OutTakeMTI.elevator.setLevel(5);
@@ -378,7 +380,7 @@ public class BlueCloseFar extends LinearOpMode {
                     Controls.ExtendElevatorAck = false;
                 })
                 .splineToSplineHeading(Backdrop, Math.toRadians(100))
-                .UNSTABLE_addTemporalMarkerOffset(-0.4, () -> {
+                .UNSTABLE_addTemporalMarkerOffset(-0.3, () -> {
                     OutTakeMTI.elevator.setLevel(4);
                 })
                 .UNSTABLE_addTemporalMarkerOffset(0.1, () -> {
@@ -441,6 +443,7 @@ public class BlueCloseFar extends LinearOpMode {
                 .build();
         while (opModeInInit()){
             outTake.update();
+            ControlHub.telemetry.update();
         }
         long time1 = 0;
         ElapsedTime autoTime = new ElapsedTime();
