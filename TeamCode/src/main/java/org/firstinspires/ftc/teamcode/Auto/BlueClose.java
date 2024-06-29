@@ -48,7 +48,7 @@ public class BlueClose extends LinearOpMode {
             LeftYellow = new Pose2d(13.4, 28, Math.toRadians(76)),
 
             RightPurple = new Pose2d(15, -7, Math.toRadians(314)),
-            RightYellow = new Pose2d(11, 40, Math.toRadians(57))
+            RightYellow = new Pose2d(11.5, 33.5, Math.toRadians(57))
     ;
 
     public static Pose2d
@@ -57,8 +57,8 @@ public class BlueClose extends LinearOpMode {
             Stack2           = new Pose2d(34, -75, Math.toRadians(110)),
             BackBoardToTruss = new Pose2d(4, -9, Math.PI/2.f),
             Backdrop         = new Pose2d(12, 28, Math.toRadians(70)),
-            TrussToStack_s     = new Pose2d(3, -45, Math.PI/2.f),
-            BackBoardToTruss_s = new Pose2d(3, -9, Math.PI/2.f)
+            TrussToStack_s     = new Pose2d(2, -45, Math.PI/2.f),
+            BackBoardToTruss_s = new Pose2d(2, -9, Math.PI/2.f)
 
     ;
     int pixelsInStack = 5;
@@ -166,7 +166,7 @@ public class BlueClose extends LinearOpMode {
                     isInPreloadPhase = true;
                 })
                 .lineToLinearHeading(RightPurple)
-                .waitSeconds(0.2)
+                .waitSeconds(0.1)
                 .addTemporalMarker(() -> {
                     Controls.DropRight = true;
                     Controls.DropRightAck = false;
@@ -178,7 +178,8 @@ public class BlueClose extends LinearOpMode {
                     OutTakeMTI.align = true;
                     outTake.setToNormalPlacingFromPurplePixelPlacing();
                 })
-                .lineToLinearHeading(RightYellow)
+//                .lineToLinearHeading(RightYellow)
+                .lineToSplineHeading(RightYellow)
                 .waitSeconds(0.1)
                 .addTemporalMarker(() -> {
                     Controls.DropLeft = true;
@@ -396,18 +397,18 @@ public class BlueClose extends LinearOpMode {
                 })
                 .setReversed(false)
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(50, 5, DriveConstants.TRACK_WIDTH))
-                .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(55))
+                .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
                 .strafeLeft(1.2)
                 .addTemporalMarker(() -> {
                     intakeActive = -1;
                 })
-                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(55, 5, DriveConstants.TRACK_WIDTH))
-                .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
-                .splineToSplineHeading(TrussToStack_s, Math.toRadians(90))
-                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(60, 5, DriveConstants.TRACK_WIDTH))
-                .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(55))
-                .splineToConstantHeading(new Vector2d(BackBoardToTruss_s.getX(), BackBoardToTruss_s.getY()), Math.toRadians(90))
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(45, 5, DriveConstants.TRACK_WIDTH))
+                .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
+                .splineToSplineHeading(new Pose2d(TrussToStack_s.getX() - 1, TrussToStack_s.getY(), TrussToStack_s.getHeading()), Math.toRadians(90))
+                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(55, 5, DriveConstants.TRACK_WIDTH))
+                .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(45))
+                .splineToConstantHeading(new Vector2d(BackBoardToTruss_s.getX() - 1, BackBoardToTruss_s.getY()), Math.toRadians(90))
+                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(55, 5, DriveConstants.TRACK_WIDTH))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(45))
                 .UNSTABLE_addTemporalMarkerOffset(-0.5, () -> {
                     OutTakeMTI.State.level = 3;
@@ -504,6 +505,10 @@ public class BlueClose extends LinearOpMode {
         ElapsedTime autoTime = new ElapsedTime();
 
         while(opModeIsActive()){
+            if(order == 1 && autoTime.seconds() > 30 - goToBackDrop.duration()){
+                drive.breakFollowing();
+                order++;
+            }
             ControlHub.ControlHubModule.clearBulkCache();
             ExpansionHub.ExpansionHubModule.clearBulkCache();
 //            e.update(false, drive.getLocalizer().getPoseEstimate().getX(), drive.getLocalizer().getPoseEstimate().getY());
