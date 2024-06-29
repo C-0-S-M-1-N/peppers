@@ -32,7 +32,7 @@ public class RedCloseDetectionPipeline extends OpenCvPipeline {
     public static int lowH = 100 ,lowS = 40, lowV = 30;
     public static int highH = 140, highS = 255, highV = 255;
 
-    public static double tseThreshold = 0.12;
+    public static double tseThreshold = 0.3;
 
     public RedCloseDetectionPipeline(Telemetry telemetry, boolean b) {this.telemetry = telemetry; isBlue = b;}
 
@@ -68,15 +68,15 @@ public class RedCloseDetectionPipeline extends OpenCvPipeline {
 
         if(tseRight) {
             location = Location.RIGHT;
-            telemetry.addData("pixel_location", "middle");
+            telemetry.addData("pixel_location", "RIGHT");
         }
         else if(tseMiddle){
             location = Location.MIDDLE;
-            telemetry.addData("pixel_location", "left");
+            telemetry.addData("pixel_location", "MIDDLE");
         }
         else{
             location = Location.LEFT;
-            telemetry.addData("pixel_location", "right");
+            telemetry.addData("pixel_location", "LEFT");
         }
         telemetry.update();
         Imgproc.cvtColor(mat,mat,Imgproc.COLOR_GRAY2RGB);

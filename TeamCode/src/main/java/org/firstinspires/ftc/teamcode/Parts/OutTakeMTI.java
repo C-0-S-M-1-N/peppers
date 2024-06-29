@@ -50,7 +50,7 @@ public class OutTakeMTI {
     public static int MAX_LVL = 11;
     public static double safeToExtendOuttake = STEP * 2.5;
     public static double armAnglePlaceingBackboard = 85, armAnglePlacingPurple = 0,
-                        armAngleIntake = 30, armAngleRetracting = 15, intakeRotation = 0, tourretOffset = -2;
+                        armAngleIntake = 27, armAngleRetracting = 15, intakeRotation = -3, tourretOffset = -2;
     public static Elevator elevator = null;
     public static ElevatorArm arm = null;
     public static OutTakeExtensionModule extension = null;
@@ -101,9 +101,9 @@ public class OutTakeMTI {
         arm = new ElevatorArm();
         state = readStateFromFile();
         left = new Grippers(new AutoServo(SERVO_PORTS.S3, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
-                    ControlHub.left, 530, 60.f, 255.f);
+                    ControlHub.right, 380, 70.f, 245.f);
         right = new Grippers(new AutoServo(SERVO_PORTS.S2, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
-                    ControlHub.right, 200, 280.f, 95.f);
+                    ControlHub.left, 500, 290.f, 110.f);
         if(DISABLE) return;
         align = false;
         arm.setArmAngle(armAngleIntake);
@@ -129,7 +129,7 @@ public class OutTakeMTI {
     public boolean setToPurplePlace = false;
     ElapsedTime armAndExtendTime = new ElapsedTime(), startRetraction = new ElapsedTime();
     public void setToPurplePlacing(){
-        State.level = 0;
+        State.level = 1;
         setToPurplePlace = true;
         changeStateTo(State.EXTENDING);
     }
@@ -137,6 +137,7 @@ public class OutTakeMTI {
         return left.hasAPixel() || right.hasAPixel();
     }
     public static boolean reverse = false;
+    public static boolean isInAutonomous = false;
     private void controls(){
         joystickElevatorOffset += (int) (-MainOpMTI.DeadZoneFilter(Controls.gamepad2.right_stick_y, MainOpMTI.GamePadAxiesCompensation.G2RY) * 7);
         if(state == State.PLACING_PIXELS && joystickElevatorOffset != 0){
@@ -234,25 +235,28 @@ public class OutTakeMTI {
         controls();
         switch (state){
             case WAIT_FOR_PIXELS:
-//                right.update_values(true);
-//                left.update_values(true);
+                if(isInAutonomous) {
+                    right.update_values(true);
+                    left.update_values(true);
+                } else {
+                    if(Intake.STATE == Intake.STATES.FORWARD){
+                        right.open();
+                        left.open();
+                    } else {
+                        right.close();
+                        left.close();
+                    }
+                }
                 arm.setPixelRotation(intakeRotation);
                 arm.setArmAngle(armAngleIntake);
                 arm.setOrientation(tourretOffset);
                 extension.retract();
-                if(Intake.STATE == Intake.STATES.FORWARD){
-                    right.open();
-                    left.open();
-                } else {
-                    right.close();
-                    left.close();
-                }
                 joystickElevatorOffset = 0;
                 // sensors responsive
                 break;
             case EXTENDING:
-                if(elevator.targetPosition != Math.max(safeToExtendOuttake + 10, elevator.getPositionByLevel((int) State.level)))
-                    elevator.setTargetPosition(Math.max(safeToExtendOuttake + 10, elevator.getPositionByLevel((int) State.level)));
+                if(elevator.targetPosition != Math.max(safeToExtendOuttake + 10, Elevator.getPositionByLevel((int) State.level)))
+                    elevator.setTargetPosition(Math.max(safeToExtendOuttake + 10, Elevator.getPositionByLevel((int) State.level)));
                 if(time1.seconds() >= 0.15) {
                     if(arm.rotationIndex <= 2)
                         arm.setPixelRotation(extendingAngle);
@@ -270,7 +274,7 @@ public class OutTakeMTI {
                     waitForTimer = true;
                     time1.reset();
                 }
-                if(waitForTimer && extension.isExtended() && time1.seconds() >= 0.35){
+                if(waitForTimer && time1.seconds() >= 0.35){
                     waitForTimer = false;
                     arm.setPixelRotation(pixelsAngle);
 //                    elevator.setTargetPosition(STEP * State.level + joystickElevatorOffset);
@@ -296,7 +300,7 @@ public class OutTakeMTI {
                         armAndExtendTime.reset();
                         extension.retract();
                     }
-                } else if(/*extension.isRetracted() &&*/ armAndExtendTime.seconds() >= 0.45 * slowmo && !retractBoolean){
+                } else if(/*extension.isRetracted() &&*/ armAndExtendTime.seconds() >= 0.5 * slowmo && !retractBoolean){
                     time1.reset();
                     arm.setPixelRotation(intakeRotation);
                     arm.update();
@@ -304,16 +308,16 @@ public class OutTakeMTI {
                 }
                 if(time1.seconds() >= 0.1 * slowmo && retractBoolean){
                     arm.setArmAngle(armAngleRetracting);
+                    arm.setPixelRotation(intakeRotation);
                     arm.update();
+                    elevator.setTargetPosition(-60);
                     retractBoolean = false;
                     changeStateTo(State.RETRACTED);
-                    elevator.setTargetPosition(-60);
                 }
                 break;
             case RETRACTED:
                 if(elevator.reatchedTargetPosition()){
                     changeStateTo(State.WAIT_FOR_PIXELS);
-                    arm.setPixelRotation(intakeRotation);
                 }
                 break;
             case PLACING_PIXELS:
@@ -325,6 +329,7 @@ public class OutTakeMTI {
                     }
                 } else {
                     arm.setArmAngle(armAnglePlacingPurple);
+                    arm.setPixelRotation(ElevatorArm.rotationAngles[arm.rotationIndex]);
                     arm.setArmAngle(0);
                     align = false;
                 }
@@ -341,7 +346,7 @@ public class OutTakeMTI {
                 }
                 break;
             case HANG:
-                State.level = 5;
+                State.level = 7;
                 changeStateTo(State.EXTENDING);
                 break;
             case RESET_OUTTAKE:
@@ -378,7 +383,6 @@ public class OutTakeMTI {
         }
         if(align)
             arm.setOrientation(ExpansionHub.ImuYawAngle);
-
         elevator.update();
         arm.update();
 

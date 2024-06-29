@@ -10,28 +10,23 @@ import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 import javax.swing.plaf.basic.BasicOptionPaneUI;
 
 public class Meep {
-    public static int x = -50, y = 50;
-    public static Pose2d
-            MiddlePurple = new Pose2d(23, -1, 0),
-            MiddleYellow = new Pose2d(14.2, -31.5, Math.toRadians(-60)),
-
-    LeftPurple = new Pose2d(9.5, -7.3, Math.toRadians(-357)),
-            LeftYellow = new Pose2d(13.4, -27.5, Math.toRadians(-76)),
-
-    RightPurple = new Pose2d(16.5, 5, Math.toRadians(-314)),
-            RightYellow = new Pose2d(20, -31.5, Math.toRadians(-57))
-                    ;
+    public static double x = 14, y = 62, rot = -90;
 
     public static Pose2d
-            TrussToStack     = new Pose2d(5, 45, -Math.PI/2.f),
-            Stack            = new Pose2d(23.5, 75.5, -Math.toRadians(110)),
-            Stack2           = new Pose2d(34, 75, -Math.toRadians(110)),
-            BackBoardToTruss = new Pose2d(5, 9, -Math.PI/2.f),
-            Backdrop         = new Pose2d(12.2, -28, -Math.toRadians(73)),
-            TrussToStack_s     = new Pose2d(4, 45, -Math.PI/2.f),
-            BackBoardToTruss_s = new Pose2d(4, 9, -Math.PI/2.f)
+            MiddlePurple = new Pose2d(24, -1, 0),
+            MiddleYellow = new Pose2d(38.5, -33, Math.toRadians(234)),
 
-                    ;
+    RightPurple = new Pose2d(44.7, -5, Math.toRadians(190)),
+            RightYellow = new Pose2d(37, -32, Math.toRadians(233)),
+
+    LeftPurple = new Pose2d(12, 8, Math.toRadians(33)),
+            LeftYellow = new Pose2d(42, -30, Math.toRadians(245)),
+
+    BackDropGate = new Pose2d(51, 5, Math.toRadians(270)),
+            StackGate = new Pose2d(51, 43, Math.toRadians(270)),
+            Stack = new Pose2d(51, 76.5, Math.toRadians(270)),
+            Stack2 = new Pose2d(41, 74.5, Math.toRadians(291)),
+            Backdrop = new Pose2d(47, -33, Math.toRadians(230));
 
     public static void main(String[] args){
         MeepMeep meepMeep = new MeepMeep(800);
@@ -39,10 +34,16 @@ public class Meep {
         RoadRunnerBotEntity bot = new DefaultBotBuilder(meepMeep)
                 .setConstraints(70, 55, 5, 5, 12.2)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(Stack2)
+                        drive.trajectorySequenceBuilder(Backdrop)
+                                .setReversed(true)
 
 
+//                                .splineToSplineHeading(BackDropGate, Math.toRadians(90))
+                                .lineToSplineHeading(BackDropGate)
+                                .splineToSplineHeading(StackGate, Math.toRadians(90))
+                                .splineToSplineHeading(Stack, Math.toRadians(90))
                                 .build()
+
 
                 );
         meepMeep.setBackground(MeepMeep.Background.FIELD_CENTERSTAGE_JUICE_DARK)

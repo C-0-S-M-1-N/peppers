@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Components.Controls;
+import org.firstinspires.ftc.teamcode.Parts.Avion;
 import org.firstinspires.ftc.teamcode.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Parts.OutTakeMTI;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDriveCancelable;
@@ -48,6 +49,7 @@ public class MainOpMTI extends LinearOpMode {
     public static double DeadZoneFilter(double rawValue, GamePadAxiesCompensation AXIES){
         return Math.abs(rawValue) < AXIES.TH ? 0 : rawValue;
     }
+    Avion avion;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -59,13 +61,14 @@ public class MainOpMTI extends LinearOpMode {
 
         OutTakeMTI out = new OutTakeMTI();
         Intake intake = new Intake();
+        avion = new Avion();
         for(int i = 0; i < 3; i++){
             ControlHub.motor[i].setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
 
         boolean boost = true;
         boolean DownIntake = false, UpIntake = false, stackMode = false;
-        int StackPos = 1, savedStackPos = 0;
+        int StackPos = 5, savedStackPos = 0;
         while(opModeInInit()){
             out.update();
         }
@@ -140,7 +143,7 @@ public class MainOpMTI extends LinearOpMode {
                     ControlHub.telemetry.addData("motor" + i, ControlHub.motor[i].getCurrent(CurrentUnit.MILLIAMPS));
                 }
             }
-
+            avion.update();
             ControlHub.telemetry.update();
         }
 

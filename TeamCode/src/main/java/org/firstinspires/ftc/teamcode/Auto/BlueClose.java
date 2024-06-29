@@ -40,22 +40,22 @@ public class BlueClose extends LinearOpMode {
     OutTakeMTI outTake;
     Intake intake;
     public static Pose2d
-            MiddlePurple = new Pose2d(24, 1, 0),
-            MiddleYellow = new Pose2d(13.7, 31.5, Math.toRadians(60)),
+            MiddlePurple = new Pose2d(24, -0.5, 0),
+            MiddleYellow = new Pose2d(12.5, 31.5, Math.toRadians(60)),
 
-            LeftPurple = new Pose2d(10.4, 8.5, Math.toRadians(357)),
-            LeftYellow = new Pose2d(13.4, 27.5, Math.toRadians(76)),
+            LeftPurple = new Pose2d(12, 7, Math.toRadians(357)),
+            LeftYellow = new Pose2d(13.4, 28, Math.toRadians(76)),
 
-            RightPurple = new Pose2d(16.5, -5, Math.toRadians(314)),
-            RightYellow = new Pose2d(20, 31.5, Math.toRadians(57))
+            RightPurple = new Pose2d(13, -7, Math.toRadians(314)),
+            RightYellow = new Pose2d(13, 38, Math.toRadians(57))
     ;
 
     public static Pose2d
             TrussToStack     = new Pose2d(4, -45, Math.PI/2.f),
-            Stack            = new Pose2d(24, -76.5, Math.toRadians(110)),
+            Stack            = new Pose2d(21, -76, Math.toRadians(110)),
             Stack2           = new Pose2d(34, -75, Math.toRadians(110)),
             BackBoardToTruss = new Pose2d(4, -9, Math.PI/2.f),
-            Backdrop         = new Pose2d(12, 29, Math.toRadians(73)),
+            Backdrop         = new Pose2d(11, 28, Math.toRadians(70)),
             TrussToStack_s     = new Pose2d(3, -45, Math.PI/2.f),
             BackBoardToTruss_s = new Pose2d(3, -9, Math.PI/2.f)
 
@@ -107,6 +107,7 @@ public class BlueClose extends LinearOpMode {
 
         });
         FtcDashboard.getInstance().startCameraStream(camera, 0);
+//        OutTakeMTI.isInAutonomous = true;
 
 
         ControlHub c = new ControlHub(hardwareMap);
@@ -120,7 +121,7 @@ public class BlueClose extends LinearOpMode {
         intake = new Intake();
         Intake.reversePower = -1;
 
-        OutTakeMTI.timeToDrop = 0.15;
+        OutTakeMTI.timeToDrop = 0.2;
         OutTakeMTI.arm.rotationIndex = 0;
 
 
@@ -131,8 +132,7 @@ public class BlueClose extends LinearOpMode {
                     isInPreloadPhase = true;
                 })
                 .lineToLinearHeading(LeftPurple)
-                .waitSeconds(0.1)
-                .addTemporalMarker(() -> {
+                .UNSTABLE_addDisplacementMarkerOffset(0.3, () -> {
                     Controls.DropRight = true;
                     Controls.DropRightAck = false;
                 })
@@ -165,7 +165,7 @@ public class BlueClose extends LinearOpMode {
                     isInPreloadPhase = true;
                 })
                 .lineToLinearHeading(RightPurple)
-                .waitSeconds(0.1)
+                .waitSeconds(0.2)
                 .addTemporalMarker(() -> {
                     Controls.DropRight = true;
                     Controls.DropRightAck = false;
@@ -342,10 +342,10 @@ public class BlueClose extends LinearOpMode {
                     pixelsUpdated = false;
                     intake.setPixelStackPosition(pixelsInStack);
                 })
-                .forward(2)
-                .back(2)
-                .forward(2)
-                .back(2)
+                .forward(1)
+                .back(1)
+                .forward(1)
+                .back(1)
                 .addTemporalMarker(() -> {
                     intakeActive = -1;
                     if(!pixelsUpdated) pixelsInStack --;
@@ -363,10 +363,10 @@ public class BlueClose extends LinearOpMode {
                     pixelsUpdated = false;
                     intake.setPixelStackPosition(pixelsInStack);
                 })
-                .forward(2)
-                .back(2)
-                .forward(2)
-                .back(2)
+                .forward(1)
+                .back(1)
+                .forward(1)
+                .back(1)
                 .addTemporalMarker(() -> {
                     intakeActive = -1;
                     if(!pixelsUpdated) pixelsInStack --;
@@ -379,10 +379,10 @@ public class BlueClose extends LinearOpMode {
                     pixelsUpdated = false;
                     intake.setPixelStackPosition(pixelsInStack);
                 })
-                .forward(2)
-                .back(2)
-                .forward(2)
-                .back(2)
+                .forward(1)
+                .back(1)
+                .forward(1)
+                .back(1)
                 .addTemporalMarker(() -> {
                     intakeActive = -1;
                     if(!pixelsUpdated) pixelsInStack --;
@@ -417,8 +417,8 @@ public class BlueClose extends LinearOpMode {
                 .addTemporalMarker(() -> {
                     intakeActive = 0;
                 })
-                .splineToSplineHeading(new Pose2d(Backdrop.getX(), Backdrop.getY(), Backdrop.getHeading()), Math.toRadians(55))
-                .UNSTABLE_addDisplacementMarkerOffset(-0.1, () -> {
+                .splineToSplineHeading(new Pose2d(Backdrop.getX(), Backdrop.getY() + 1, Backdrop.getHeading()), Math.toRadians(55))
+                .UNSTABLE_addDisplacementMarkerOffset(-0.5, () -> {
                     OutTakeMTI.elevator.setLevel(6);
                 })
                 .waitSeconds(0.05)
@@ -449,14 +449,14 @@ public class BlueClose extends LinearOpMode {
                 .addTemporalMarker(() -> {
                     intakeActive = 0;
                 })
-                .UNSTABLE_addTemporalMarkerOffset(-0.5, () -> {
+                .UNSTABLE_addTemporalMarkerOffset(-0.8, () -> {
                     OutTakeMTI.State.level = 1;
                     Controls.ExtendElevator = true;
                     Controls.ExtendElevatorAck = false;
 //                    distanceSensorMesh = true;
                 })
                 .splineToSplineHeading(Backdrop, Math.toRadians(55))
-                .UNSTABLE_addTemporalMarkerOffset(-0.1, () -> {
+                .UNSTABLE_addTemporalMarkerOffset(-0.5, () -> {
                     OutTakeMTI.elevator.setLevel(5);
                 })
                 .waitSeconds(0.05)
@@ -561,6 +561,8 @@ public class BlueClose extends LinearOpMode {
                                 }
                             }
                             else drive.followTrajectorySequenceAsync(goToStack);
+                            Pose2d pose = drive.getLocalizer().getPoseEstimate();
+                            drive.setPoseEstimate(new Pose2d(pose.getX() - 0.3, pose.getY(), pose.getHeading()));
                             order++;
                         }
                         break;
@@ -570,6 +572,7 @@ public class BlueClose extends LinearOpMode {
                         else drive.followTrajectorySequenceAsync(takePixels);
                         break;
                     case 2:
+//                        if(autoTime.seconds() < 15) break;
                         if(secondStack)
                             drive.followTrajectorySequenceAsync(goToBackDropFromSecondStack);
                         else drive.followTrajectorySequenceAsync(goToBackDrop);
@@ -599,5 +602,6 @@ public class BlueClose extends LinearOpMode {
         }
         OutTakeMTI.timeToDrop = 0.3;
         Intake.reversePower = -1;
+        OutTakeMTI.isInAutonomous = false;
     }
 }

@@ -9,6 +9,7 @@ public class PIDController {
     public double error, lastError, maxActuatorOutput, Isum = 0;
     private final ElapsedTime et = new ElapsedTime();
     public int clamp = 1;
+    public double freq = 20;
 
     public PIDController(PIDCoefficients pidcoef){
         pidCoefficients = pidcoef;
@@ -22,8 +23,12 @@ public class PIDController {
     public void setPidCoefficients(PIDCoefficients coeff){
         pidCoefficients = coeff;
     }
-
+    public void setFreq(double f){freq = f;}
+    private long time = 0;
+    private double lastReturn = 0;
     public double calculatePower(double currentPosition){
+        if(System.currentTimeMillis() - time < 1 / (freq * 1000)) return lastReturn;
+        time = System.currentTimeMillis();
         error = targetPosition - currentPosition;
         double time = et.seconds();
 
@@ -45,6 +50,7 @@ public class PIDController {
         et.reset();
 
         lastError = error;
+        lastReturn = ret;
         return ret;
     }
     public void setTargetPosition(double pos){
