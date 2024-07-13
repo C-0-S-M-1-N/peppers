@@ -26,28 +26,16 @@ public class DigitalTest extends LinearOpMode {
 
         telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(), telemetry);
 
-        BetterColorRangeSensor sensor = hardwareMap.get(BetterColorRangeSensor.class, "leftSensor");
-        sensor.setThresHold(100);
-//        ColorRangeSensor sensor = hardwareMap.get(ColorRangeSensor.class, "rightSensor");
-
-        int cnt = 0;
+        BetterColorRangeSensor sensorL = hardwareMap.get(BetterColorRangeSensor.class, "leftSensor");
+        BetterColorRangeSensor sensorR = hardwareMap.get(BetterColorRangeSensor.class, "rightSensor");
 
         waitForStart();
-        ElapsedTime timeB = new ElapsedTime(), timeN = new ElapsedTime();
-        timeB.reset();
-        timeN.reset();
-//        int val = sensor.getManufacturerRawID();
-
 
         while (opModeIsActive() && !isStopRequested()){
-//            telemetry.addData("ID", val);
-            telemetry.addData("value", sensor.getProximityDistance());
-            telemetry.addData("trigger", sensor.LogicProximityStatus());
-            telemetry.addData("main", sensor.getDeviceMainCtrl());
-//            telemetry.addData("value", sensor.getDistance(DistanceUnit.MM));
+            telemetry.addData("right value", sensorR.getDistance(BetterColorRangeSensor.Unit.MM));
+            telemetry.addData("left value",  sensorL.getDistance(BetterColorRangeSensor.Unit.MM));
+
             telemetry.update();
-
-
         }
     }
 }

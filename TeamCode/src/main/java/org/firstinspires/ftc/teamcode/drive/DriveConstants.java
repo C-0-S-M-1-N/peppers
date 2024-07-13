@@ -55,8 +55,8 @@ public class DriveConstants {
      * motor encoders or have elected not to use them for velocity control, these values should be
      * empirically tuned.
      */
-    public static double kV = 0.0102;
-    public static double kA = 0.003;
+    public static double kV = 0.0115;
+    public static double kA = 0.0028;
     public static double kStatic = 0.1;
 
     /*
@@ -99,9 +99,9 @@ public class DriveConstants {
      * https://github.com/acmerobotics/road-runner-quickstart/issues/91
 
      */
-    public static double MAX_VEL = 65;
+    public static double MAX_VEL = 70;
     public static double MAX_ACCEL = 55;
-    public static double MAX_ANG_VEL = Math.toRadians(180);
+    public static double MAX_ANG_VEL = 5;
     public static double MAX_ANG_ACCEL = 5;
 
 

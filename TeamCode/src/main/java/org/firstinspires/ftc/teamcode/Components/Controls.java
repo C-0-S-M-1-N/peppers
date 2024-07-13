@@ -7,6 +7,8 @@ import org.firstinspires.ftc.teamcode.Parts.Avion;
 import org.firstinspires.ftc.teamcode.utils.AutoGamepad;
 import org.firstinspires.ftc.teamcode.utils.RumbleEffects;
 
+import java.util.Set;
+
 @Config
 public class Controls {
     public static boolean updateDetected;
@@ -14,10 +16,19 @@ public class Controls {
             ExtendElevator, RetractElevator, ElevatorUp,  ElevatorDown,
             DropLeft, DropRight, Hang, Avion, ResetTourret,
             DownElevator,
-            ResetElevator, ManualMode, PokeMode;
+            ResetElevator, ManualMode, PokeMode, SetOuttakeToPurplePlacing, rotateLeft, rotateRight,
+            IntakeLvlUp, IntakeLvlDown, StackMode, Mirror;
+
+    public static boolean IntakeAck, RevIntakeAck,
+            ExtendElevatorAck, RetractElevatorAck, ElevatorUpAck,  ElevatorDownAck,
+            DropLeftAck, DropRightAck, HangAck, AvionAck, ResetTourretAck,
+            DownElevatorAck,
+            ResetElevatorAck, ManualModeAck, PokeModeAck, SetOuttakeToPurplePlacingAck, rotateLeftAck, rotateRightAck,
+            IntakeLvlUpAck, IntakeLvlDownAck, StackModeAck;
+
     public static double HangLevel = 0;
-    private static AutoGamepad gamepad1;
-    private static AutoGamepad gamepad2;
+    public static AutoGamepad gamepad1;
+    public static AutoGamepad gamepad2;
     private final RumbleEffects effects;
 
        public static boolean LeftLost, LeftGot,
@@ -32,53 +43,171 @@ public class Controls {
     }
 
     private void reset(){
-        ExtendElevator  = false;
-        RetractElevator = false;
-        ElevatorUp      = false;
-        ElevatorDown    = false;
-        Intake          = false;
-        DropLeft        = false;
-        DropRight       = false;
-        RevIntake       = false;
-        Hang            = false;
-        Avion           = false;
-        ResetTourret    = false;
-        ResetElevator   = false;
-        DownElevator    = false;
-        ManualMode      = false;
-        PokeMode        = false;
+        if(ExtendElevatorAck) {
+            ExtendElevator = false;
+            ExtendElevatorAck = false;
+        }
+        if(RetractElevatorAck) {
+            RetractElevator = false;
+            RetractElevatorAck = false;
+        }
+        if(ElevatorUpAck) {
+            ElevatorUp = false;
+            ElevatorUpAck = false;
+        }
+        if(ElevatorDownAck) {
+            ElevatorDown = false;
+            ElevatorDownAck = false;
+        }
+        Intake = false;
+        if(DropLeftAck) {
+            DropLeft = false;
+            DropLeftAck = false;
+        }
+        if(DropRightAck) {
+            DropRight = false;
+            DropRightAck = false;
+        }
+        RevIntake = false;
+        if(HangAck) {
+            Hang = false;
+            HangAck = false;
+        }
+        if(AvionAck) {
+            Avion = false;
+            AvionAck = false;
+        }
+        if(ResetTourretAck) {
+            ResetTourret = false;
+            ResetTourretAck = false;
+        }
+        if(ResetElevatorAck) {
+            ResetElevator = false;
+            ResetElevatorAck = false;
+        }
+        if(DownElevatorAck) {
+            DownElevator = false;
+            DownElevatorAck = false;
+        }
+        if(ManualModeAck) {
+            ManualMode = false;
+            ManualModeAck = false;
+        }
+        if(PokeModeAck) {
+            PokeMode = false;
+            PokeModeAck = false;
+        }
+        if(SetOuttakeToPurplePlacingAck) {
+            SetOuttakeToPurplePlacing = false;
+            SetOuttakeToPurplePlacingAck = false;
+        }
+        if(rotateLeftAck) {
+            rotateLeft = false;
+            rotateLeftAck = false;
+        }
+        if(rotateRightAck) {
+            rotateRight = false;
+            rotateRightAck = false;
+        }
+        if(IntakeLvlUpAck){
+            IntakeLvlUp = false;
+            IntakeLvlUpAck = false;
+        }
+        if(IntakeLvlDownAck){
+            IntakeLvlDown = false;
+            IntakeLvlDownAck = false;
+        }
+        if(StackModeAck){
+            StackMode = false;
+            StackModeAck = false;
+        }
     }
 
     public void loop(){
         reset();
         gamepad1.update();
         gamepad2.update();
-        if(gamepad2.wasPressed.dpad_up)     ExtendElevator  = true;
-        if(gamepad2.wasPressed.dpad_down)   RetractElevator = true;
-        if(gamepad2.wasPressed.dpad_right)  ElevatorUp      = true;
-        if(gamepad2.wasPressed.dpad_left)   ElevatorDown    = true;
-        if(gamepad2.wasPressed.a) Hang = true;
+        if(gamepad2.wasPressed.square && gamepad2.wasPressed.right_bumper && gamepad2.wasPressed.triangle) SetOuttakeToPurplePlacing = true;
+        else if(gamepad2.wasPressed.dpad_up) {
+            ExtendElevator = true;
+            ExtendElevatorAck = false;
+        }
+        else if(gamepad2.wasPressed.dpad_down) {
+            RetractElevator = true;
+            RetractElevatorAck = false;
+        }
+        else if(gamepad2.wasPressed.dpad_right) {
+            ElevatorUp = true;
+            ElevatorUpAck = false;
+        }
+        else if(gamepad2.wasPressed.dpad_left) {
+            ElevatorDown = true;
+            ElevatorDownAck = false;
+        }
+        else if(gamepad2.wasPressed.a) {
+            Hang = true;
+            HangAck = false;
+        }
+        else if(gamepad2.wasPressed.left_bumper || gamepad1.wasPressed.square) {
+            rotateLeft = true;
+            rotateLeftAck = false;
+        }
+        else if(gamepad2.wasPressed.right_bumper || gamepad1.wasPressed.circle){
+            rotateRight = true;
+            rotateRightAck = false;
+        }
 
-        if(gamepad2.right_trigger >= 0.7)     Intake          = true;
-        if(gamepad2.left_trigger >= 0.7)      RevIntake       = true;
+        else if(gamepad2.right_trigger >= 0.7) {
+            Intake = true;
+            IntakeAck = false;
+        }
+        else if(gamepad2.left_trigger >= 0.7) {
+            RevIntake = true;
+            RevIntakeAck = false;
+        }
 
-        if(gamepad1.wasPressed.left_bumper)    DropLeft    = true;
-        if(gamepad1.wasPressed.right_bumper)   DropRight   = true;
-        if(gamepad2.gamepad.a){
-            HangLevel = gamepad2.gamepad.left_stick_y;
-        } else HangLevel = 0;
-        if(gamepad2.wasPressed.x) Avion = true;
-        if(gamepad2.wasPressed.triangle) ResetTourret = true;
-        if(gamepad2.wasReleased.circle)  ResetElevator = true;
-        if(gamepad2.wasPressed.circle) DownElevator = true;
-        if(gamepad2.wasPressed.left_bumper && gamepad2.wasPressed.right_bumper) ManualMode = true;
-        if(gamepad1.wasPressed.circle) PokeMode = true;
+        if(gamepad1.wasPressed.left_bumper) {
+            DropLeft = true;
+            DropLeftAck = false;
+        }
+        if(gamepad1.wasPressed.right_bumper) {
+            DropRight = true;
+            DropRightAck = false;
+        }
+        if(gamepad2.wasPressed.x) {
+            Avion = true;
+            AvionAck = false;
+        }
+        if(gamepad2.wasPressed.triangle) {
+            ResetTourret = true;
+            ResetTourretAck = false;
+        }
+        if(gamepad2.wasReleased.circle) {
+            ResetElevator = true;
+            ResetElevatorAck = false;
+        }
+        if(gamepad2.wasPressed.circle) {
+            DownElevator = true;
+            DownElevatorAck = false;
+        }
+        if(gamepad2.wasPressed.left_bumper && gamepad2.wasPressed.right_bumper) {
+            ManualMode = true;
+            ManualModeAck = false;
+        }
+        if(gamepad2.wasPressed.circle) {
+            Mirror = true;
+        }
+        if(gamepad2.wasPressed.right_stick_button){
+            StackMode = true;
+            StackModeAck = false;
+        }
 
         updateDetected = ExtendElevator || RetractElevator || ElevatorUp || ElevatorDown || Intake
                 || DropRight || DropLeft || RevIntake;
 
         playEffects();
     }
+    private boolean down = false, up = false;
 
     private static void playEffects(){
         if(FullLoad){

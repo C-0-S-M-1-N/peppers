@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import com.qualcomm.hardware.broadcom.BroadcomColorSensor;
 import com.qualcomm.hardware.lynx.LynxI2cDeviceSynch;
+import com.qualcomm.hardware.rev.RevColorSensorV3;
+import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchDevice;
@@ -52,16 +55,22 @@ public class BetterColorRangeSensor extends I2cDeviceSynchDevice<I2cDeviceSynch>
     public short getTrashHold(){
         return TypeConversion.byteArrayToShort(deviceClient.read(REGISTERS.PS_THRES_LOW_0.reg, 2), ByteOrder.LITTLE_ENDIAN);
     }
+    private double precent = 1;
+    public void addLowPassFilter(double p){
+        precent = p;
+    }
 
 
-    private short last = 10;
+    private short last = 10, lastReadedValue = 10;
     private double lastTime = 0;
 
     public short getProximityDistance(){
-        if(System.currentTimeMillis() - lastTime >= 100){
-            last = (TypeConversion.byteArrayToShort(deviceClient.read(REGISTERS.PS_DATA_0.reg, 2), ByteOrder.LITTLE_ENDIAN));
-            last >>= 3;
+        if(System.currentTimeMillis() - lastTime >= 50){
+            last = TypeConversion.byteArrayToShort(deviceClient.read(REGISTERS.PS_DATA_0.reg, 2), ByteOrder.LITTLE_ENDIAN);
+//            last >>= 3;
+            last = (short) (last * precent + lastReadedValue * (1 - precent));
             lastTime = System.currentTimeMillis();
+            lastReadedValue = last;
         }
         return last;
     }
@@ -70,7 +79,7 @@ public class BetterColorRangeSensor extends I2cDeviceSynchDevice<I2cDeviceSynch>
         super(device, isOwned);
 
         if(device == null){
-            throw new Exception("dsafds");
+            throw new Exception("cum ba??");
         }
         if(deviceClient instanceof LynxI2cDeviceSynch){
             ((LynxI2cDeviceSynch) deviceClient).setBusSpeed(LynxI2cDeviceSynch.BusSpeed.FAST_400K);
@@ -93,17 +102,48 @@ public class BetterColorRangeSensor extends I2cDeviceSynchDevice<I2cDeviceSynch>
     public void enable(){
         byte notUsedRead = readByte(REGISTERS.MAIN_CTRL);
 
+
         //enable PS
         deviceClient.write8(REGISTERS.MAIN_CTRL.reg, 0x1);
 
         notUsedRead = readByte(REGISTERS.MAIN_CTRL);
         RobotLog.vv(getDeviceName(), "enabled proximity 0x%02x", notUsedRead);
     }
+    public enum Unit{
+        MM,
+        CM,
+        INCH
+
+    }
+    private double f1(double x){
+        return 170000 / (x * x) + 400;
+    }
+    private double f2(double x){
+        return 30 * Math.exp(-1/8.f * (x - 10) * (x - 10)) + f1(10);
+    }
+
+    public double getDistance(Unit unit){
+        double read = getProximityDistance();
+        double mm = 0;
+        if(read < 10) mm = f2(read);
+        else mm = f1(read);
+
+        switch (unit){
+            case MM:
+                return mm;
+            case CM:
+                return mm * 10;
+            case INCH:
+                return mm * 25.4;
+        }
+        return mm;
+    }
 
     @Override
     protected boolean doInitialize() {
-        deviceClient.write8(0x01, 0b01110111);
-        deviceClient.write8(0x2, 16);
+        deviceClient.write8(0x1, 0b00110111);
+        deviceClient.write8(0x2, 32);
+
         deviceClient.write8(0x3, 0b00011100);
         deviceClient.write8(0x19, 0x11);
         enable();

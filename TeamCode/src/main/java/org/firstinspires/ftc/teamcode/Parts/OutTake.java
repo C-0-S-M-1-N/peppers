@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Parts;
 
-import static java.lang.Math.max;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -17,7 +16,6 @@ import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.Hubs;
 import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
-import org.firstinspires.ftc.teamcode.trajectorysequence.sequencesegment.WaitSegment;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
 import org.firstinspires.ftc.teamcode.utils.BetterColorRangeSensor;
 
@@ -34,8 +32,9 @@ public class OutTake implements Part{
         RELEASING,
         MOVE_POKE,
         POKE,
-        LVL_UP,
-        LVL_DOWN,
+        PURPLE_STATE_1,
+        PURPLE_STATE_2,
+        WAIT_FOR_RECOVERY,
         NULL;
 
         public static final double MAX_EXTEND = 1341;
@@ -47,7 +46,7 @@ public class OutTake implements Part{
     public static Grippers leftGripper, rightGripper;
     public static OutTakeExtension outTakeExtension;
     public boolean align = false;
-    public static double finalArmAngle = 210, finalPivotPivotAngle = 130;
+    public static double finalArmAngle = 210, finalPivotPivotAngle = 130, purpleArmAngle = 230, purplePivotAngle = 195;
     public static double intermediarPivot = 130, pokePivotAngle = 230, pokeArmAngle = 200;
     public static double LIFT_ARM = 0.1;
     public boolean MANUAL_EXTENSION = false;
@@ -69,16 +68,16 @@ public class OutTake implements Part{
         elevatorArm = new ElevatorArm();
         outTakeExtension = new OutTakeExtension(
                 hm.get(DistanceSensor.class, "sensor"),
-                new AutoServo(SERVO_PORTS.S3, 0.08, true, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON));
+                new AutoServo(SERVO_PORTS.S4, 0.084, true, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON));
 
         leftGripper = new Grippers(
-                new AutoServo(SERVO_PORTS.S0, 0.16, false, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
+                new AutoServo(SERVO_PORTS.S0, 0.27, false, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
                 hm.get(BetterColorRangeSensor.class, "leftSensor"),
                 70
         );
 
         rightGripper = new Grippers(
-                new AutoServo(SERVO_PORTS.S2, 0.17, true, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
+                new AutoServo(SERVO_PORTS.S2, 0.16, true, Hubs.CONTROL_HUB, AutoServo.TYPE.MICRO_LEGO),
                 hm.get(BetterColorRangeSensor.class, "rightSensor"),
                 70
         );
@@ -94,7 +93,10 @@ public class OutTake implements Part{
 //        elevator.state = Elevator.State.RESET;
     }
     private void controls(){
-        if(Controls.Hang) {
+        if(Controls.SetOuttakeToPurplePlacing){
+            state = State.PURPLE_STATE_1;
+        }
+        if(Controls.Hang){
             State.level = 6;
             CLIMBIN = true;
             Controls.ExtendElevator = true;
@@ -153,8 +155,12 @@ public class OutTake implements Part{
     }
     public boolean isPoking = false;
 
-    boolean extending = false, set0Pos = false;
+    private boolean extending = false, set0Pos = false;
+
     private ElapsedTime retractTime = new ElapsedTime();
+    public void setToTablePlacement(){
+        state = State.EXTENDING;
+    }
 
     @Override
     public void update(){
@@ -282,6 +288,27 @@ public class OutTake implements Part{
                     elevator.setInstantPosition(State.level * State.step);
                 }
                 break;
+            case PURPLE_STATE_1:
+                elevator.setTargetPosition(0.7 * State.step);
+                state = State.PURPLE_STATE_2;
+                elevator.position_threshold = 100;
+                break;
+            case PURPLE_STATE_2:
+                if(elevator.reatchedTargetPosition() && elevatorArm.getArmAngle() == 0) {
+                    elevatorArm.setArmAngle(purpleArmAngle);
+                    elevatorArm.setPivotAngle(intermediarPivot);
+                    outTakeExtension.activate();
+                    purpleTime.reset();
+                    elevator.position_threshold = 5;
+                }
+                if(elevatorArm.reachedStationary() && elevatorArm.getArmAngle() != 0){
+                    elevatorArm.setPivotAngle(purplePivotAngle);
+                    elevator.setTargetPosition(10);
+                    state = State.WAIT_FOR_RECOVERY;
+                }
+                break;
+            case WAIT_FOR_RECOVERY:
+                break;
         }
         if(align && elevatorArm.getLiveArmAngle() > 160){
             elevatorArm.setOrientation(-ExpansionHub.ImuYawAngle);
@@ -293,6 +320,7 @@ public class OutTake implements Part{
         elevator.update();
         elevatorArm.update();
     }
+    private ElapsedTime purpleTime = new ElapsedTime();
     @Override
     public void update_values(){
         elevator.update_values();
@@ -326,6 +354,7 @@ public class OutTake implements Part{
         rightGripper.runTelemetry("RIGHT CLAW");
         outTakeExtension.runTelemetry();
         ControlHub.telemetry.addData("Outtake state", state.toString());
+        ControlHub.telemetry.addData("alignment", align);
 
 
     }

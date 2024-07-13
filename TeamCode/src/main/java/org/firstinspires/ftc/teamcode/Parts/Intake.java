@@ -33,20 +33,29 @@ public class Intake implements Part {
         REVERSE,
         FORWARD
     }
-    public STATES STATE;
+    public static STATES STATE;
     public static double maxTrashHold = 1200;
-    public static double ground = 120;
+    public static double ground = 235;
     private double usedCurrent = 0;
     public AutoServo servo;
 
     NanoClock clock;
     private double grippersHaveTime = 0;
     private boolean grippersHave = false;
-    public static double[] stackPositions = {90, 97, 105, 110, 120};
+    public static double[] stackPositions = {230, 220, 210, 200, 193};
+    public static double Up = 160;
+    public static int lvl = 0;
+    public static int TEST_POSITION = 0;
 
     public void setPixelStackPosition(int level){
+        level--;
         if(level > 4) level = 4;
-        ground = stackPositions[level];
+        if(level < 0) level = 0;
+        lvl = level;
+//        ground = stackPositions[level];
+    }
+    public int getPixelStackPosition(){
+        return lvl;
     }
 
     public Intake(){
@@ -54,10 +63,10 @@ public class Intake implements Part {
         ControlHub.setMotorDirection(MOTOR_PORTS.M3, DcMotorSimple.Direction.REVERSE);
         servo = new AutoServo(SERVO_PORTS.S4, 0,
                 true, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
-        servo.setAngle(50);
+        servo.setAngle(150);
         servo.update();
         clock = NanoClock.system();
-        setPixelStackPosition(4);
+        setPixelStackPosition(0);
     }
     private boolean close = false;
     private ElapsedTime manualTimer = new ElapsedTime();
@@ -77,26 +86,18 @@ public class Intake implements Part {
 
         close = manualTimer.seconds() >= 0.3;
 
-        if(close){
-            OutTake.leftGripper.close();
-            OutTake.rightGripper.close();
-        } else {
-            OutTake.rightGripper.open();
-            OutTake.leftGripper.open();
-        }
-
         switch (STATE){
             case IDLE:
                 ControlHub.setMotorPower(MOTOR_PORTS.M3, 0);
-                servo.setAngle(70);
+                servo.setAngle(Up);
                 break;
             case FORWARD:
                 ControlHub.setMotorPower(MOTOR_PORTS.M3, 1);
-                servo.setAngle(ground);
+                servo.setAngle(stackPositions[lvl]);
                 break;
             case REVERSE:
                 ControlHub.setMotorPower(MOTOR_PORTS.M3, -1);
-                servo.setAngle(70);
+                servo.setAngle(Up);
                 break;
         }
 
@@ -104,42 +105,42 @@ public class Intake implements Part {
         servo.update();
 
     }
+    public static boolean forceOut = false;
+    public static double reversePower = -1;
     @Override
     public void update(){
         if(Disabled) return;
         if(Grippers.manualMode) manualUpdate();
 
-        if(!OutTake.fullPixel()) {
+        if(!OutTakeMTI.isFullOfPixels()) {
             grippersHaveTime = 0;
             grippersHave = false;
         } else if(grippersHaveTime == 0) {
             grippersHaveTime = clock.seconds();
-        } else if(clock.seconds() - grippersHaveTime > 0) {
+        } else if(clock.seconds() - grippersHaveTime > 0.3) {
             grippersHave = true;
         }
-        if(usedCurrent > maxTrashHold){
-//            STATE = STATES.REVERSE;
-        }
-        if(Controls.Intake && !grippersHave){
+        if(Controls.RevIntake || (OutTakeMTI.left.hasAPixel() && OutTakeMTI.right.hasAPixel()) && Controls.Intake && grippersHave){
+            STATE = STATES.REVERSE;
+        } else if(Controls.Intake){
             STATE = STATES.FORWARD;
         }
-        if(Controls.RevIntake || (grippersHave && Controls.Intake)){
-            STATE = STATES.REVERSE;
-        }
+        int power = -1;
+
         if(!Controls.RevIntake && !Controls.Intake) STATE = STATES.IDLE;
 
         switch (STATE){
             case IDLE:
                 ControlHub.setMotorPower(MOTOR_PORTS.M3, 0);
-                servo.setAngle(30);
+                servo.setAngle(Up);
                 break;
             case FORWARD:
                 ControlHub.setMotorPower(MOTOR_PORTS.M3, 1);
-                servo.setAngle(ground);
+                servo.setAngle(stackPositions[lvl]);
                 break;
             case REVERSE:
-                ControlHub.setMotorPower(MOTOR_PORTS.M3, -1);
-                servo.setAngle(30);
+                ControlHub.setMotorPower(MOTOR_PORTS.M3, reversePower);
+                servo.setAngle(Up);
                 break;
         }
         servo.update();

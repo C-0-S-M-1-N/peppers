@@ -43,8 +43,8 @@ public class Elevator implements Part {
     public static boolean RESET = false;
 
     public Elevator(){
-        ControlHub.setMotorDirection(M0, DcMotorSimple.Direction.REVERSE);
         ControlHub.setMotorDirection(M1, DcMotorSimple.Direction.REVERSE);
+        ControlHub.setMotorDirection(M2, DcMotorSimple.Direction.REVERSE);
         for(int i = 0; i < 3; i++){
             if(!RESET) ControlHub.motor[i].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             ControlHub.motor[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -53,28 +53,71 @@ public class Elevator implements Part {
             ControlHub.motor[i].setPower(1);
         }
         RESET = true;
+        isEnabledCache = true;
     }
 
     public void setInstantPosition(double p) {
         setTargetPosition(p);
     }
     public void setTargetPosition(double p){
-        targetPosition = p;
+        if(targetPosition != p)
+            targetPosition = p;
     }
 
     public boolean reatchedTargetPosition(){
-        return Math.abs(livePosition - targetPosition) <= position_threshold || state == State.RESET;
+        return Math.abs(livePosition - targetPosition) <= position_threshold || disableMotors;
     }
 
+    public static int[] PixelLayer = {280, 400, 535, 670, 790, 940, 1100, 1220, 1350};
+    private int level = 0;
+    public void setLevel(int lvl){
+        lvl --;
+        if(lvl < 0) lvl = 0;
+        if(lvl > 8) lvl = 8;
+        setTargetPosition(PixelLayer[lvl]);
+        level = lvl;
+    }
+    public int getLevel(){
+        return level;
+    }
+    public void lvlPlus(){
+        setLevel(getLevel() + 1);
+    }
+    public static int getPositionByLevel(int lvl){
+        if(lvl > 8) lvl = 8;
+        if(lvl < 0) lvl = 0;
+        return PixelLayer[lvl];
+    }
+    public void lvlMinus(){
+        setLevel(getLevel() - 1);
+    }
     public double getLivePosition(){
         return livePosition;
     }
 
     public static boolean DEBUG = false;
+    public static boolean disableMotors = false;
+
+    private void disable(){
+        if(!isEnabledCache) return;
+        for(int i = 0; i < 3; i++){
+            ControlHub.motor[i].setMotorDisable();
+        }
+        isEnabledCache = false;
+    }
+    private boolean isEnabledCache = false;
+    private void enable(){
+        if(isEnabledCache) return;
+        for(int i = 0; i < 3; i++){
+            ControlHub.motor[i].setMotorEnable();
+        }
+        isEnabledCache = true;
+    }
 
     @Override
     public void update() {
-        if(targetPosition <= 0 && livePosition <= 8 && state != State.RESET){
+        disableMotors = targetPosition <= 0 && getVelocity() <= 50 && livePosition <= 10;
+        /*if(targetPosition <= 0 && livePosition <= 8 && state != State.RESET){
             state = State.RESET;
             for(int i = 0; i < 3; i++){
                 ControlHub.motor[i].setMotorDisable();
@@ -86,22 +129,29 @@ public class Elevator implements Part {
             for(int i = 0; i < 3; i++){
                 ControlHub.motor[i].setMotorEnable();
             }
-        }
+        }*/
+        if(disableMotors) disable();
+        else enable();
 
         ControlHub.setMotorTargetPosition(M1, (int) targetPosition);
         ControlHub.setMotorTargetPosition(M2, (int)(targetPosition - error1));
         ControlHub.setMotorTargetPosition(M0, (int) (targetPosition - error2));
     }
+    public double getVelocity(){ return velocity; }
     @Override
     public void runTelemetry() {
         ControlHub.telemetry.addData("targetPosition", targetPosition);
-        ControlHub.telemetry.addData("current positoin", livePosition);
+        ControlHub.telemetry.addData("e0", ControlHub.motor[0].getCurrentPosition());
+        ControlHub.telemetry.addData("e1", ControlHub.motor[1].getCurrentPosition());
+        ControlHub.telemetry.addData("e2", ControlHub.motor[2].getCurrentPosition());
+        ControlHub.telemetry.addData("velocity", getVelocity());
     }
-    private double error1 = 0, error2 = 0;
+    private double error1 = 0, error2 = 0, velocity;
     @Override
     public void update_values(){
         livePosition = ControlHub.motor[1].getCurrentPosition();
         error1 = livePosition - ControlHub.motor[2].getCurrentPosition();
         error2 = livePosition - ControlHub.motor[0].getCurrentPosition();
+        velocity = ControlHub.motor[0].getVelocity();
     }
 }

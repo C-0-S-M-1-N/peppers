@@ -5,6 +5,7 @@ import static java.lang.Math.PI;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.localization.Localizer;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -19,10 +20,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.utils.Mutex;
 
 @Config
 public class ExpansionHub {
+    public static boolean disableDevice = false;
     public static DcMotorEx[] motor = new DcMotorEx[4];
     public static Encoder[] encoder = new Encoder[4];
     public static Servo[] servo = new Servo[6];
@@ -31,8 +34,8 @@ public class ExpansionHub {
     private static final double[] motor_target_cache = new double[4];
 
     public static double voltage;
+    public static double compensation;
     public static IMU imu;
-    public static DistanceSensor sensor;
 
     private static void setMotorsToMax(){
         MotorConfigurationType mct = motor[0].getMotorType().clone();
@@ -57,9 +60,15 @@ public class ExpansionHub {
         resetEncoder(ENCODER_PORTS.E3);
 
     }
-    public static double ImuYawAngle = 0, extension_length = 0, sensorDistance = 0;
-    private Localizer localizer = null;
-    public static double IMU_FREQ = 0.5; // in Hz
+    public static double ImuYawAngle = 0, extension_length = 0;
+    public Localizer localizer = null;
+    public static LynxModule ExpansionHubModule;
+    public static double IMU_FREQ = 0.5, TILT_FREQ = 10; // in Hz
+    public static YawPitchRollAngles angles;
+
+    public static void setInitialBackdropAngleRelativeToBot(double angle){
+        beforeReset += angle;
+    }
 
     public ExpansionHub(HardwareMap hm, Localizer localizer){
         this.localizer = localizer;
@@ -91,31 +100,47 @@ public class ExpansionHub {
         ));
         imu.resetYaw();
 
-        sensor = hm.get(DistanceSensor.class, "sensor");
         beforeReset = 0;
+        compensation = voltage;
+
+        ExpansionHubModule = hm.getAll(LynxModule.class).get(1);
 
         setMotorsToMax();
 
     }
 
-    private static double beforeReset = 0;
-    public static double VELOCITY_COMPENSATION = 0;
+    public static double beforeReset = 0;
     public static void resetIMU(){
         beforeReset += ImuYawAngle;
     }
 
     ElapsedTime imuTime = new ElapsedTime();
+    ElapsedTime tiltTime = new ElapsedTime();
+    public static double tiltAngle = 0, yawnAngle = 0;
 
     public void update(boolean update_localizer){
-        extension_length = 690;
-        localizer.update();
+        update(update_localizer, 0, 0);
+    }
+
+    public void update(boolean update_localizer, double posX, double posY){
+        if(update_localizer)
+            localizer.update();
+
+//        double imuAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+//        if(imuAngle != 0) ImuYawAngle = imuAngle - beforeReset;
+        /*if(tiltTime.seconds() > 1.f / TILT_FREQ){
+            angles = imu.getRobotYawPitchRollAngles();
+            tiltTime.reset();
+            tiltAngle = -angles.getPitch(AngleUnit.DEGREES);
+        }*/
 
         if(imuTime.seconds() > 1.0 / IMU_FREQ) {
             imuTime.reset();
-            double imuAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            yawnAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            double imuAngle = yawnAngle;
 
             ImuYawAngle = Math.toDegrees(imuAngle) - beforeReset;
-            if(imuAngle != 0) localizer.setPoseEstimate(new Pose2d(0, 0, imuAngle));
+            if(imuAngle != 0) localizer.setPoseEstimate(new Pose2d(posX, posY, imuAngle));
         } else {
 //            ImuYawAngle = localizer.getPoseEstimate().getHeading() * 180 / PI;
             ImuYawAngle = Math.toDegrees(localizer.getPoseEstimate().getHeading()) - beforeReset;
@@ -123,11 +148,12 @@ public class ExpansionHub {
     }
 
     public void teleAngle(Telemetry telemetry) {
-        telemetry.addData("Imu angle: ", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
-        telemetry.addData("Turret non normalized angle: ", Math.toDegrees(imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)) - beforeReset);
+        telemetry.addData("Imu angle: ", ImuYawAngle);
+        telemetry.addData("Turret non normalized angle: ", ImuYawAngle - beforeReset);
     }
 
     public static double getEncoderPosition(ENCODER_PORTS encoder_port){
+        if(disableDevice) return 0;
         switch(encoder_port){
             case E0:
                 return encoder[0].getPosition();
@@ -141,6 +167,7 @@ public class ExpansionHub {
         return 0;
     }
     public static double getMotorVelocity(ENCODER_PORTS encoder){
+        if(disableDevice) return 0;
         switch (encoder){
             case E0:
                 return motor[0].getVelocity();
@@ -154,6 +181,7 @@ public class ExpansionHub {
         return 0;
     }
     public static void setServoPosition(SERVO_PORTS port, double position){
+        if(disableDevice) return;
         switch (port) {
             case S0:
                 if(servo_cache[0] != position) {
@@ -207,6 +235,7 @@ public class ExpansionHub {
         return 0;
     }
     public static void setServoDirection(SERVO_PORTS port, Servo.Direction dir) {
+        if(disableDevice) return;
         switch (port) {
             case S0:
                 servo[0].setDirection(dir);
@@ -229,6 +258,7 @@ public class ExpansionHub {
         }
     }
     public static void setMotorDirection(MOTOR_PORTS port, DcMotorSimple.Direction dir){
+        if(disableDevice) return;
         switch (port){
             case M0:
                 motor[0].setDirection(dir);
@@ -246,6 +276,7 @@ public class ExpansionHub {
     }
 
     public static void setMotorTargetPosition(MOTOR_PORTS port, int position){
+        if(disableDevice) return;
         switch (port){
             case M0:
                 if(motor_target_cache[0] != position){
@@ -274,28 +305,29 @@ public class ExpansionHub {
         }
     }
     public static void setMotorPower(MOTOR_PORTS port, double power){
+        if(disableDevice) return;
         switch (port){
             case M0:
                 if(motor_cache[0] != power){
-                    motor[0].setPower(power);
+                    motor[0].setPower(power * compensation / voltage);
                     motor_cache[0] = power;
                 }
                 break;
             case M1:
                 if(motor_cache[1] != power){
-                    motor[1].setPower(power);
+                    motor[1].setPower(power * compensation / voltage);
                     motor_cache[1] = power;
                 }
                 break;
             case M2:
                 if(motor_cache[2] != power){
-                    motor[2].setPower(power);
+                    motor[2].setPower(power * compensation / voltage);
                     motor_cache[2] = power;
                 }
                 break;
             case M3:
                 if(motor_cache[3] != power){
-                    motor[3].setPower(power);
+                    motor[3].setPower(power * compensation / voltage);
                     motor_cache[3] = power;
                 }
                 break;
@@ -303,6 +335,7 @@ public class ExpansionHub {
     }
 
     public void setEncoderDirection(ENCODER_PORTS port, Encoder.Direction dir){
+        if(disableDevice) return;
         switch (port){
             case E0:
                 encoder[0].setDirection(dir);
@@ -319,6 +352,7 @@ public class ExpansionHub {
         }
     }
     public static void resetEncoder(ENCODER_PORTS port){
+        if(disableDevice) return;
         switch (port){
             case E0:
                 encoder[0].reset();
@@ -336,6 +370,7 @@ public class ExpansionHub {
     }
 
     public static void teleMotorCurrents(Telemetry telemetry) {
+        if(disableDevice) return;
 
         telemetry.addData("EM0:", getCurrentFromMotor(MOTOR_PORTS.M0, CurrentUnit.AMPS));
         telemetry.addData("EM1:", getCurrentFromMotor(MOTOR_PORTS.M1, CurrentUnit.AMPS));
