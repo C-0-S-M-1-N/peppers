@@ -100,9 +100,9 @@ public class OutTakeMTI {
         elevator = new Elevator();
         arm = new ElevatorArm();
         state = readStateFromFile();
-        left = new Grippers(new AutoServo(SERVO_PORTS.S3, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
+        right = new Grippers(new AutoServo(SERVO_PORTS.S3, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
                     ControlHub.right, 380, 70.f, 245.f);
-        right = new Grippers(new AutoServo(SERVO_PORTS.S2, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
+        left = new Grippers(new AutoServo(SERVO_PORTS.S2, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
                     ControlHub.left, 500, 290.f, 110.f);
         if(DISABLE) return;
         align = false;

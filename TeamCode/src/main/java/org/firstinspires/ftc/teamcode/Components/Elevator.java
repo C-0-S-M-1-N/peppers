@@ -43,7 +43,6 @@ public class Elevator implements Part {
     public static boolean RESET = false;
 
     public Elevator(){
-        ControlHub.setMotorDirection(M1, DcMotorSimple.Direction.REVERSE);
         ControlHub.setMotorDirection(M2, DcMotorSimple.Direction.REVERSE);
         for(int i = 0; i < 3; i++){
             if(!RESET) ControlHub.motor[i].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -133,8 +132,8 @@ public class Elevator implements Part {
         if(disableMotors) disable();
         else enable();
 
-        ControlHub.setMotorTargetPosition(M1, (int) targetPosition);
-        ControlHub.setMotorTargetPosition(M2, (int)(targetPosition - error1));
+        ControlHub.setMotorTargetPosition(M2, (int) targetPosition);
+        ControlHub.setMotorTargetPosition(M1, (int)(targetPosition - error1));
         ControlHub.setMotorTargetPosition(M0, (int) (targetPosition - error2));
     }
     public double getVelocity(){ return velocity; }
@@ -149,9 +148,9 @@ public class Elevator implements Part {
     private double error1 = 0, error2 = 0, velocity;
     @Override
     public void update_values(){
-        livePosition = ControlHub.motor[1].getCurrentPosition();
-        error1 = livePosition - ControlHub.motor[2].getCurrentPosition();
+        livePosition = ControlHub.motor[2].getCurrentPosition();
+        error1 = livePosition - ControlHub.motor[1].getCurrentPosition();
         error2 = livePosition - ControlHub.motor[0].getCurrentPosition();
-        velocity = ControlHub.motor[0].getVelocity();
+        velocity = ControlHub.motor[2].getVelocity();
     }
 }
