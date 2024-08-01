@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Parts;
+package org.firstinspires.ftc.teamcode.utils;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -15,6 +15,9 @@ public class MotionProfile {
     public MotionProfile(double maxVelocity, double acceleration){
         this.maxVelocity = maxVelocity;
         this.acceleration = acceleration;
+    }
+    public double getTargetPosition(){
+        return targetPosition;
     }
     public void startMotion(double initialPos, double targetPos){
         if(initialPos == targetPos) return;
@@ -48,19 +51,19 @@ public class MotionProfile {
         if(t <= t0) return acceleration;
         if(t <= t1) return 0;
         if(t <= t2) return -acceleration;
-        return 0;
+        return a(t2);
     }
     private double v(double t){
         if(t <= t0) return t * acceleration;
         if(t <= t1) return maxVelocity;
         if(t <= t2) return maxVelocity - acceleration * (t - t1);
-        return 0;
+        return v(t2);
     }
     private double p(double t){
         if(t <= t0) return acceleration / 2 * t * t;
         if(t <= t1) return acceleration / 2 * t0 * t0 + mvUsed * (t - t0);
         if(t <= t2) return acceleration / 2 * t0 * t0 + mvUsed * (t - t0) - acceleration / 2 * (t - t1) * (t - t1);
-        return 0;
+        return p(t2);
     }
     public void update(){
 //        currentPosition += sig * p(time.seconds());

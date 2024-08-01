@@ -6,8 +6,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.apache.commons.math3.geometry.euclidean.twod.Line;
-import org.firstinspires.ftc.teamcode.Parts.MotionProfile;
+import org.firstinspires.ftc.teamcode.utils.MotionProfile;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;

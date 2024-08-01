@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode.Components;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Part;
-import org.firstinspires.ftc.teamcode.Parts.MotionProfile;
+import org.firstinspires.ftc.teamcode.utils.MotionProfile;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
-import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.Hubs;
 import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
@@ -18,19 +16,25 @@ public class ElevatorArm implements Part {
     private MotionProfile armProfile = new MotionProfile(4000, 2000);
     public static double currentArmAngle = 0, defaultTouretDegrees = 209, imuResetedAngle = 0;
     public ElevatorArm() {
-        virtual1 = new AutoServo(SERVO_PORTS.S5, 75.f/355.f, false, Hubs.EXPANSION_HUB, AutoServo.TYPE.AXON);
+        virtual1 = new AutoServo(SERVO_PORTS.S5, 75.f/355.f, false, Hubs.EXPANSION_HUB, AutoServo.TYPE.AXON,
+                new MotionProfile(643, 360));
         virtual1.setAngle(0);
         virtual1.update();
 
-        rotation = new AutoServo(SERVO_PORTS.S0,  164.f/355.f,false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
+        rotation = new AutoServo(SERVO_PORTS.S0,  164.f/355.f,false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON,
+                new MotionProfile(643, 360));
         rotation.setAngle(0);
         rotation.update();
 
-        turret = new AutoServo(SERVO_PORTS.S5, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
+        turret = new AutoServo(SERVO_PORTS.S5, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON,
+                new MotionProfile(643, 360));
         turret.setAngle(defaultTouretDegrees);
         turret.update();
         rotationIndex = 2;
     }
+    public boolean rotationMotionEnded(){ return rotation.motoinEnded(); }
+    public boolean orientationMotionEnded(){ return turret.motoinEnded(); }
+    public boolean armModuleRotationMotionEnded(){ return virtual1.motoinEnded(); }
     public static double[] rotationAngles = {-100, -65, 0, 60, 95};
     public int rotationIndex;
     public enum Direction {
@@ -53,10 +57,12 @@ public class ElevatorArm implements Part {
         virtual1.setAngle(angle);
     }
     private long timePivot = 0, timeElapsed = 0;
+    @Deprecated
     public void setPivotAngle(double angle, long time){
         timePivot = time;
         timeElapsed = System.currentTimeMillis();
     }
+    @Deprecated
     public void setPivotAngle(double angle){
         setPivotAngle(angle, 0);
     }
@@ -88,7 +94,6 @@ public class ElevatorArm implements Part {
         rotation.update();
         virtual1.update();
         turret.update();
-
     }
     @Override
     public void update_values(){

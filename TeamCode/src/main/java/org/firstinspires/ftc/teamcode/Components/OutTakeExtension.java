@@ -4,15 +4,11 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Part;
-import org.firstinspires.ftc.teamcode.Parts.MotionProfile;
+import org.firstinspires.ftc.teamcode.utils.MotionProfile;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
-import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
-import org.firstinspires.ftc.teamcode.utils.LowPassFilter;
-import org.opencv.core.Mat;
 
 @Config
 public class OutTakeExtension implements Part {

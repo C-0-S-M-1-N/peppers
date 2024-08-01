@@ -3,22 +3,14 @@ package org.firstinspires.ftc.teamcode.OpModes;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Components.Elevator;
-import org.firstinspires.ftc.teamcode.Components.ElevatorArm;
-import org.firstinspires.ftc.teamcode.Components.OutTakeExtension;
-import org.firstinspires.ftc.teamcode.Parts.MotionProfile;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
-import org.firstinspires.ftc.teamcode.internals.Hubs;
-import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
-import org.firstinspires.ftc.teamcode.utils.AutoServo;
 
 import java.util.ArrayList;
 
