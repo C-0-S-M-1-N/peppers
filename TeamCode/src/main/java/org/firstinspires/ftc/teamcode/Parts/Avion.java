@@ -18,7 +18,7 @@ public class Avion {
         shoot = true;
     }
     public void update(){
-        ExpansionHub.setServoPosition(SERVO_PORTS.S1, shoot ? keep/180.f : shoot_a);
+        ExpansionHub.setServoPosition(SERVO_PORTS.S4, shoot ? keep/180.f : shoot_a);
         if(Controls.Avion && !Controls.AvionAck) {
             Controls.AvionAck = true;
             shoot = !shoot;

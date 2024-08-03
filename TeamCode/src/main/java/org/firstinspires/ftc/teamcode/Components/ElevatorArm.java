@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Part;
 import org.firstinspires.ftc.teamcode.Parts.MotionProfile;
+import org.firstinspires.ftc.teamcode.Parts.OutTakeMTI;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.Hubs;
@@ -18,15 +19,18 @@ public class ElevatorArm implements Part {
     private MotionProfile armProfile = new MotionProfile(4000, 2000);
     public static double currentArmAngle = 0, defaultTouretDegrees = 209, imuResetedAngle = 0;
     public ElevatorArm() {
-        virtual1 = new AutoServo(SERVO_PORTS.S5, 75.f/355.f, false, Hubs.EXPANSION_HUB, AutoServo.TYPE.AXON);
-        virtual1.setAngle(0);
+        virtual1 = new AutoServo(SERVO_PORTS.S0, 75.f/355.f, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
+        virtual1.setAngle(OutTakeMTI.armAngleIntake);
+        virtual1.update();
+        virtual1.update();
+        virtual1.update();
         virtual1.update();
 
-        rotation = new AutoServo(SERVO_PORTS.S0,  164.f/355.f,false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
+        rotation = new AutoServo(SERVO_PORTS.S4,  164.f/355.f,false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
         rotation.setAngle(0);
         rotation.update();
 
-        turret = new AutoServo(SERVO_PORTS.S5, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
+        turret = new AutoServo(SERVO_PORTS.S3, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
         turret.setAngle(defaultTouretDegrees);
         turret.update();
         rotationIndex = 2;
@@ -65,7 +69,7 @@ public class ElevatorArm implements Part {
         while(angle > 180) angle -= 360;
         while(angle < -180) angle += 360;
 
-        if(Math.abs(angle) > 70) angle = 70 * Math.signum(angle);
+        if(Math.abs(angle) > 50) angle = 50 * Math.signum(angle);
 
         turret.setAngle(angle + defaultTouretDegrees);
     }

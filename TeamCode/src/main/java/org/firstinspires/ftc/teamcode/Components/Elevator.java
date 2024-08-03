@@ -21,6 +21,7 @@ import org.firstinspires.ftc.teamcode.Part;
 import org.firstinspires.ftc.teamcode.Parts.MotionProfile;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ENCODER_PORTS;
+import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
 import org.firstinspires.ftc.teamcode.util.Encoder;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
@@ -43,14 +44,19 @@ public class Elevator implements Part {
     public static boolean RESET = false;
 
     public Elevator(){
-        ControlHub.setMotorDirection(M2, DcMotorSimple.Direction.REVERSE);
-        for(int i = 0; i < 3; i++){
+        for(int i = 1; i < 3; i++){
             if(!RESET) ControlHub.motor[i].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             ControlHub.motor[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             ControlHub.motor[i].setTargetPosition(ControlHub.motor[i].getCurrentPosition());
             ControlHub.motor[i].setMode(DcMotor.RunMode.RUN_TO_POSITION);
             ControlHub.motor[i].setPower(1);
         }
+
+        if(!RESET) ExpansionHub.motor[1].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        ExpansionHub.motor[1].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        ExpansionHub.motor[1].setTargetPosition(ControlHub.motor[1].getCurrentPosition());
+        ExpansionHub.motor[1].setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        ExpansionHub.motor[1].setPower(1);
         RESET = true;
         isEnabledCache = true;
     }
@@ -99,17 +105,19 @@ public class Elevator implements Part {
 
     private void disable(){
         if(!isEnabledCache) return;
-        for(int i = 0; i < 3; i++){
+        for(int i = 1; i < 3; i++){
             ControlHub.motor[i].setMotorDisable();
         }
+        ExpansionHub.motor[1].setMotorDisable();
         isEnabledCache = false;
     }
     private boolean isEnabledCache = false;
     private void enable(){
         if(isEnabledCache) return;
-        for(int i = 0; i < 3; i++){
+        for(int i = 1; i < 3; i++){
             ControlHub.motor[i].setMotorEnable();
         }
+        ExpansionHub.motor[1].setMotorEnable();
         isEnabledCache = true;
     }
 
@@ -132,15 +140,16 @@ public class Elevator implements Part {
         if(disableMotors) disable();
         else enable();
 
-        ControlHub.setMotorTargetPosition(M2, (int) targetPosition);
+        ExpansionHub.setMotorTargetPosition(M1, (int) targetPosition);
         ControlHub.setMotorTargetPosition(M1, (int)(targetPosition - error1));
-        ControlHub.setMotorTargetPosition(M0, (int) (targetPosition - error2));
+        ControlHub.setMotorTargetPosition(M2, (int) (targetPosition - error2));
     }
+
     public double getVelocity(){ return velocity; }
     @Override
     public void runTelemetry() {
         ControlHub.telemetry.addData("targetPosition", targetPosition);
-        ControlHub.telemetry.addData("e0", ControlHub.motor[0].getCurrentPosition());
+        ControlHub.telemetry.addData("e0", -ExpansionHub.motor[1].getCurrentPosition());
         ControlHub.telemetry.addData("e1", ControlHub.motor[1].getCurrentPosition());
         ControlHub.telemetry.addData("e2", ControlHub.motor[2].getCurrentPosition());
         ControlHub.telemetry.addData("velocity", getVelocity());
@@ -148,9 +157,9 @@ public class Elevator implements Part {
     private double error1 = 0, error2 = 0, velocity;
     @Override
     public void update_values(){
-        livePosition = ControlHub.motor[2].getCurrentPosition();
+        livePosition = ExpansionHub.motor[1].getCurrentPosition();
         error1 = livePosition - ControlHub.motor[1].getCurrentPosition();
-        error2 = livePosition - ControlHub.motor[0].getCurrentPosition();
-        velocity = ControlHub.motor[2].getVelocity();
+        error2 = livePosition - ControlHub.motor[2].getCurrentPosition();
+        velocity = ExpansionHub.motor[1].getVelocity();
     }
 }

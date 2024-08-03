@@ -9,11 +9,13 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.apache.commons.math3.analysis.function.Exp;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Components.Grippers;
 import org.firstinspires.ftc.teamcode.Part;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
+import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.Hubs;
 import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
 import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
@@ -60,8 +62,7 @@ public class Intake implements Part {
 
     public Intake(){
         STATE = STATES.IDLE;
-        ControlHub.setMotorDirection(MOTOR_PORTS.M3, DcMotorSimple.Direction.REVERSE);
-        servo = new AutoServo(SERVO_PORTS.S4, 0,
+        servo = new AutoServo(SERVO_PORTS.S5, 0,
                 true, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON);
         servo.setAngle(150);
         servo.update();
@@ -88,15 +89,15 @@ public class Intake implements Part {
 
         switch (STATE){
             case IDLE:
-                ControlHub.setMotorPower(MOTOR_PORTS.M3, 0);
+                ExpansionHub.setMotorPower(MOTOR_PORTS.M3, 0);
                 servo.setAngle(Up);
                 break;
             case FORWARD:
-                ControlHub.setMotorPower(MOTOR_PORTS.M3, 1);
+                ExpansionHub.setMotorPower(MOTOR_PORTS.M3, 1);
                 servo.setAngle(stackPositions[lvl]);
                 break;
             case REVERSE:
-                ControlHub.setMotorPower(MOTOR_PORTS.M3, -1);
+                ExpansionHub.setMotorPower(MOTOR_PORTS.M3, -1);
                 servo.setAngle(Up);
                 break;
         }
@@ -131,15 +132,15 @@ public class Intake implements Part {
 
         switch (STATE){
             case IDLE:
-                ControlHub.setMotorPower(MOTOR_PORTS.M3, 0);
+                ExpansionHub.setMotorPower(MOTOR_PORTS.M3, 0);
                 servo.setAngle(Up);
                 break;
             case FORWARD:
-                ControlHub.setMotorPower(MOTOR_PORTS.M3, 1);
+                ExpansionHub.setMotorPower(MOTOR_PORTS.M3, 1);
                 servo.setAngle(stackPositions[lvl]);
                 break;
             case REVERSE:
-                ControlHub.setMotorPower(MOTOR_PORTS.M3, reversePower);
+                ExpansionHub.setMotorPower(MOTOR_PORTS.M3, reversePower);
                 servo.setAngle(Up);
                 break;
         }
@@ -148,7 +149,7 @@ public class Intake implements Part {
     }
     @Override
     public void update_values(){
-        usedCurrent = ControlHub.getCurrentFromMotor(MOTOR_PORTS.M3, CurrentUnit.MILLIAMPS);
+        usedCurrent = ExpansionHub.getCurrentFromMotor(MOTOR_PORTS.M3, CurrentUnit.MILLIAMPS);
     }
     @Override
     public void runTelemetry(){}
