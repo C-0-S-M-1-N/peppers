@@ -90,6 +90,7 @@ public class OutTakeMTI {
 //        return State.WAIT_FOR_PIXELS;
 //
 //    }
+    public static int treshHoldR = 570, treshHoldL = 520;
 
     public OutTakeMTI(){
         cacheFile = new File(Environment.getExternalStorageDirectory(), cacheFileName);
@@ -100,9 +101,9 @@ public class OutTakeMTI {
         elevator = new Elevator();
         arm = new ElevatorArm();
         right = new Grippers(new AutoServo(SERVO_PORTS.S1, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
-                    ControlHub.right, 380, 70.f, 245.f);
+                    ControlHub.right, 570, 65.f, 240.f);
         left = new Grippers(new AutoServo(SERVO_PORTS.S2, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
-                    ControlHub.left, 500, 290.f, 110.f);
+                    ControlHub.left, 520, 220.f, 40.f);
         if(DISABLE) return;
         align = false;
         arm.setArmAngle(armAngleIntake);
@@ -153,11 +154,11 @@ public class OutTakeMTI {
         }
         if(Controls.DropLeft) {
             Controls.DropLeftAck = true;
-            right.drop();
+            left.drop();
         }
         if(Controls.DropRight) {
             Controls.DropRightAck = true;
-            left.drop();
+            right.drop();
         }
         if(Controls.rotateRight) {
             Controls.rotateRightAck = true;
@@ -194,7 +195,7 @@ public class OutTakeMTI {
         if(Controls.ElevatorUp){
             Controls.ElevatorUpAck = true;
             State.level++;
-            if(State.level > 8) State.level = 8;
+            if(State.level > 9) State.level = 9;
 //            if(state != State.WAIT_FOR_PIXELS) elevator.setTargetPosition(State.level * STEP + joystickElevatorOffset);
             if(state == State.PLACING_PIXELS) elevator.setLevel((int) State.level);
         }
@@ -231,6 +232,8 @@ public class OutTakeMTI {
 
     public void update(){
         if(DISABLE) return;
+        right.sensor.setThresHold(treshHoldR);
+        left.sensor.setThresHold(treshHoldL);
         controls();
         switch (state){
             case WAIT_FOR_PIXELS:

@@ -44,7 +44,8 @@ public class Intake implements Part {
     NanoClock clock;
     private double grippersHaveTime = 0;
     private boolean grippersHave = false;
-    public static double[] stackPositions = {230, 220, 210, 200, 193};
+    public static double[] stackPositions = {227, 215, 205, 198, 188};
+//    public static double[] stackPositions = {125, 135, 145, 155, 165};
     public static double Up = 160;
     public static int lvl = 0;
     public static int TEST_POSITION = 0;
@@ -121,7 +122,7 @@ public class Intake implements Part {
         } else if(clock.seconds() - grippersHaveTime > 0.3) {
             grippersHave = true;
         }
-        if(Controls.RevIntake || (OutTakeMTI.left.hasAPixel() && OutTakeMTI.right.hasAPixel()) && Controls.Intake && grippersHave){
+        if(/*(Controls.Intake && ExpansionHub.getCurrentFromMotor(MOTOR_PORTS.M3, CurrentUnit.MILLIAMPS) >= 6500) || */Controls.RevIntake || (OutTakeMTI.left.hasAPixel() && OutTakeMTI.right.hasAPixel()) && Controls.Intake && grippersHave){
             STATE = STATES.REVERSE;
         } else if(Controls.Intake){
             STATE = STATES.FORWARD;

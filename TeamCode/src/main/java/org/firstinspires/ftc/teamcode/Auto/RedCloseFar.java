@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
@@ -29,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 
 @Autonomous(name = "RedCloseFar", group = "auto", preselectTeleOp = ".pipers \uD83C\uDF36")
+@Disabled
 public class RedCloseFar extends LinearOpMode {
 
     public static Pose2d

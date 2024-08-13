@@ -73,12 +73,12 @@ public class Elevator implements Part {
         return Math.abs(livePosition - targetPosition) <= position_threshold || disableMotors;
     }
 
-    public static int[] PixelLayer = {280, 400, 535, 670, 790, 940, 1100, 1220, 1350};
+    public static int[] PixelLayer = {280, 400, 535, 670, 790, 940, 1100, 1220, 1350, 1350};
     private int level = 0;
     public void setLevel(int lvl){
         lvl --;
         if(lvl < 0) lvl = 0;
-        if(lvl > 8) lvl = 8;
+        if(lvl > 9) lvl = 9;
         setTargetPosition(PixelLayer[lvl]);
         level = lvl;
     }
@@ -89,7 +89,7 @@ public class Elevator implements Part {
         setLevel(getLevel() + 1);
     }
     public static int getPositionByLevel(int lvl){
-        if(lvl > 8) lvl = 8;
+        if(lvl > 9) lvl = 9;
         if(lvl < 0) lvl = 0;
         return PixelLayer[lvl];
     }
