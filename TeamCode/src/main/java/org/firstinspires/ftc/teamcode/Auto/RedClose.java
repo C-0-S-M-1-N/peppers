@@ -41,24 +41,24 @@ public class RedClose extends LinearOpMode {
     OutTakeMTI outTake;
     Intake intake;
     public static Pose2d
-            MiddlePurple = new Pose2d(22, -1, 0),
-            MiddleYellow = new Pose2d(16.5, -30, Math.toRadians(286)),
+            MiddlePurple = new Pose2d(22, 0, 0),
+            MiddleYellow = new Pose2d(16.5, -28.5, Math.toRadians(286)),
 
     LeftPurple = new Pose2d(9.5, -9, Math.toRadians(-357)),
             LeftYellow = new Pose2d(12.5, -28, Math.toRadians(-76)),
 
     RightPurple = new Pose2d(15.5, 4, Math.toRadians(45)),
-            RightYellow = new Pose2d(19, -30, Math.toRadians(-60))
+            RightYellow = new Pose2d(20, -29, Math.toRadians(-60))
                     ;
 
     public static Pose2d
-            TrussToStack     = new Pose2d(3, 45, -Math.PI/2.f),
-            Stack            = new Pose2d(22, 75, -Math.toRadians(110)),
-            Stack2           = new Pose2d(33, 75.5, -Math.toRadians(110)),
-            BackBoardToTruss = new Pose2d(3, 9, -Math.PI/2.f),
-            Backdrop         = new Pose2d(12.5, -27.5, -Math.toRadians(70)),
-            TrussToStack_s     = new Pose2d(3, 45, -Math.PI/2.f),
-            BackBoardToTruss_s = new Pose2d(3, 9, -Math.PI/2.f)
+            TrussToStack     = new Pose2d(4, 45, -Math.PI/2.f),
+            Stack            = new Pose2d(21.5, 76, -Math.toRadians(110)),
+            Stack2           = new Pose2d(34, 76, -Math.toRadians(110)),
+            BackBoardToTruss = new Pose2d(4, 9, -Math.PI/2.f),
+            Backdrop         = new Pose2d(12.5, -28, -Math.toRadians(70)),
+            TrussToStack_s     = new Pose2d(4, 45, -Math.PI/2.f),
+            BackBoardToTruss_s = new Pose2d(4, 9, -Math.PI/2.f)
 
                     ;
     int pixelsInStack = 5;
@@ -117,7 +117,6 @@ public class RedClose extends LinearOpMode {
                     isInPreloadPhase = true;
                 })
                 .lineToLinearHeading(LeftPurple)
-                .waitSeconds(0.1)
                 .addTemporalMarker(() -> {
                     Controls.DropLeft = true;
                     Controls.DropLeftAck = false;
@@ -151,20 +150,19 @@ public class RedClose extends LinearOpMode {
                     isInPreloadPhase = true;
                 })
                 .lineToLinearHeading(RightPurple)
-                .waitSeconds(0.1)
                 .addTemporalMarker(() -> {
                     Controls.DropLeft = true;
                     Controls.DropLeftAck = false;
                 })
-                .waitSeconds(0.1)
+                .waitSeconds(0.05)
                 .addTemporalMarker(() -> {
                     OutTakeMTI.elevator.setTargetPosition(OutTakeMTI.STEP * 3.5);
                     OutTakeMTI.align = true;
                     outTake.setToNormalPlacingFromPurplePixelPlacing();
                     OutTakeMTI.arm.rotationIndex = 0;
                 })
+                .turn(Math.toRadians(-60))
                 .lineToLinearHeading(RightYellow)
-                .waitSeconds(0.1)
                 .addTemporalMarker(() -> {
                     Controls.DropRight = true;
                     Controls.DropRightAck = false;
@@ -178,6 +176,7 @@ public class RedClose extends LinearOpMode {
                 .addTemporalMarker(() -> {
                     outTake.setToPurplePlacing();
                     isInPreloadPhase = true;
+                    OutTakeMTI.arm.rotationIndex = 0;
                 })
                 .lineToLinearHeading(MiddlePurple)
                 .addTemporalMarker(() -> {
@@ -192,11 +191,14 @@ public class RedClose extends LinearOpMode {
                     OutTakeMTI.arm.rotationIndex = 0;
                     outTake.setToNormalPlacingFromPurplePixelPlacing();
                 })
+                .turn(Math.toRadians(-60))
                 .lineToLinearHeading(MiddleYellow)
+                .waitSeconds(0.05)
                 .addTemporalMarker(() -> {
                     Controls.DropRight = true;
                     Controls.DropRightAck = false;
                 })
+                .waitSeconds(0.05)
                 .addTemporalMarker(() -> {
                     OutTakeMTI.driverUpdated = true;
                 })
@@ -242,7 +244,7 @@ public class RedClose extends LinearOpMode {
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(50, 2*Math.PI, DriveConstants.TRACK_WIDTH))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(40))
                 .splineToSplineHeading(BackBoardToTruss, Math.toRadians(90))
-                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(50, 2*Math.PI, DriveConstants.TRACK_WIDTH))
+                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(55, 2*Math.PI, DriveConstants.TRACK_WIDTH))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
                 .addTemporalMarker(() -> {
                     intake.setPixelStackPosition(pixelsInStack);
@@ -267,7 +269,7 @@ public class RedClose extends LinearOpMode {
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(50, 2*Math.PI, DriveConstants.TRACK_WIDTH))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(45))
                 .splineToSplineHeading(BackBoardToTruss, Math.toRadians(90))
-                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(50, 2*Math.PI, DriveConstants.TRACK_WIDTH))
+                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(55, 2*Math.PI, DriveConstants.TRACK_WIDTH))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
                 .addTemporalMarker(() -> {
                     intake.setPixelStackPosition(pixelsInStack);
@@ -291,7 +293,7 @@ public class RedClose extends LinearOpMode {
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(50, 2*Math.PI, DriveConstants.TRACK_WIDTH))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
                 .splineToSplineHeading(BackBoardToTruss, Math.toRadians(90))
-                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(50, 2*Math.PI, DriveConstants.TRACK_WIDTH))
+                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(55, 2*Math.PI, DriveConstants.TRACK_WIDTH))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
                 .addTemporalMarker(() -> {
                     intake.setPixelStackPosition(pixelsInStack);
@@ -375,7 +377,7 @@ public class RedClose extends LinearOpMode {
                 .strafeRight(2)
                 .splineToSplineHeading(TrussToStack_s, Math.toRadians(-90))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
-                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(50, 5, DriveConstants.TRACK_WIDTH))
+                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(55, 5, DriveConstants.TRACK_WIDTH))
                 .splineToConstantHeading(new Vector2d(BackBoardToTruss_s.getX(), BackBoardToTruss_s.getY()), Math.toRadians(-90))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(45, 2*Math.PI, DriveConstants.TRACK_WIDTH))
@@ -411,7 +413,7 @@ public class RedClose extends LinearOpMode {
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
                 .splineToSplineHeading(TrussToStack_s, Math.toRadians(-90))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
-                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(50, 5, DriveConstants.TRACK_WIDTH))
+                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(55, 5, DriveConstants.TRACK_WIDTH))
                 .splineToConstantHeading(new Vector2d(BackBoardToTruss_s.getX(), BackBoardToTruss_s.getY()), Math.toRadians(-90))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
                 .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(45, 2*Math.PI, DriveConstants.TRACK_WIDTH))
@@ -457,13 +459,13 @@ public class RedClose extends LinearOpMode {
 
         switch (location){
             case RIGHT:
-                drive.followTrajectorySequenceAsync(right);
+                drive.followTrajectorySequenceAsync(left);
                 break;
             case MIDDLE:
                 drive.followTrajectorySequenceAsync(middle);
                 break;
             case LEFT:
-                drive.followTrajectorySequenceAsync(left);
+                drive.followTrajectorySequenceAsync(right);
                 break;
         }
 
@@ -474,10 +476,10 @@ public class RedClose extends LinearOpMode {
         boolean noTime = false;
 
         while(opModeIsActive()){
-            if(Math.abs(drive.getLastError().getX()) > 15 || Math.abs(drive.getLastError().getY()) > 15){
+            if(Math.abs(drive.getLastError().getX()) > 15 || Math.abs(drive.getLastError().getY()) > 15 || autoTime.seconds() > 30.5){
                 requestOpModeStop();
             }
-            if(drive.isBusy() && autoTime.seconds() >= 30 - goToBackDrop.duration() - 1 && order == 1 && !noTime){
+            if(drive.isBusy() && autoTime.seconds() >= 30 - goToBackDrop.duration() - 1.25 && order == 1 && !noTime){
                 drive.breakFollowing();
                 noTime = true;
                 order = 2;
@@ -526,24 +528,24 @@ public class RedClose extends LinearOpMode {
                 followNext = false;
                 switch (order) {
                     case 0:
-                        if(autoTime.seconds() <= 30 - goToStack.duration() - 1 - goToBackDrop.duration()) {
+                        if(autoTime.seconds() <= 30 - goToStack.duration() - 1.25 - goToBackDrop.duration()) {
                             if (firstPathAfterPreload) {
                                 switch (location){
                                     case RIGHT:
-                                        drive.followTrajectorySequenceAsync(goToStackFromPreloadR);
+                                        drive.followTrajectorySequenceAsync(goToStackFromPreloadL);
                                         break;
                                     case MIDDLE:
                                         drive.followTrajectorySequenceAsync(goToStackFromPreloadM);
                                         break;
                                     case LEFT:
-                                        drive.followTrajectorySequenceAsync(goToStackFromPreloadL);
+                                        drive.followTrajectorySequenceAsync(goToStackFromPreloadR);
                                         break;
                                 }
                             }
                             else drive.followTrajectorySequenceAsync(goToStack);
                             order++;
                             Pose2d pose = drive.getPoseEstimate();
-//                            drive.setPoseEstimate(new Pose2d(pose.getX() - 0.3, pose.getY(), pose.getHeading()));
+//                            drive.setPoseEstimate(new Pose2d(pose.getX() + 0.1, pose.getY(), pose.getHeading()));
                         }
                         break;
                     case 1:

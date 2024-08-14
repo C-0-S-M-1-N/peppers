@@ -45,18 +45,18 @@ public class BlueClose extends LinearOpMode {
         MiddleYellow = new Pose2d(16.5, 30, Math.toRadians(-286)),
 
         LeftPurple = new Pose2d(9.5, 9, Math.toRadians(357)),
-        LeftYellow = new Pose2d(12.5, 28, Math.toRadians(76)),
+        LeftYellow = new Pose2d(13, 28, Math.toRadians(76)),
 
-        RightPurple = new Pose2d(15.5, -4, Math.toRadians(-45)),
-        RightYellow = new Pose2d(19, 30, Math.toRadians(60))
+        RightPurple = new Pose2d(14, -4, Math.toRadians(-45)),
+        RightYellow = new Pose2d(19.3, 30, Math.toRadians(60))
                     ;
 
     public static Pose2d
             TrussToStack     = new Pose2d(5, -45, Math.PI/2.f),
-            Stack            = new Pose2d(24, -75.7, Math.toRadians(110)),
-            Stack2           = new Pose2d(35.5, -76.5, Math.toRadians(110)),
+            Stack            = new Pose2d(23.5, -75.5, Math.toRadians(110)),
+            Stack2           = new Pose2d(36.5, -75.5, Math.toRadians(110)),
             BackBoardToTruss = new Pose2d(5, -9, Math.PI/2.f),
-            Backdrop         = new Pose2d(12.5, 27.5, Math.toRadians(70)),
+            Backdrop         = new Pose2d(12.5, 28.5, Math.toRadians(70)),
             TrussToStack_s     = new Pose2d(5, -45, Math.PI/2.f),
             BackBoardToTruss_s = new Pose2d(5, -9, Math.PI/2.f)
 
@@ -119,8 +119,8 @@ public class BlueClose extends LinearOpMode {
                 .lineToLinearHeading(LeftPurple)
                 .waitSeconds(0.1)
                 .addTemporalMarker(() -> {
-                    Controls.DropLeft = true;
-                    Controls.DropLeftAck = false;
+                    Controls.DropRight = true;
+                    Controls.DropRightAck = false;
                 })
                 .waitSeconds(0.25)
                 .addTemporalMarker(() -> {
@@ -132,8 +132,8 @@ public class BlueClose extends LinearOpMode {
                 .lineToLinearHeading(LeftYellow)
                 .waitSeconds(0.1)
                 .addTemporalMarker(() -> {
-                    Controls.DropRight = true;
-                    Controls.DropRightAck = false;
+                    Controls.DropLeft = true;
+                    Controls.DropLeftAck = false;
                 })
                 .addTemporalMarker(() -> {
                     OutTakeMTI.driverUpdated = true;
@@ -153,8 +153,8 @@ public class BlueClose extends LinearOpMode {
                 .lineToLinearHeading(RightPurple)
                 .waitSeconds(0.1)
                 .addTemporalMarker(() -> {
-                    Controls.DropLeft = true;
-                    Controls.DropLeftAck = false;
+                    Controls.DropRight = true;
+                    Controls.DropRightAck = false;
                 })
                 .waitSeconds(0.1)
                 .addTemporalMarker(() -> {
@@ -166,8 +166,8 @@ public class BlueClose extends LinearOpMode {
                 .lineToLinearHeading(RightYellow)
                 .waitSeconds(0.1)
                 .addTemporalMarker(() -> {
-                    Controls.DropRight = true;
-                    Controls.DropRightAck = false;
+                    Controls.DropLeft = true;
+                    Controls.DropLeftAck = false;
                     OutTakeMTI.driverUpdated = true;
                     isInPreloadPhase = false;
                     firstPathAfterPreload = true;
@@ -181,8 +181,8 @@ public class BlueClose extends LinearOpMode {
                 })
                 .lineToLinearHeading(MiddlePurple)
                 .addTemporalMarker(() -> {
-                    Controls.DropLeft = true;
-                    Controls.DropLeftAck = false;
+                    Controls.DropRight = true;
+                    Controls.DropRightAck = false;
                 })
                 .waitSeconds(0.1)
                 .addTemporalMarker(() -> {
@@ -194,8 +194,8 @@ public class BlueClose extends LinearOpMode {
                 })
                 .lineToLinearHeading(MiddleYellow)
                 .addTemporalMarker(() -> {
-                    Controls.DropRight = true;
-                    Controls.DropRightAck = false;
+                    Controls.DropLeft = true;
+                    Controls.DropLeftAck = false;
                 })
                 .addTemporalMarker(() -> {
                     OutTakeMTI.driverUpdated = true;
@@ -543,7 +543,7 @@ public class BlueClose extends LinearOpMode {
                             else drive.followTrajectorySequenceAsync(goToStack);
                             order++;
                             Pose2d pose = drive.getPoseEstimate();
-                            drive.setPoseEstimate(new Pose2d(pose.getX() - 0.3, pose.getY(), pose.getHeading()));
+                            drive.setPoseEstimate(new Pose2d(pose.getX() - 0.1, pose.getY(), pose.getHeading()));
                         }
                         break;
                     case 1:

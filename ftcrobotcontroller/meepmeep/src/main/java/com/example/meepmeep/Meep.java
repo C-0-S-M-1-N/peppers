@@ -11,16 +11,17 @@ import javax.swing.plaf.basic.BasicOptionPaneUI;
 
 public class Meep {
     public static double x = 14, y = 62, rot = -90;
-
     public static Pose2d
-            MiddlePurple = new Pose2d(24, -1, 0),
-            MiddleYellow = new Pose2d(21, -25, Math.toRadians(286)),
+            MiddlePurple = new Pose2d(22, -1, 0),
+            MiddleYellow = new Pose2d(16.5, -29.5, Math.toRadians(286)),
 
-    RightPurple = new Pose2d(44.7, -5, Math.toRadians(190)),
-            RightYellow = new Pose2d(37, -32, Math.toRadians(233)),
+    LeftPurple = new Pose2d(9.5, -9, Math.toRadians(-357)),
+            LeftYellow = new Pose2d(12.5, -28, Math.toRadians(-76)),
 
-    LeftPurple = new Pose2d(12, 8, Math.toRadians(33)),
-            LeftYellow = new Pose2d(42, -30, Math.toRadians(245));
+    RightPurple = new Pose2d(15.5, 4, Math.toRadians(45)),
+            RightYellow = new Pose2d(20, -29, Math.toRadians(-60))
+                    ;
+
     public static Pose2d
             TrussToStack     = new Pose2d(3, 45, -Math.PI/2.f),
             Stack            = new Pose2d(22, 75, -Math.toRadians(110)),
@@ -36,18 +37,10 @@ public class Meep {
         RoadRunnerBotEntity bot = new DefaultBotBuilder(meepMeep)
                 .setConstraints(70, 55, 5, 5, 12.2)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(MiddleYellow)
-                                .setReversed(true)
-
-                                .splineToSplineHeading(BackBoardToTruss, Math.toRadians(90))
-                                .splineToSplineHeading(TrussToStack, Math.toRadians(90))
-                                .splineToSplineHeading(Stack, Math.toRadians(50))
-                                .lineToLinearHeading(Stack2)
-                                .setReversed(false)
-                                .lineToLinearHeading(new Pose2d(20, Stack.getY() - 5, Stack.getHeading()))
-                                .splineToSplineHeading(TrussToStack_s, Math.toRadians(-90))
-                                .splineToSplineHeading(BackBoardToTruss, Math.toRadians(-90))
-                                .splineToSplineHeading(Backdrop, Math.toRadians(-85))
+                        drive.trajectorySequenceBuilder(new Pose2d())
+                                .lineToLinearHeading(RightPurple)
+//                                .splineToSplineHeading(new Pose2d(RightPurple.getX(), RightPurple.getY() - 5, Math.toRadians(-60)), Math.toRadians(-90))
+                                .splineToSplineHeading(RightYellow, Math.toRadians(-90))
                                 .build()
 
 
