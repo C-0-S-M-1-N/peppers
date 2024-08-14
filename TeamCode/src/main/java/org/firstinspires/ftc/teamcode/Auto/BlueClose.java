@@ -223,6 +223,7 @@ public class BlueClose extends LinearOpMode {
                     intake.setPixelStackPosition(pixelsInStack);
                     intakeActive = 1;
                     pixelsUpdated = false;
+                    ack = false;
                 })
                 .splineToSplineHeading(TrussToStack, Math.toRadians(-90))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
@@ -248,6 +249,7 @@ public class BlueClose extends LinearOpMode {
                     intake.setPixelStackPosition(pixelsInStack);
                     intakeActive = 1;
                     pixelsUpdated = false;
+                    ack = false;
                 })
                 .splineToSplineHeading(TrussToStack, Math.toRadians(-90))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
@@ -273,6 +275,7 @@ public class BlueClose extends LinearOpMode {
                     intake.setPixelStackPosition(pixelsInStack);
                     intakeActive = 1;
                     pixelsUpdated = false;
+                    ack = false;
                 })
                 .splineToSplineHeading(TrussToStack, Math.toRadians(-90))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))

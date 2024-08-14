@@ -101,9 +101,9 @@ public class OutTakeMTI {
         elevator = new Elevator();
         arm = new ElevatorArm();
         right = new Grippers(new AutoServo(SERVO_PORTS.S1, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
-                    ControlHub.right, 550, 65.f, 240.f);
+                    ControlHub.right, 600, 10.f, 175.f);
         left = new Grippers(new AutoServo(SERVO_PORTS.S2, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
-                    ControlHub.left, 550, 290.f, 95.f);
+                    ControlHub.left, 600, 280.f, 95.f);
         if(DISABLE) return;
         align = false;
         arm.setArmAngle(armAngleIntake);

@@ -44,7 +44,7 @@ public class Intake implements Part {
     NanoClock clock;
     private double grippersHaveTime = 0;
     private boolean grippersHave = false;
-    public static double[] stackPositions = {227, 215, 205, 200, 189};
+    public static double[] stackPositions = {227, 215, 205, 197, 188};
 //    public static double[] stackPositions = {125, 135, 145, 155, 165};
     public static double Up = 160;
     public static int lvl = 0;

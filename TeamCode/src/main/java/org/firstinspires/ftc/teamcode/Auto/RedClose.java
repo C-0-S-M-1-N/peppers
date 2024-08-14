@@ -41,22 +41,22 @@ public class RedClose extends LinearOpMode {
     OutTakeMTI outTake;
     Intake intake;
     public static Pose2d
-            MiddlePurple = new Pose2d(22, 0, 0),
-            MiddleYellow = new Pose2d(16.5, -28.5, Math.toRadians(286)),
+            MiddlePurple = new Pose2d(20, 0, 0),
+            MiddleYellow = new Pose2d(18.7, -28, Math.toRadians(286)),
 
     LeftPurple = new Pose2d(9.5, -9, Math.toRadians(-357)),
             LeftYellow = new Pose2d(12.5, -28, Math.toRadians(-76)),
 
     RightPurple = new Pose2d(15.5, 4, Math.toRadians(45)),
-            RightYellow = new Pose2d(20, -29, Math.toRadians(-60))
+            RightYellow = new Pose2d(20.5, -26.5, Math.toRadians(-60))
                     ;
 
     public static Pose2d
             TrussToStack     = new Pose2d(4, 45, -Math.PI/2.f),
-            Stack            = new Pose2d(21.5, 76, -Math.toRadians(110)),
-            Stack2           = new Pose2d(34, 76, -Math.toRadians(110)),
+            Stack            = new Pose2d(23.5, 75, -Math.toRadians(100)),
+            Stack2           = new Pose2d(35, 75, -Math.toRadians(100)),
             BackBoardToTruss = new Pose2d(4, 9, -Math.PI/2.f),
-            Backdrop         = new Pose2d(12.5, -28, -Math.toRadians(70)),
+            Backdrop         = new Pose2d(12, -28.5, -Math.toRadians(70)),
             TrussToStack_s     = new Pose2d(4, 45, -Math.PI/2.f),
             BackBoardToTruss_s = new Pose2d(4, 9, -Math.PI/2.f)
 
@@ -117,11 +117,12 @@ public class RedClose extends LinearOpMode {
                     isInPreloadPhase = true;
                 })
                 .lineToLinearHeading(LeftPurple)
+                .waitSeconds(0.1)
                 .addTemporalMarker(() -> {
                     Controls.DropLeft = true;
                     Controls.DropLeftAck = false;
                 })
-                .waitSeconds(0.1)
+                .waitSeconds(0.15)
                 .addTemporalMarker(() -> {
                     outTake.setToNormalPlacingFromPurplePixelPlacing();
                     OutTakeMTI.elevator.setTargetPosition(OutTakeMTI.STEP * 3.5);
@@ -150,18 +151,19 @@ public class RedClose extends LinearOpMode {
                     isInPreloadPhase = true;
                 })
                 .lineToLinearHeading(RightPurple)
+                .waitSeconds(0.1)
                 .addTemporalMarker(() -> {
                     Controls.DropLeft = true;
                     Controls.DropLeftAck = false;
                 })
-                .waitSeconds(0.05)
+                .waitSeconds(0.15)
                 .addTemporalMarker(() -> {
                     OutTakeMTI.elevator.setTargetPosition(OutTakeMTI.STEP * 3.5);
                     OutTakeMTI.align = true;
                     outTake.setToNormalPlacingFromPurplePixelPlacing();
                     OutTakeMTI.arm.rotationIndex = 0;
                 })
-                .turn(Math.toRadians(-60))
+//                .turn(Math.toRadians(-60))
                 .lineToLinearHeading(RightYellow)
                 .addTemporalMarker(() -> {
                     Controls.DropRight = true;
@@ -183,15 +185,15 @@ public class RedClose extends LinearOpMode {
                     Controls.DropLeft = true;
                     Controls.DropLeftAck = false;
                 })
-                .waitSeconds(0.1)
+                .waitSeconds(0.15)
                 .addTemporalMarker(() -> {
                     OutTakeMTI.State.level = 3;
-                    OutTakeMTI.elevator.setTargetPosition(3 * OutTakeMTI.STEP);
+                    OutTakeMTI.elevator.setTargetPosition(3.5 * OutTakeMTI.STEP);
                     OutTakeMTI.align = true;
                     OutTakeMTI.arm.rotationIndex = 0;
                     outTake.setToNormalPlacingFromPurplePixelPlacing();
                 })
-                .turn(Math.toRadians(-60))
+//                .turn(Math.toRadians(-60))
                 .lineToLinearHeading(MiddleYellow)
                 .waitSeconds(0.05)
                 .addTemporalMarker(() -> {
@@ -225,6 +227,7 @@ public class RedClose extends LinearOpMode {
                     intake.setPixelStackPosition(pixelsInStack);
                     intakeActive = 1;
                     pixelsUpdated = false;
+                    ack = false;
                 })
                 .splineToSplineHeading(TrussToStack, Math.toRadians(90))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
@@ -250,6 +253,7 @@ public class RedClose extends LinearOpMode {
                     intake.setPixelStackPosition(pixelsInStack);
                     intakeActive = 1;
                     pixelsUpdated = false;
+                    ack = false;
                 })
                 .splineToSplineHeading(TrussToStack, Math.toRadians(90))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
@@ -275,6 +279,7 @@ public class RedClose extends LinearOpMode {
                     intake.setPixelStackPosition(pixelsInStack);
                     intakeActive = 1;
                     pixelsUpdated = false;
+                    ack = false;
                 })
                 .splineToSplineHeading(TrussToStack, Math.toRadians(90))
                 .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(50))
@@ -545,7 +550,7 @@ public class RedClose extends LinearOpMode {
                             else drive.followTrajectorySequenceAsync(goToStack);
                             order++;
                             Pose2d pose = drive.getPoseEstimate();
-//                            drive.setPoseEstimate(new Pose2d(pose.getX() + 0.1, pose.getY(), pose.getHeading()));
+                            drive.setPoseEstimate(new Pose2d(pose.getX() + 0.1, pose.getY(), pose.getHeading()));
                         }
                         break;
                     case 1:

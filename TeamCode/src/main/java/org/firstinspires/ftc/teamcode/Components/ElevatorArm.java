@@ -35,7 +35,7 @@ public class ElevatorArm implements Part {
         turret.update();
         rotationIndex = 2;
     }
-    public static double[] rotationAngles = {-100, -65, 0, 60, 95};
+    public static double[] rotationAngles = {-98, -65, 0, 60, 90};
     public int rotationIndex;
     public enum Direction {
         LEFT,
