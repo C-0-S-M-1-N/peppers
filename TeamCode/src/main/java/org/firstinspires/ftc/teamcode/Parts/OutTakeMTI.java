@@ -44,19 +44,16 @@ public class OutTakeMTI {
     }
 
     public static State state = null;
-    public static final int MAX_EXTEND = 1360;
-    public static final int STEP = (MAX_EXTEND) / 11;
+    public static final int MAX_EXTEND = 1360, STEP = (MAX_EXTEND) / 11;
     public int joystickElevatorOffset = 0;
-    public static int MAX_LVL = 11;
-    public static double safeToExtendOuttake = STEP * 2.5;
-    public static double armAnglePlaceingBackboard = 85, armAnglePlacingPurple = 0,
-                        armAngleIntake = 27, armAngleRetracting = 15, intakeRotation = -3, tourretOffset = -2;
+    public static double safeToExtendOuttake = STEP * 2.5, armAnglePlaceingBackboard = 85, armAnglePlacingPurple = 0,
+                        armAngleIntake = 27, armAngleRetracting = 15, intakeRotation = -3, tourretOffset = -2,
+                        pixelsAngle = 0, slowmo = 1, extendingAngle = -100, safeToPreRotate = 40;
+    public static boolean reverse = false, isInAutonomous = false, driverUpdated = false;
     public static Elevator elevator = null;
     public static ElevatorArm arm = null;
     public static OutTakeExtensionModule extension = null;
     public static Grippers left = null, right = null;
-    private static double pixelsAngle = 0;
-    public static double slowmo = 1;
     public static final String cacheFileName = "outTakeStates.pep";
     public static File cacheFile;
 //    public static void writeStateToFile(State toWrite){
@@ -127,7 +124,7 @@ public class OutTakeMTI {
     }
     public static boolean align = false, waitForTimer = false;
     public boolean setToPurplePlace = false;
-    ElapsedTime armAndExtendTime = new ElapsedTime(), startRetraction = new ElapsedTime();
+    ElapsedTime armAndExtendTime = new ElapsedTime(), startRetraction = new ElapsedTime(), timingMotions = new ElapsedTime();
     public void setToPurplePlacing(){
         State.level = 1;
         setToPurplePlace = true;
@@ -209,18 +206,8 @@ public class OutTakeMTI {
     }
     public void updateElevator(){
         if(State.level > MAX_EXTEND) State.level = MAX_EXTEND;
-
-//        while(State.level < 7 && Elevator.PixelLayer[(int) State.level] + joystickElevatorOffset > Elevator.PixelLayer[(int) State.level + 1]){
-//            State.level ++;
-//            joystickElevatorOffset -= Elevator.PixelLayer[(int)State.level] - Elevator.PixelLayer[(int)State.level - 1] ;
-//        }
-//        while(State.level > 1 && Elevator.getPositionByLevel((int) State.level) + joystickElevatorOffset < Elevator.getPositionByLevel((int) State.level)){
-//            State.level --;
-//            joystickElevatorOffset = Elevator.getPositionByLevel((int) State.level + 1) - Elevator.getPositionByLevel((int) State.level) - joystickElevatorOffset;
-//        }
         elevator.setTargetPosition(Elevator.PixelLayer[(int) State.level] + joystickElevatorOffset);
     }
-    public static boolean driverUpdated = true;
     private ElapsedTime time1 = new ElapsedTime();
     public void setToNormalPlacingFromPurplePixelPlacing(){
         arm.setPixelRotation(ElevatorArm.rotationAngles[arm.rotationIndex]);
@@ -228,7 +215,6 @@ public class OutTakeMTI {
         setToPurplePlace = false;
         align = true;
     }
-    public static double extendingAngle = -100;
 
     public void update(){
         if(DISABLE) return;
@@ -259,7 +245,7 @@ public class OutTakeMTI {
             case EXTENDING:
                 if(elevator.targetPosition != Math.max(safeToExtendOuttake + 10, Elevator.getPositionByLevel((int) State.level)))
                     elevator.setTargetPosition(Math.max(safeToExtendOuttake + 10, Elevator.getPositionByLevel((int) State.level)));
-                if(time1.seconds() >= 0.15) {
+                if(elevator.getLivePosition() >= safeToPreRotate) {
                     if(arm.rotationIndex <= 2)
                         arm.setPixelRotation(extendingAngle);
                     else arm.setPixelRotation(-extendingAngle);
@@ -272,37 +258,44 @@ public class OutTakeMTI {
             case EXTENDED:
                 if(elevator.getLivePosition() >= safeToExtendOuttake && !waitForTimer){
                     extension.extend();
-                    armAndExtendTime.reset();
-                    waitForTimer = true;
-                    time1.reset();
+                    timingMotions.reset();
                 }
                 if(waitForTimer && extension.almostExtended()){
                     waitForTimer = false;
                     arm.setPixelRotation(pixelsAngle);
-//                    elevator.setTargetPosition(STEP * State.level + joystickElevatorOffset);
                     if(setToPurplePlace) elevator.setTargetPosition(0);
                     else elevator.setLevel((int) State.level);
+                    timingMotions.reset();
                     changeStateTo(State.PLACING_PIXELS);
-                    time1.reset();
                 }
                 break;
             case RETRACTING:
                 joystickElevatorOffset = 0;
                 if(elevator.targetPosition < safeToExtendOuttake) elevator.setTargetPosition(safeToExtendOuttake);
                 driverUpdated = false;
-                if(!waitForTimer) {
+                if(extension.isExtended()){
                     align = false;
                     arm.setOrientation(0);
                     arm.setArmAngle(armAnglePlacingPurple);
+
                     if(arm.rotationIndex <= 2)
                         arm.setPixelRotation(extendingAngle);
                     else arm.setPixelRotation(-extendingAngle);
-                    if(time1.seconds() >= 0.15 * slowmo) {
-                        waitForTimer = true;
-                        armAndExtendTime.reset();
-                        extension.retract();
+
+                    if(arm.armModuleRotationMotionEnded() && arm.orientationMotionEnded() && arm.rotationMotionEnded()){
+                        extension.extend();
                     }
-                } else if(/*extension.isRetracted() &&*/ armAndExtendTime.seconds() >= 0.5 * slowmo && !retractBoolean){
+                }
+                if(extension.isRetracted()){
+                    arm.setPixelRotation(intakeRotation);
+                    if(arm.rotationMotionEnded()) {
+                        elevator.setTargetPosition(-69);
+                        arm.setArmAngle(armAngleIntake);
+                        changeStateTo(State.RETRACTED);
+                    }
+                }
+
+            /*    if(*//*extension.isRetracted() &&*//* armAndExtendTime.seconds() >= 0.5 * slowmo && !retractBoolean){
                     time1.reset();
                     arm.setPixelRotation(intakeRotation);
                     arm.update();
@@ -315,7 +308,7 @@ public class OutTakeMTI {
                     elevator.setTargetPosition(-60);
                     retractBoolean = false;
                     changeStateTo(State.RETRACTED);
-                }
+                }*/
                 break;
             case RETRACTED:
                 if(elevator.reatchedTargetPosition()){
@@ -326,7 +319,7 @@ public class OutTakeMTI {
                 if(!setToPurplePlace) {
                     arm.setPixelRotation(ElevatorArm.rotationAngles[arm.rotationIndex]);
                     arm.setArmAngle(armAnglePlaceingBackboard);
-                    if(time1.seconds() >= 0.1) {
+                    if(timingMotions.seconds() >= 0.1) {
                         align = true;
                     }
                 } else {

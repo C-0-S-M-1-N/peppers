@@ -1,13 +1,11 @@
 package org.firstinspires.ftc.teamcode.Components;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Part;
 import org.firstinspires.ftc.teamcode.Parts.MotionProfile;
 import org.firstinspires.ftc.teamcode.Parts.OutTakeMTI;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
-import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.Hubs;
 import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
@@ -57,10 +55,12 @@ public class ElevatorArm implements Part {
         virtual1.setAngle(angle);
     }
     private long timePivot = 0, timeElapsed = 0;
+    @Deprecated
     public void setPivotAngle(double angle, long time){
         timePivot = time;
         timeElapsed = System.currentTimeMillis();
     }
+    @Deprecated
     public void setPivotAngle(double angle){
         setPivotAngle(angle, 0);
     }
@@ -92,7 +92,6 @@ public class ElevatorArm implements Part {
         rotation.update();
         virtual1.update();
         turret.update();
-
     }
     @Override
     public void update_values(){

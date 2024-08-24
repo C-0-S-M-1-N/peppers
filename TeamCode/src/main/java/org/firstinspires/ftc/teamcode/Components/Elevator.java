@@ -4,21 +4,12 @@ import static org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS.M0;
 import static org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS.M1;
 import static org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS.M2;
 import static java.lang.Math.abs;
-import static java.lang.Math.pow;
-
-import android.os.health.PidHealthStats;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.PIDCoefficients;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Part;
-import org.firstinspires.ftc.teamcode.Parts.MotionProfile;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ENCODER_PORTS;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;

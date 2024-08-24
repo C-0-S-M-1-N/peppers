@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.Components;
 import static java.lang.Math.abs;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 
 import org.checkerframework.checker.units.qual.A;
@@ -12,6 +14,7 @@ import org.firstinspires.ftc.teamcode.Parts.MotionProfile;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.Hubs;
 import org.firstinspires.ftc.teamcode.internals.SERVO_PORTS;
+import org.firstinspires.ftc.teamcode.utils.AsymetricMotionProfile;
 import org.firstinspires.ftc.teamcode.utils.AutoServo;
 
 @Config
@@ -62,10 +65,7 @@ public class OutTakeExtensionModule {
     }
     public double getExtensionAngle(){
         double value = ControlHub.ExtensionEncoder.getVoltage();
-        return value / 3.3;
-    }
-    public boolean reachedStationary(){
-        return getExtensionAngle() == extendS1 || getExtensionAngle() == retractS1;
+        return value * 360 / 3.3;
     }
     public boolean isExtended(){
         return profile.motionEnded();
@@ -74,6 +74,7 @@ public class OutTakeExtensionModule {
         return abs(profile.getPosition() - extendS1) < 10;
     }
     public boolean isRetracted(){
-        return getExtensionAngle() >= 0.8;
+        return (AMP.targetPosition == retractS1 || AMP.targetPosition == 0) && AMP.motionEnded();
     }
+
 }
