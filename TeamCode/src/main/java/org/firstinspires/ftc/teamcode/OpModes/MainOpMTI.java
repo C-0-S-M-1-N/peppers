@@ -53,6 +53,7 @@ public class MainOpMTI extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        ExpansionHub.IMU_FREQ = 100; // TODO: REMOVE WHEN GATA ODO
         mecanumDrive = new SampleMecanumDriveCancelable(hardwareMap);
         ControlHub c = new ControlHub(hardwareMap);
         ExpansionHub e = new ExpansionHub(hardwareMap, mecanumDrive.getLocalizer());

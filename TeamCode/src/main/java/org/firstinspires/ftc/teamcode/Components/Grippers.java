@@ -23,7 +23,7 @@ public class Grippers implements Part {
         CLOSE
     }
     public State state;
-    private BetterColorRangeSensor sensor;
+    public BetterColorRangeSensor sensor;
     private AutoServo servo;
     private final ElapsedTime time = new ElapsedTime();
 

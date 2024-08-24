@@ -25,6 +25,7 @@ public class Controls {
             DownElevatorAck,
             ResetElevatorAck, ManualModeAck, PokeModeAck, SetOuttakeToPurplePlacingAck, rotateLeftAck, rotateRightAck,
             IntakeLvlUpAck, IntakeLvlDownAck, StackModeAck;
+    private static boolean homogenDriver = false;
 
     public static double HangLevel = 0;
     public static AutoGamepad gamepad1;
@@ -128,7 +129,8 @@ public class Controls {
         gamepad1.update();
         gamepad2.update();
         if(gamepad2.wasPressed.square && gamepad2.wasPressed.right_bumper && gamepad2.wasPressed.triangle) SetOuttakeToPurplePlacing = true;
-        else if(gamepad2.wasPressed.dpad_up) {
+        if(gamepad2.wasPressed.circle && gamepad2.wasPressed.triangle) homogenDriver = !homogenDriver;
+        else if(gamepad2.wasPressed.dpad_up || (gamepad1.wasPressed.dpad_up && homogenDriver)) {
             ExtendElevator = true;
             ExtendElevatorAck = false;
         }
@@ -136,11 +138,11 @@ public class Controls {
             RetractElevator = true;
             RetractElevatorAck = false;
         }
-        else if(gamepad2.wasPressed.dpad_right) {
+        else if(gamepad2.wasPressed.dpad_right || (gamepad1.wasPressed.dpad_right && homogenDriver)) {
             ElevatorUp = true;
             ElevatorUpAck = false;
         }
-        else if(gamepad2.wasPressed.dpad_left) {
+        else if(gamepad2.wasPressed.dpad_left || (gamepad1.wasPressed.dpad_left && homogenDriver)) {
             ElevatorDown = true;
             ElevatorDownAck = false;
         }
@@ -157,11 +159,11 @@ public class Controls {
             rotateRightAck = false;
         }
 
-        else if(gamepad2.right_trigger >= 0.7) {
+        else if(gamepad2.right_trigger >= 0.7 || (gamepad1.right_stick_y > 0.2 && homogenDriver)) {
             Intake = true;
             IntakeAck = false;
         }
-        else if(gamepad2.left_trigger >= 0.7) {
+        else if(gamepad2.left_trigger >= 0.7 || (gamepad1.right_stick_y < -0.2 && homogenDriver)) {
             RevIntake = true;
             RevIntakeAck = false;
         }
@@ -178,7 +180,7 @@ public class Controls {
             Avion = true;
             AvionAck = false;
         }
-        if(gamepad2.wasPressed.triangle) {
+        if(gamepad2.wasPressed.triangle || (gamepad1.wasPressed.triangle && homogenDriver)) {
             ResetTourret = true;
             ResetTourretAck = false;
         }

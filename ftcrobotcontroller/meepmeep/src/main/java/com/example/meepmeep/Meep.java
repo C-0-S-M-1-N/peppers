@@ -11,22 +11,25 @@ import javax.swing.plaf.basic.BasicOptionPaneUI;
 
 public class Meep {
     public static double x = 14, y = 62, rot = -90;
+    public static Pose2d
+            MiddlePurple = new Pose2d(22, -1, 0),
+            MiddleYellow = new Pose2d(16.5, -29.5, Math.toRadians(286)),
+
+    LeftPurple = new Pose2d(9.5, -9, Math.toRadians(-357)),
+            LeftYellow = new Pose2d(12.5, -28, Math.toRadians(-76)),
+
+    RightPurple = new Pose2d(15.5, 4, Math.toRadians(45)),
+            RightYellow = new Pose2d(20, -29, Math.toRadians(-60))
+                    ;
 
     public static Pose2d
-            MiddlePurple = new Pose2d(24, -1, 0),
-            MiddleYellow = new Pose2d(38.5, -33, Math.toRadians(234)),
-
-    RightPurple = new Pose2d(44.7, -5, Math.toRadians(190)),
-            RightYellow = new Pose2d(37, -32, Math.toRadians(233)),
-
-    LeftPurple = new Pose2d(12, 8, Math.toRadians(33)),
-            LeftYellow = new Pose2d(42, -30, Math.toRadians(245)),
-
-    BackDropGate = new Pose2d(51, 5, Math.toRadians(270)),
-            StackGate = new Pose2d(51, 43, Math.toRadians(270)),
-            Stack = new Pose2d(51, 76.5, Math.toRadians(270)),
-            Stack2 = new Pose2d(41, 74.5, Math.toRadians(291)),
-            Backdrop = new Pose2d(47, -33, Math.toRadians(230));
+            TrussToStack     = new Pose2d(3, 45, -Math.PI/2.f),
+            Stack            = new Pose2d(22, 75, -Math.toRadians(110)),
+            Stack2           = new Pose2d(34, 75, -Math.toRadians(110)),
+            BackBoardToTruss = new Pose2d(3, 9, -Math.PI/2.f),
+            Backdrop         = new Pose2d(14, -27.5, -Math.toRadians(80)),
+            TrussToStack_s     = new Pose2d(3, 45, -Math.PI/2.f),
+            BackBoardToTruss_s = new Pose2d(3, 9, -Math.PI/2.f);
 
     public static void main(String[] args){
         MeepMeep meepMeep = new MeepMeep(800);
@@ -34,14 +37,10 @@ public class Meep {
         RoadRunnerBotEntity bot = new DefaultBotBuilder(meepMeep)
                 .setConstraints(70, 55, 5, 5, 12.2)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(Backdrop)
-                                .setReversed(true)
-
-
-//                                .splineToSplineHeading(BackDropGate, Math.toRadians(90))
-                                .lineToSplineHeading(BackDropGate)
-                                .splineToSplineHeading(StackGate, Math.toRadians(90))
-                                .splineToSplineHeading(Stack, Math.toRadians(90))
+                        drive.trajectorySequenceBuilder(new Pose2d())
+                                .lineToLinearHeading(RightPurple)
+//                                .splineToSplineHeading(new Pose2d(RightPurple.getX(), RightPurple.getY() - 5, Math.toRadians(-60)), Math.toRadians(-90))
+                                .splineToSplineHeading(RightYellow, Math.toRadians(-90))
                                 .build()
 
 

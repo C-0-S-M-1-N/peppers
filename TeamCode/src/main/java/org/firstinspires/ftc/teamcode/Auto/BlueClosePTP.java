@@ -8,6 +8,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Auto.AutoUtils.Paths;
@@ -20,6 +21,7 @@ import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 
 @Config
 @Autonomous(name = "blueClosePTP")
+@Disabled
 public class BlueClosePTP extends LinearOpMode {
     public enum State{
         TAKE_FROM_STACK,

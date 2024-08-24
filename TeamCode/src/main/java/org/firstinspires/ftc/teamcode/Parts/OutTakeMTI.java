@@ -56,52 +56,51 @@ public class OutTakeMTI {
     public static Grippers left = null, right = null;
     public static final String cacheFileName = "outTakeStates.pep";
     public static File cacheFile;
-    public static void writeStateToFile(State toWrite){
-        FileOutputStream out;
-        try {
-            out = new FileOutputStream(cacheFile);
-
-            out.write((toWrite.toString() + "\n").getBytes(), 0, toWrite.toString().length()+1);
-
-            out.close();
-        } catch (IOException e) {
-            RobotLog.ee("file exception", "cache file not found, try running \"Create File\" teleOp");
-        }
-    }
-    public static State readStateFromFile(){
-        FileInputStream in;
-        try {
-            in = new FileInputStream(cacheFile);
-            InputStreamReader reader = new InputStreamReader(in);
-            BufferedReader buffer = new BufferedReader(reader);
-
-            String tmp = buffer.readLine();
-            if(tmp == null) return State.WAIT_FOR_PIXELS;
-            tmp = tmp.replaceAll("[^a-zA-Z0-9_]", "");
-
-
-            return State.valueOf(tmp);
-        } catch (IOException e) {
-            RobotLog.ee("file exception", "cache file not found, try running \"Create File\" teleOp");
-        }
-        return State.WAIT_FOR_PIXELS;
-
-    }
+//    public static void writeStateToFile(State toWrite){
+//        FileOutputStream out;
+//        try {
+//            out = new FileOutputStream(cacheFile);
+//
+//            out.write((toWrite.toString() + "\n").getBytes(), 0, toWrite.toString().length()+1);
+//
+//            out.close();
+//        } catch (IOException e) {
+//            RobotLog.ee("file exception", "cache file not found, try running \"Create File\" teleOp");
+//        }
+//    }
+//    public static State readStateFromFile(){
+//        FileInputStream in;
+//        try {
+//            in = new FileInputStream(cacheFile);
+//            InputStreamReader reader = new InputStreamReader(in);
+//            BufferedReader buffer = new BufferedReader(reader);
+//
+//            String tmp = buffer.readLine();
+//            if(tmp == null) return State.WAIT_FOR_PIXELS;
+//            tmp = tmp.replaceAll("[^a-zA-Z0-9_]", "");
+//
+//
+//            return State.valueOf(tmp);
+//        } catch (IOException e) {
+//            RobotLog.ee("file exception", "cache file not found, try running \"Create File\" teleOp");
+//        }
+//        return State.WAIT_FOR_PIXELS;
+//
+//    }
+    public static int treshHoldR = 570, treshHoldL = 520;
 
     public OutTakeMTI(){
         cacheFile = new File(Environment.getExternalStorageDirectory(), cacheFileName);
-//        state = readStateFromFile();
         state = State.WAIT_FOR_PIXELS;
         State.level = 5;
         extension = new OutTakeExtensionModule();
 
         elevator = new Elevator();
         arm = new ElevatorArm();
-        state = readStateFromFile();
-        right = new Grippers(new AutoServo(SERVO_PORTS.S3, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
-                    ControlHub.right, 380, 70.f, 245.f);
-        left = new Grippers(new AutoServo(SERVO_PORTS.S2, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
-                    ControlHub.left, 500, 290.f, 110.f);
+        left = new Grippers(new AutoServo(SERVO_PORTS.S1, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
+                    ControlHub.left, 600, 10.f, 175.f);
+        right = new Grippers(new AutoServo(SERVO_PORTS.S2, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
+                    ControlHub.right, 600, 280.f, 95.f);
         if(DISABLE) return;
         align = false;
         arm.setArmAngle(armAngleIntake);
@@ -119,9 +118,9 @@ public class OutTakeMTI {
     }
     public void changeStateTo(State s){
         state = s;
-        new Thread(() -> {
-            writeStateToFile(s);
-        }).start();
+//        new Thread(() -> {
+//            writeStateToFile(s);
+//        }).start();
     }
     public static boolean align = false, waitForTimer = false;
     public boolean setToPurplePlace = false;
@@ -134,6 +133,8 @@ public class OutTakeMTI {
     public static boolean hasAPixel(){
         return left.hasAPixel() || right.hasAPixel();
     }
+    public static boolean reverse = false;
+    public static boolean isInAutonomous = true;
     private void controls(){
         joystickElevatorOffset += (int) (-MainOpMTI.DeadZoneFilter(Controls.gamepad2.right_stick_y, MainOpMTI.GamePadAxiesCompensation.G2RY) * 7);
         if(state == State.PLACING_PIXELS && joystickElevatorOffset != 0){
@@ -191,7 +192,7 @@ public class OutTakeMTI {
         if(Controls.ElevatorUp){
             Controls.ElevatorUpAck = true;
             State.level++;
-            if(State.level > 8) State.level = 8;
+            if(State.level > 9) State.level = 9;
 //            if(state != State.WAIT_FOR_PIXELS) elevator.setTargetPosition(State.level * STEP + joystickElevatorOffset);
             if(state == State.PLACING_PIXELS) elevator.setLevel((int) State.level);
         }
@@ -217,6 +218,8 @@ public class OutTakeMTI {
 
     public void update(){
         if(DISABLE) return;
+        right.sensor.setThresHold(treshHoldR);
+        left.sensor.setThresHold(treshHoldL);
         controls();
         switch (state){
             case WAIT_FOR_PIXELS:
@@ -253,18 +256,12 @@ public class OutTakeMTI {
                 }
                 break;
             case EXTENDED:
-//                if(elevator.getLivePosition() >= safeToExtendOuttake && !waitForTimer && time1.seconds() >= 0.23 * slowmo){
-//                    extension.extend();
-//                    armAndExtendTime.reset();
-//                    waitForTimer = true;
-//                    time1.reset();
-//                }
-                if(elevator.getLivePosition() >= safeToExtendOuttake && extension.isRetracted()){
+                if(elevator.getLivePosition() >= safeToExtendOuttake && !waitForTimer){
                     extension.extend();
                     timingMotions.reset();
                 }
-
-                if(extension.isExtended()){
+                if(waitForTimer && extension.almostExtended()){
+                    waitForTimer = false;
                     arm.setPixelRotation(pixelsAngle);
                     if(setToPurplePlace) elevator.setTargetPosition(0);
                     else elevator.setLevel((int) State.level);
@@ -388,6 +385,7 @@ public class OutTakeMTI {
         right.update();
         elevator.update_values();
         arm.update_values();
+        extension.update();
 
 
         ControlHub.telemetry.addData("state", state.toString());

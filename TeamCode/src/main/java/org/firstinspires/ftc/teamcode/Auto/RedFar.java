@@ -7,6 +7,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
@@ -32,6 +33,7 @@ import java.io.IOException;
 
 @Autonomous(name = "RedFar", group = "auto")
 @Config
+@Disabled
 public class RedFar extends LinearOpMode {
     public static Pose2d
     MiddlePurple = new Pose2d(48, 10.5, Math.toRadians(227)),
