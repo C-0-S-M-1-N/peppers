@@ -42,23 +42,23 @@ public class RedClose extends LinearOpMode {
     Intake intake;
     public static Pose2d
             MiddlePurple = new Pose2d(20, 0, 0),
-            MiddleYellow = new Pose2d(18.7, -28, Math.toRadians(286)),
+            MiddleYellow = new Pose2d(18, -28, Math.toRadians(286)),
 
     LeftPurple = new Pose2d(9.5, -9, Math.toRadians(-357)),
             LeftYellow = new Pose2d(12.5, -28, Math.toRadians(-76)),
 
     RightPurple = new Pose2d(15.5, 4, Math.toRadians(45)),
-            RightYellow = new Pose2d(20.5, -26.5, Math.toRadians(-60))
+            RightYellow = new Pose2d(19.2, -30, Math.toRadians(-60))
                     ;
 
     public static Pose2d
-            TrussToStack     = new Pose2d(4, 45, -Math.PI/2.f),
-            Stack            = new Pose2d(23.5, 75, -Math.toRadians(100)),
-            Stack2           = new Pose2d(35, 75, -Math.toRadians(100)),
-            BackBoardToTruss = new Pose2d(4, 9, -Math.PI/2.f),
-            Backdrop         = new Pose2d(12, -28.5, -Math.toRadians(70)),
-            TrussToStack_s     = new Pose2d(4, 45, -Math.PI/2.f),
-            BackBoardToTruss_s = new Pose2d(4, 9, -Math.PI/2.f)
+            TrussToStack     = new Pose2d(3, 45, -Math.PI/2.f),
+            Stack            = new Pose2d(22, 76, -Math.toRadians(110)),
+            Stack2           = new Pose2d(35, 75.5, -Math.toRadians(110)),
+            BackBoardToTruss = new Pose2d(3, 9, -Math.PI/2.f),
+            Backdrop         = new Pose2d(12.5, -28.5, -Math.toRadians(70)),
+            TrussToStack_s     = new Pose2d(2, 45, -Math.PI/2.f),
+            BackBoardToTruss_s = new Pose2d(2, 9, -Math.PI/2.f)
 
                     ;
     int pixelsInStack = 5;
@@ -86,7 +86,7 @@ public class RedClose extends LinearOpMode {
 
             @Override
             public void onOpened() {
-                camera.startStreaming(432, 240, OpenCvCameraRotation.SENSOR_NATIVE);
+                camera.startStreaming(640, 480, OpenCvCameraRotation.SENSOR_NATIVE);
             }
 
             @Override
@@ -163,8 +163,12 @@ public class RedClose extends LinearOpMode {
                     outTake.setToNormalPlacingFromPurplePixelPlacing();
                     OutTakeMTI.arm.rotationIndex = 0;
                 })
+                .setVelConstraint(SampleMecanumDriveCancelable.getVelocityConstraint(45, Math.PI * 3, DriveConstants.TRACK_WIDTH))
+                .setAccelConstraint(SampleMecanumDriveCancelable.getAccelerationConstraint(30))
 //                .turn(Math.toRadians(-60))
                 .lineToLinearHeading(RightYellow)
+                .resetVelConstraint()
+                .waitSeconds(0.1)
                 .addTemporalMarker(() -> {
                     Controls.DropRight = true;
                     Controls.DropRightAck = false;
@@ -348,9 +352,9 @@ public class RedClose extends LinearOpMode {
                     pixelsUpdated = false;
                     intake.setPixelStackPosition(pixelsInStack);
                 })
-                .forward(1)
-                .waitSeconds(0.1)
-                .back(1)
+                .forward(0.1)
+                .waitSeconds(0.3)
+                .back(0.1)
                 .addTemporalMarker(() -> {
                     intakeActive = -1;
                     if(!pixelsUpdated) pixelsInStack --;
@@ -363,8 +367,9 @@ public class RedClose extends LinearOpMode {
                     pixelsUpdated = false;
                     intake.setPixelStackPosition(pixelsInStack);
                 })
-                .forward(1)
-                .back(1)
+                .forward(0.1)
+                .waitSeconds(0.2)
+                .back(0.1)
                 .addTemporalMarker(() -> {
                     intakeActive = -1;
                     if(!pixelsUpdated) pixelsInStack --;
@@ -525,8 +530,10 @@ public class RedClose extends LinearOpMode {
             if(intakeActive == 1){
                 Controls.Intake = true;
             } else if(intakeActive == -1){
-                Controls.RevIntake = true;
-                Intake.forceOut = true;
+                if(OutTakeMTI.isFullOfPixels()) {
+                    Controls.RevIntake = true;
+                    Intake.forceOut = true;
+                } else Controls.Intake = true;
             }
 
             if(!isInPreloadPhase && (!drive.isBusy() || followNext)){
@@ -550,7 +557,7 @@ public class RedClose extends LinearOpMode {
                             else drive.followTrajectorySequenceAsync(goToStack);
                             order++;
                             Pose2d pose = drive.getPoseEstimate();
-                            drive.setPoseEstimate(new Pose2d(pose.getX() + 0.1, pose.getY(), pose.getHeading()));
+                            drive.setPoseEstimate(new Pose2d(pose.getX() + 0.3, pose.getY(), pose.getHeading()));
                         }
                         break;
                     case 1:

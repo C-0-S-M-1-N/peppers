@@ -100,10 +100,10 @@ public class OutTakeMTI {
 
         elevator = new Elevator();
         arm = new ElevatorArm();
-        right = new Grippers(new AutoServo(SERVO_PORTS.S1, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
-                    ControlHub.right, 600, 10.f, 175.f);
-        left = new Grippers(new AutoServo(SERVO_PORTS.S2, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
-                    ControlHub.left, 600, 280.f, 95.f);
+        left = new Grippers(new AutoServo(SERVO_PORTS.S1, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
+                    ControlHub.left, 600, 10.f, 175.f);
+        right = new Grippers(new AutoServo(SERVO_PORTS.S2, 0, false, Hubs.CONTROL_HUB, AutoServo.TYPE.AXON),
+                    ControlHub.right, 600, 280.f, 95.f);
         if(DISABLE) return;
         align = false;
         arm.setArmAngle(armAngleIntake);
@@ -137,7 +137,7 @@ public class OutTakeMTI {
         return left.hasAPixel() || right.hasAPixel();
     }
     public static boolean reverse = false;
-    public static boolean isInAutonomous = false;
+    public static boolean isInAutonomous = true;
     private void controls(){
         joystickElevatorOffset += (int) (-MainOpMTI.DeadZoneFilter(Controls.gamepad2.right_stick_y, MainOpMTI.GamePadAxiesCompensation.G2RY) * 7);
         if(state == State.PLACING_PIXELS && joystickElevatorOffset != 0){
@@ -154,11 +154,11 @@ public class OutTakeMTI {
         }
         if(Controls.DropLeft) {
             Controls.DropLeftAck = true;
-            left.drop();
+            right.drop();
         }
         if(Controls.DropRight) {
             Controls.DropRightAck = true;
-            right.drop();
+            left.drop();
         }
         if(Controls.rotateRight) {
             Controls.rotateRightAck = true;

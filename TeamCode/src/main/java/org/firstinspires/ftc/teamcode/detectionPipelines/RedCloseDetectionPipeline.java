@@ -23,11 +23,11 @@ public class RedCloseDetectionPipeline extends OpenCvPipeline {
     private Location location = Location.LEFT;
     public boolean isBlue = false;
 
-    public static int rightRectTopX = 330 , rightRectTopY = 100;
-    public static int rightRectBottomX = 400 , rightRectBottomY = 160;
+    public static int rightRectTopX = 530 , rightRectTopY = 195;
+    public static int rightRectBottomX = 610 , rightRectBottomY = 275;
 
-    public static int middleRectTopX = 140 ,middleRectTopY = 100;
-    public static int middleRectBottomX = 200 ,middleRectBottomY = 160;
+    public static int middleRectTopX = 230 ,middleRectTopY = 200;
+    public static int middleRectBottomX = 300 ,middleRectBottomY = 270;
 
     public static int lowH = 100 ,lowS = 40, lowV = 30;
     public static int highH = 140, highS = 255, highV = 255;

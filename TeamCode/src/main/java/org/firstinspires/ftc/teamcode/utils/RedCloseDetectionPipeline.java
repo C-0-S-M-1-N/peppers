@@ -11,8 +11,9 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
-@Config
+
 public class RedCloseDetectionPipeline extends OpenCvPipeline {
+    public static final double Xm = 640 / 432.f, Ym = 480 / 240.f;
     Mat mat = new Mat();
     Telemetry telemetry;
     public enum Location{
@@ -23,11 +24,11 @@ public class RedCloseDetectionPipeline extends OpenCvPipeline {
     private Location location = Location.LEFT;
     public boolean isBlue = false;
 
-    public static int rightRectTopX = 330 , rightRectTopY = 100;
-    public static int rightRectBottomX = 400 , rightRectBottomY = 160;
+    public static int rightRectTopX = (int) (330 * Xm), rightRectTopY = (int) (180 * Ym);
+    public static int rightRectBottomX = (int) (400 * Xm), rightRectBottomY = (int) (240 * Ym);
 
-    public static int middleRectTopX = 140 ,middleRectTopY = 100;
-    public static int middleRectBottomX = 200 ,middleRectBottomY = 160;
+    public static int middleRectTopX = (int) (140 * Xm), middleRectTopY = (int) (180 * Ym);
+    public static int middleRectBottomX = (int) (200 * Xm), middleRectBottomY = (int) (240 * Ym);
 
     public static int lowH = 100 ,lowS = 40, lowV = 30;
     public static int highH = 140, highS = 255, highV = 255;

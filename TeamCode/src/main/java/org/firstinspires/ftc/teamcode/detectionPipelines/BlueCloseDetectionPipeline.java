@@ -8,12 +8,14 @@ import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 @Config
 public class BlueCloseDetectionPipeline extends OpenCvPipeline {
     Mat mat = new Mat();
+    public static final double Xm = 640 / 432.f, Ym = 480 / 240.f;
     Telemetry telemetry;
     public enum Location{
         LEFT,
@@ -23,11 +25,11 @@ public class BlueCloseDetectionPipeline extends OpenCvPipeline {
     private Location location = Location.LEFT;
     public boolean isBlue = false;
 
-    public static int rightRectTopX = 330 , rightRectTopY = 100;
-    public static int rightRectBottomX = 300 , rightRectBottomY = 150;
+    public static int rightRectTopX = (int) 530, rightRectTopY = (int) (100 * Ym);
+    public static int rightRectBottomX = (int) (300 * Xm), rightRectBottomY = (int) (150 * Ym);
 
-    public static int middleRectTopX = 140 ,middleRectTopY = 140;
-    public static int middleRectBottomX = 100 ,middleRectBottomY = 100;
+    public static int middleRectTopX = (int) (140 * Xm), middleRectTopY = (int) 320;
+    public static int middleRectBottomX = (int) (100 * Xm),middleRectBottomY = (int) (100 * Ym);
 
     public static int lowH = 100 ,lowS = 40, lowV = 30;
     public static int highH = 140, highS = 255, highV = 255;
@@ -38,7 +40,7 @@ public class BlueCloseDetectionPipeline extends OpenCvPipeline {
 
     @Override
     public Mat processFrame(Mat input){
-
+//        Imgproc.resize(input, input, new Size(432, 240));
         Rect RIGHT_ROI = new Rect(
                 new Point(rightRectTopX, rightRectTopY),
                 new Point(rightRectBottomX, rightRectBottomY));
