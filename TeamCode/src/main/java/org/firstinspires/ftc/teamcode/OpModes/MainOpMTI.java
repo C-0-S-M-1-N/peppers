@@ -127,7 +127,7 @@ public class MainOpMTI extends LinearOpMode {
 //                (gamepad1.left_trigger - gamepad1.right_trigger) * (boost ? 1.0 : 0.3)
 //            ));
 
-            drive.update(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.left_trigger - gamepad1.right_trigger);
+            drive.update(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_trigger - gamepad1.left_trigger);
 
             ControlHub.telemetry.addData("freq", 1000.f/(System.currentTimeMillis() - lastTime));
             lastTime = System.currentTimeMillis();
