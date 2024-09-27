@@ -9,7 +9,7 @@ public class PIDController {
     public double error, lastError, maxActuatorOutput, Isum = 0;
     private final ElapsedTime et = new ElapsedTime();
     public int clamp = 1;
-    public double freq = 20;
+    public double freq = 100;
 
     public PIDController(PIDCoefficients pidcoef){
         pidCoefficients = pidcoef;
@@ -30,18 +30,18 @@ public class PIDController {
         if(System.currentTimeMillis() - time < 1 / (freq * 1000)) return lastReturn;
         time = System.currentTimeMillis();
         error = targetPosition - currentPosition;
-        double time = et.seconds();
+        double dtime = et.seconds();
 
         double P = error;
         double D = (error - lastError) / et.seconds();
-        Isum += P * time * clamp;
+        Isum += P * dtime * clamp;
         double r = pidCoefficients.p * P + pidCoefficients.i * Isum + pidCoefficients.d * D;
 
         double ret = r;
 
-        if(Math.abs(r) > maxActuatorOutput && error * r > 0){ // Integral Clamping for anti-windup
-            ret = maxActuatorOutput;
-        }
+//        if(Math.abs(r) > maxActuatorOutput && error * r > 0){ // Integral Clamping for anti-windup
+//            ret = maxActuatorOutput;
+//        }
 //        if(Math.abs(error) <= 80){
 //            ret -= Isum * pidCoefficients.i;
 //        }

@@ -259,7 +259,7 @@ public class OutTakeMTI {
             case EXTENDING:
                 if(elevator.targetPosition != Math.max(safeToExtendOuttake + 10, Elevator.getPositionByLevel((int) State.level)))
                     elevator.setTargetPosition(Math.max(safeToExtendOuttake + 10, Elevator.getPositionByLevel((int) State.level)));
-                if(time1.seconds() >= 0.15) {
+                if(time1.seconds() >= 0.25){
                     if(arm.rotationIndex <= 2)
                         arm.setPixelRotation(extendingAngle);
                     else arm.setPixelRotation(-extendingAngle);

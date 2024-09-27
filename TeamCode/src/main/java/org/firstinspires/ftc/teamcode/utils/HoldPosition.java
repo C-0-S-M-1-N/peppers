@@ -19,20 +19,19 @@ import java.util.Vector;
 
 @Config
 public class HoldPosition {
-    public static Localizer localizer;
+    public Localizer localizer;
     public static double xPos = 0, yPos = 0, head = 0;
     public Telemetry telemetry;
-    public static PIDCoefficients translationalCoeff = new PIDCoefficients(-0.1, 0, -0.002),
-                                  headingCoeff = new PIDCoefficients(-1.5, -0.1, -0.002);
+    public static PIDCoefficients translationalCoeff = new PIDCoefficients(-0.4, 0, -0.08),
+                                  headingCoeff = new PIDCoefficients(3, 0, 0.2);
     public PIDController translationalPID = new PIDController(translationalCoeff),
                          rotationPID      = new PIDController(headingCoeff);
-    public HoldPosition(Telemetry t, HardwareMap hm) {
+    public HoldPosition(Telemetry t, Localizer localizer) {
         telemetry = t;
         translationalPID.setTargetPosition(0);
-        translationalPID.setMaxActuatorOutput(1);
-        List<Integer> lastTrackingEncPositions = new ArrayList<>();
-        List<Integer> lastTrackingEncVels = new ArrayList<>();
-        localizer = new StandardTrackingWheelLocalizer(hm, lastTrackingEncPositions, lastTrackingEncVels);
+        rotationPID.setTargetPosition(0);
+        translationalPID.setMaxActuatorOutput(100);
+        this.localizer = localizer;
     }
 
     public void holdPos(double x, double y, double heading){
@@ -42,7 +41,8 @@ public class HoldPosition {
     }
 
     public double[] update(){
-        localizer.update();
+        rotationPID.setPidCoefficients(headingCoeff);
+        translationalPID.setPidCoefficients(translationalCoeff);
 
         Pose2d pose = localizer.getPoseEstimate();
 
@@ -52,7 +52,7 @@ public class HoldPosition {
         double xRot = xerr * Math.cos(-pose.getHeading()) - yerr * Math.sin(-pose.getHeading());
         double yRot = xerr * Math.sin(-pose.getHeading()) + yerr * Math.cos(-pose.getHeading());
 
-        double module = Math.abs(xerr * xerr - yerr * yerr);
+        double module = getDistFromTarget();
         double translationalPower = translationalPID.calculatePower(module);
         double alpha = pose.getHeading() - head;
         if(alpha > 3.1415926535) alpha -= 2*3.1415926535;
@@ -70,6 +70,9 @@ public class HoldPosition {
         rotationPID.setPidCoefficients(headingCoeff);
 
         return new double[]{-xRot, yRot, headigPower};
+    }
+    private double getTheta(){
+        return Math.asin((localizer.getPoseEstimate().getX() - xPos) / getDistFromTarget());
     }
     public double getDistFromTarget() {
         Pose2d pose = localizer.getPoseEstimate();

@@ -13,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Components.Controls;
 import org.firstinspires.ftc.teamcode.Parts.Avion;
 import org.firstinspires.ftc.teamcode.Parts.Intake;
+import org.firstinspires.ftc.teamcode.Parts.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Parts.OutTakeMTI;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDriveCancelable;
 import org.firstinspires.ftc.teamcode.internals.ControlHub;
@@ -50,6 +51,7 @@ public class MainOpMTI extends LinearOpMode {
         return Math.abs(rawValue) < AXIES.TH ? 0 : rawValue;
     }
     Avion avion;
+    MecanumDrive drive;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -59,6 +61,7 @@ public class MainOpMTI extends LinearOpMode {
         ExpansionHub e = new ExpansionHub(hardwareMap, mecanumDrive.getLocalizer());
         Controls cn = new Controls(gamepad1, gamepad2);
         ControlHub.telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(), telemetry);
+        drive = new MecanumDrive(hardwareMap);
 
         OutTakeMTI out = new OutTakeMTI();
         Intake intake = new Intake();
@@ -118,11 +121,13 @@ public class MainOpMTI extends LinearOpMode {
 
             boost = !gamepad1.a;
 
-            mecanumDrive.setWeightedDrivePower(  new Pose2d(
-                -gamepad1.left_stick_y * (boost ? 1.0 : 0.3),
-                -gamepad1.left_stick_x * (boost ? 1.0 : 0.3),
-                (gamepad1.left_trigger - gamepad1.right_trigger) * (boost ? 1.0 : 0.3)
-            ));
+//            mecanumDrive.setWeightedDrivePower(  new Pose2d(
+//                -gamepad1.left_stick_y * (boost ? 1.0 : 0.3),
+//                -gamepad1.left_stick_x * (boost ? 1.0 : 0.3),
+//                (gamepad1.left_trigger - gamepad1.right_trigger) * (boost ? 1.0 : 0.3)
+//            ));
+
+            drive.update(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.left_trigger - gamepad1.right_trigger);
 
             ControlHub.telemetry.addData("freq", 1000.f/(System.currentTimeMillis() - lastTime));
             lastTime = System.currentTimeMillis();

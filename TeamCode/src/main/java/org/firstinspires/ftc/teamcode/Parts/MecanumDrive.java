@@ -7,11 +7,15 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.internals.ControlHub;
 import org.firstinspires.ftc.teamcode.internals.ExpansionHub;
 import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
+
+import java.util.ResourceBundle;
 
 /*
 * MAP:
@@ -22,39 +26,39 @@ import org.firstinspires.ftc.teamcode.internals.MOTOR_PORTS;
 *
 * */
 @Config
-public class MecanumDrive{
-    public static boolean Disable = false;
-    public static double ACC = 0.1;
-    private Telemetry telemetry;
-    public MecanumDrive(Telemetry tele){
-        telemetry = tele;
-        ExpansionHub.setMotorDirection(MOTOR_PORTS.M0, DcMotorSimple.Direction.REVERSE);
-        ExpansionHub.setMotorDirection(MOTOR_PORTS.M2, DcMotorSimple.Direction.REVERSE);
+public class MecanumDrive {
+    private static DcMotorEx FL, FR, BL, BR;
+    private void setToMax(DcMotorEx m){
+        MotorConfigurationType mct = m.getMotorType();
+        mct.setAchieveableMaxRPMFraction(1);
+        m.setMotorType(mct);
+        m.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        m.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        m.setDirection(DcMotorSimple.Direction.REVERSE);
+    }
+    public MecanumDrive(HardwareMap hm){
+        FL = hm.get(DcMotorEx.class, "eM2");
+        FR = hm.get(DcMotorEx.class, "cM3");
+        BL = hm.get(DcMotorEx.class, "eM0");
+        BR = hm.get(DcMotorEx.class, "cM0");
+
+        setToMax(FL);
+        setToMax(FR);
+        setToMax(BL);
+        setToMax(BR);
     }
 
-    public void update(double left_stick_y, double left_stick_x,
-                       double right_trigger, double left_trigger, boolean boost){
-        if(Disable) return;
+    public void update(double x, double y, double rot){
+        double denom = Math.max(Math.abs(x) + Math.abs(y) + Math.abs(rot), 1);
+        double flP = (y + x + rot) / denom;
+        double frP = (y - x - rot) / denom;
+        double blP = (y - x + rot) / denom;
+        double brP = (y + x - rot) / denom;
 
-        double rotation = right_trigger - left_trigger;
-        double denominator = Math.max(abs(left_stick_x) + abs(left_stick_y) + abs(rotation), 1);
-
-        double m0Power = (-left_stick_x - left_stick_y + rotation)/denominator;
-        double m2Power = (-left_stick_x + left_stick_y - rotation)/denominator;
-        double m1Power = (-left_stick_x + left_stick_y + rotation)/denominator;
-        double m3Power = (-left_stick_x - left_stick_y - rotation)/denominator;
-
-        if(boost){
-            ACC = 1;
-        } else ACC = 0.6;
-
-        ExpansionHub.setMotorPower(MOTOR_PORTS.M0, m0Power * ACC);
-        ExpansionHub.setMotorPower(MOTOR_PORTS.M2, m2Power * ACC);
-        ExpansionHub.setMotorPower(MOTOR_PORTS.M1, m1Power * ACC);
-        ExpansionHub.setMotorPower(MOTOR_PORTS.M3, m3Power * ACC);
-
+        FL.setPower(flP);
+        FR.setPower(frP);
+        BL.setPower(blP);
+        BR.setPower(brP);
     }
-
-
 
 }
